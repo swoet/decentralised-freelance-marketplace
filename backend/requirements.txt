@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlalchemy
+alembic
+psycopg2-binary
+python-jose
+passlib[bcrypt]
+pyotp
+pydantic[email]
+python-dotenv
+web3
+redis
+fastapi-limiter
+greenlet
+sentry-sdk
+stripe 
