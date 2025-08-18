@@ -86,7 +86,7 @@ describe("EscrowFactory and Escrow", function () {
     await escrow.connect(client).releaseMilestone(1);
 
     expect(await escrow.status()).to.equal(3); // Status.Completed
-    await expect(escrow.connect(client).releaseMilestone(1)).to.be.revertedWith("Milestone already released.");
+    await expect(escrow.connect(client).releaseMilestone(1)).to.be.revertedWith("Contract not in a releasable state.");
   });
 
   it("Should not allow non-client to release milestones", async function () {

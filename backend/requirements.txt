@@ -13,4 +13,7 @@ redis
 fastapi-limiter
 greenlet
 sentry-sdk
-stripe 
+stripe
+pydantic-settings
+python-multipart
+pytest
