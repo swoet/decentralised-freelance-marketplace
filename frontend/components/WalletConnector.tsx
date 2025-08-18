@@ -12,20 +12,22 @@ const WalletConnector = () => {
     const [account, setAccount] = useState<string | null>(null)
 
     const connectWallet = async () => {
-        if (window.ethereum) {
+        if (window.ethereum && window.ethereum.isMetaMask) {
             try {
-                const provider = new ethers.providers.Web3Provider(window.ethereum)
-                await provider.send("eth_requestAccounts", []);
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
                 const signer = provider.getSigner();
                 const address = await signer.getAddress();
-                setAccount(address)
-                toast.success('Wallet connected!')
+                setAccount(address);
+                toast.success('Wallet connected!');
             } catch (error) {
-                console.error("Error connecting to MetaMask", error)
-                toast.error('Failed to connect wallet.')
+                console.error("Error connecting to MetaMask", error);
+                toast.error('Failed to connect wallet.');
             }
         } else {
-            toast.error('MetaMask not detected. Please install it.')
+            toast.error('MetaMask not detected. Please install it.');
         }
     }
 
