@@ -11,6 +11,7 @@ class ProjectStatus(str, enum.Enum):
     CANCELED = "canceled"
 
 class Project(Base):
+    __tablename__ = "projects"
     client_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     org_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=True)
     title = Column(String, nullable=False)

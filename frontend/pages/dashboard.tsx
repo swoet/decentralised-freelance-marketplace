@@ -47,7 +47,7 @@ export default function Dashboard() {
     try {
       setDataLoading(true);
       // Derive simple stats from available endpoints; default to 0 if unavailable
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1';
       const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
       const [projectsRes, bidsRes] = await Promise.all([

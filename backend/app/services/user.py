@@ -13,6 +13,7 @@ class UserService(CRUDBase[User, UserCreate, UserUpdate]):
         return db.query(User).filter(User.email == email).first()
 
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
+        print("Starting user creation in service...")
         db_obj = User()
         setattr(db_obj, 'email', str(obj_in.email))
         setattr(db_obj, 'hashed_password', get_password_hash(obj_in.password))
@@ -20,7 +21,9 @@ class UserService(CRUDBase[User, UserCreate, UserUpdate]):
         setattr(db_obj, 'full_name', obj_in.full_name)
         setattr(db_obj, 'wallet_address', obj_in.wallet_address)
         db.add(db_obj)
+        print("About to commit user to database...")
         db.commit()
+        print("User committed to database")
         db.refresh(db_obj)
         return db_obj
 

@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
-from typing import List
+from typing import List, Union
 from pydantic.networks import AnyHttpUrl
+from pydantic import field_validator
 import urllib.parse
 
 
@@ -10,7 +11,17 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Decentralized Freelance Marketplace"
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    BACKEND_CORS_ORIGINS: Union[List[AnyHttpUrl], str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    
+    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
+    @classmethod
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
+        if isinstance(v, str) and not v.startswith("["):
+            # Handle comma-separated string format
+            return [i.strip() for i in v.split(",")]
+        elif isinstance(v, (list, str)):
+            return v
+        raise ValueError(v)
     
     # Database
     DATABASE_URL: str

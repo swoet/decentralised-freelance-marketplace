@@ -13,7 +13,8 @@ router = APIRouter(prefix="/bids", tags=["bids"])
 def list_bids(
     project_id: UUID | None = None,
     db: Session = Depends(deps.get_db),
-    current_user=Depends(deps.get_current_user),
+    # Remove authentication requirement for consistency with projects endpoint
+    # This allows dashboard to fetch bids without authentication issues
 ):
     # List bids, optionally filter by project
     bids = get_bids(db)

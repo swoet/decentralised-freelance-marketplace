@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String, Numeric, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.models.base import Base
 from datetime import datetime
@@ -16,4 +17,10 @@ class EscrowContract(Base):
     created_at = Column(
         DateTime(timezone=True), default=datetime.utcnow, nullable=False
     )
-    updated_at = Column(DateTime(timezone=True), nullable=True) 
+    updated_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Relationships
+    project = relationship("Project", back_populates="escrow_contract")
+    client = relationship("User", foreign_keys=[client_id])
+    freelancer = relationship("User", foreign_keys=[freelancer_id])
+    milestones = relationship("Milestone", back_populates="escrow_contract")
