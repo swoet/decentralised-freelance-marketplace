@@ -14,7 +14,7 @@
     "@sentry/nextjs": "^7.120.4",
     "ethers": "^5.7.2",
     "ipfs-http-client": "^59.0.0",
-    "next": "13.0.6",
+    "next": "15.5.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hot-toast": "^2.4.0",
