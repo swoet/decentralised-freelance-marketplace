@@ -4,3 +4,4 @@ frontend/.next/
 backend/uvicorn.log
 frontend/.env.local
 .vscode/
+TROUBLESHOOTING.md
