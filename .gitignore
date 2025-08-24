@@ -6,3 +6,6 @@ frontend/.env.local
 .vscode/
 TROUBLESHOOTING.md
 backend/.env
+.env
+**/.env
+*.env
