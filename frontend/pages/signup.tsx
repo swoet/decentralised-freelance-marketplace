@@ -53,7 +53,20 @@ const Signup = () => {
             toast.success('Registration successful!')
             // The AuthContext will handle the redirect to dashboard
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'Registration failed. Please try again.')
+            console.error('Registration error:', error);
+            let message = 'Registration failed. Please try again.';
+            if (error instanceof Error) {
+                message = error.message;
+            } else if (typeof error === 'object' && error !== null) {
+                if ('detail' in error && typeof error.detail === 'string') {
+                    message = error.detail;
+                } else if ('message' in error && typeof error.message === 'string') {
+                    message = error.message;
+                } else {
+                    message = JSON.stringify(error);
+                }
+            }
+            toast.error(message);
         } finally {
             setIsLoading(false)
         }
@@ -86,23 +99,39 @@ const Signup = () => {
             const address = await signer.getAddress()
             setAccount(address)
             
-            // Connect wallet in AuthContext
-            await connectWallet(address)
-            
+            // Connect wallet in AuthContext with required fields
+            await connectWallet(
+                address,
+                formData.fullName,
+                formData.email,
+                formData.role
+            )
             toast.success('Wallet connected! Please complete your profile.')
             // Redirect to profile completion page
             router.push('/profile-setup')
         } catch (error) {
             console.error("Error connecting to MetaMask", error)
-            if (error instanceof Error && error.message.includes('User rejected')) {
-                toast.error('Wallet connection was rejected. Please try again.')
-            } else if (error instanceof Error && error.message.includes('No accounts found')) {
-                toast.error('No wallet accounts found. Please unlock your wallet.')
-            } else if (error instanceof Error && error.message.includes('already pending')) {
-                toast.error('MetaMask connection already in progress. Please check MetaMask.')
-            } else {
-                toast.error('Failed to connect wallet. Please check MetaMask and try again.')
+            let message = 'Failed to connect wallet. Please check MetaMask and try again.';
+            if (error instanceof Error) {
+                if (error.message.includes('User rejected')) {
+                    message = 'Wallet connection was rejected. Please try again.';
+                } else if (error.message.includes('No accounts found')) {
+                    message = 'No wallet accounts found. Please unlock your wallet.';
+                } else if (error.message.includes('already pending')) {
+                    message = 'MetaMask connection already in progress. Please check MetaMask.';
+                } else {
+                    message = error.message;
+                }
+            } else if (typeof error === 'object' && error !== null) {
+                if ('detail' in error && typeof error.detail === 'string') {
+                    message = error.detail;
+                } else if ('message' in error && typeof error.message === 'string') {
+                    message = error.message;
+                } else {
+                    message = JSON.stringify(error);
+                }
             }
+            toast.error(message);
         } finally {
             setIsLoading(false)
         }

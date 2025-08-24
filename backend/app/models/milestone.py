@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String, Text, Numeric, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.models.base import Base
 from datetime import datetime
@@ -15,7 +16,12 @@ class Milestone(Base):
     escrow_contract_id = Column(
         UUID(as_uuid=True), ForeignKey("escrow_contracts.id"), nullable=False
     )
+    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False)
     created_at = Column(
         DateTime(timezone=True), default=datetime.utcnow, nullable=False
     )
-    updated_at = Column(DateTime(timezone=True), nullable=True) 
+    updated_at = Column(DateTime(timezone=True), nullable=True)
+
+    # Relationships
+    project = relationship("Project", back_populates="milestones")
+    escrow_contract = relationship("EscrowContract", back_populates="milestones")

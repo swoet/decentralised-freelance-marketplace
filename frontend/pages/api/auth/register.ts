@@ -42,21 +42,31 @@ export default async function handler(
       return res.status(400).json({ message: 'Invalid role' })
     }
 
-    // Call upstream API
     const upstream = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, full_name, role }),
-    })
+    }).catch(error => {
+      console.error('Fetch error:', error);
+      throw new Error('Failed to connect to the registration service.');
+    });
 
     if (!upstream.ok) {
-      const msg = await upstream.text()
-      return res.status(upstream.status).json({ message: msg || 'Registration failed' })
+      console.error('Backend response not OK:', upstream.status);
+      let errorMessage = 'Registration failed';
+      try {
+        const errorData = await upstream.json();
+        console.error('Backend error details:', errorData);
+        errorMessage = errorData.detail || errorData.message || 'Registration failed';
+      } catch (e) {
+        const text = await upstream.text();
+        console.error('Backend error text:', text);
+      }
+      return res.status(upstream.status).json({ message: errorMessage });
     }
 
-    const data = await upstream.json()
+    const data = await upstream.json();
 
-    // Some backends may not return a token here; default to empty
     const response: RegisterResponse = {
       token: data.token || data.access_token || '',
       user: {

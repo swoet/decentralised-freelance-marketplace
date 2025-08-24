@@ -18,12 +18,10 @@ const ProfileSetup = () => {
     const { updateUser } = useAuth()
 
     useEffect(() => {
-        // Get wallet address from localStorage or URL params
         const address = localStorage.getItem('walletAddress') || router.query.address
         if (address) {
             setWalletAddress(address as string)
         } else {
-            // Redirect if no wallet address
             router.push('/signup')
         }
     }, [router])
@@ -46,7 +44,6 @@ const ProfileSetup = () => {
         setIsLoading(true)
         
         try {
-            // Call the wallet registration API
             const response = await fetch('/api/auth/wallet-register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -59,11 +56,9 @@ const ProfileSetup = () => {
             if (response.ok) {
                 const data = await response.json()
                 
-                // Store the token and user data
                 localStorage.setItem('token', data.token)
                 localStorage.setItem('user', JSON.stringify(data.user))
                 
-                // Update the AuthContext
                 updateUser(data.user)
                 
                 toast.success('Profile setup complete!')
@@ -73,7 +68,20 @@ const ProfileSetup = () => {
                 toast.error(error.message || 'Profile setup failed')
             }
         } catch (error) {
-            toast.error('Profile setup failed. Please try again.')
+            console.error('Profile setup error:', error);
+            let message = 'Profile setup failed. Please try again.';
+            if (error instanceof Error) {
+                message = error.message;
+            } else if (typeof error === 'object' && error !== null) {
+                if ('detail' in error && typeof error.detail === 'string') {
+                    message = error.detail;
+                } else if ('message' in error && typeof error.message === 'string') {
+                    message = error.message;
+                } else {
+                    message = JSON.stringify(error);
+                }
+            }
+            toast.error(message);
         } finally {
             setIsLoading(false)
         }

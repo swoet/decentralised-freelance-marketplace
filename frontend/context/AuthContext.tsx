@@ -16,7 +16,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   register: (email: string, password: string, full_name: string, role: string) => Promise<void>;
-  connectWallet: (walletAddress: string) => Promise<void>;
+  connectWallet: (walletAddress: string, fullName: string, email: string, role: string) => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
 }
 
@@ -128,7 +128,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const connectWallet = async (walletAddress: string) => {
+  const connectWallet = async (walletAddress: string, fullName: string, email: string, role: string) => {
     try {
       // Attempt to register/login by wallet (best-effort), else store minimal user
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
@@ -136,7 +136,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const resp = await fetch('/api/auth/wallet-register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ wallet_address: walletAddress }),
+          body: JSON.stringify({ wallet_address: walletAddress, fullName, email, role }),
         });
         if (resp.ok) {
           const data = await resp.json();
@@ -149,7 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (_) {}
       const fallbackToken = `wallet-${Date.now()}`;
-      const fallbackUser = { id: `wallet-${Date.now()}`, email: '', full_name: '', role: 'client', wallet_address: walletAddress };
+      const fallbackUser = { id: `wallet-${Date.now()}`, email, full_name: fullName, role, wallet_address: walletAddress };
       localStorage.setItem('token', fallbackToken);
       localStorage.setItem('user', JSON.stringify(fallbackUser));
       localStorage.setItem('walletAddress', walletAddress);

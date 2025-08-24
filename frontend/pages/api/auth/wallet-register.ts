@@ -47,7 +47,7 @@ export default async function handler(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email,
-        password: `${wallet_address}`,
+        password: wallet_address, // Use wallet address as password
         full_name: fullName,
         role,
         wallet_address,
@@ -55,14 +55,24 @@ export default async function handler(
         skills: skills || null,
         portfolio: portfolio || null,
       }),
-    })
+    }).catch(error => {
+      console.error('Backend connection error:', error);
+      console.error('Attempting to connect to:', `${API_URL}/auth/register`);
+      throw new Error(`Failed to connect to backend server at ${API_URL}. Ensure the backend is running on port 8001.`);
+    });
 
     if (!upstream.ok) {
-      const msg = await upstream.text()
-      return res.status(upstream.status).json({ message: msg || 'Wallet registration failed' })
+      let msg;
+      try {
+        msg = await upstream.json();
+      } catch (e) {
+        msg = await upstream.text();
+      }
+      console.error('Upstream error:', msg);
+      return res.status(upstream.status).json({ message: msg?.message || msg || 'Wallet registration failed' });
     }
 
-    const data = await upstream.json()
+    const data = await upstream.json();
     const response: WalletRegisterResponse = {
       token: data.token || data.access_token || '',
       user: {
