@@ -1,0 +1,6 @@
+frontend/.next/
+**/__pycache__/
+*.pyc
+backend/uvicorn.log
+frontend/.env.local
+.vscode/
