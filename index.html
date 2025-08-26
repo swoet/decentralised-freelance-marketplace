@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Decentralised Freelance Marketplace</title>
+  <meta name="description" content="A decentralised freelance marketplace – prototype UI" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%2300a3ff'/%3E%3Cpath d='M20 60 L45 25 L60 45 L80 20 L85 25 L60 70 L45 50 L30 70 Z' fill='white'/%3E%3C/svg%3E" />
+  <style>
+    /* CSS Variables for theming */
+    :root {
+      --bg: #0b0e13;          /* base bg (dark) */
+      --bg-elev: #121722;     /* elevated surfaces */
+      --bg-soft: #0f131b;     /* softer bg */
+      --text: #e6eef7;        /* primary text */
+      --muted: #a6b3c2;       /* secondary text */
+      --accent: #00a3ff;      /* accent color */
+      --accent-weak: color-mix(in oklab, var(--accent), white 70%);
+      --border: #1f2836;      /* borders */
+      --danger: #ff4d4f;
+      --success: #2ee59d;
+      --warning: #ffb020;
+      --card-radius: 14px;
+      --btn-radius: 10px;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --grid-gap: 16px;
+      --density: 1; /* 1 = comfy, .9 = compact, 1.1 = spacious */
+    }
+
+    [data-theme="light"] {
+      --bg: #f6f7fb;
+      --bg-elev: #ffffff;
+      --bg-soft: #eef1f7;
+      --text: #1a2433;
+      --muted: #445063;
+      --border: #dee5ef;
+      --shadow: 0 10px 25px rgba(17, 22, 32, .08);
+    }
+
+    * { box-sizing: border-box }
+    html, body { height: 100% }
+    body {
+      margin: 0;
+      font: 500 calc(15px * var(--density))/1.5 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1200px 800px at 80% -10%, rgba(0,163,255,.08), transparent 60%),
+                  radial-gradient(800px 600px at 10% 100%, rgba(46,229,157,.07), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a { color: var(--accent); text-decoration: none }
+    a:hover { text-decoration: underline }
+
+    /* Layout */
+    .app {
+      min-height: 100dvh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    header.topbar {
+      position: sticky; top: 0; z-index: 40;
+      display: grid; grid-template-columns: 220px 1fr auto; gap: 16px; align-items: center;
+      padding: 12px clamp(12px, 3vw, 24px);
+      background: color-mix(in oklab, var(--bg-elev), transparent 15%);
+      backdrop-filter: blur(10px) saturate(120%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 800; letter-spacing: .3px }
+    .brand .logo {
+      width: 38px; height: 38px; border-radius: 12px;
+      background: conic-gradient(from 210deg, var(--accent), #2ee59d 50%, var(--accent));
+      filter: saturate(120%);
+      box-shadow: inset 0 -6px 20px rgba(0,0,0,.35), 0 6px 20px rgba(0,163,255,.25);
+    }
+
+    .searchbar { position: relative; display: flex; align-items: center }
+    .searchbar input {
+      width: 100%;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 14px 10px 38px;
+      outline: none;
+      transition: border .15s ease;
+    }
+    .searchbar input:focus { border-color: var(--accent) }
+    .searchbar .icon { position: absolute; left: 12px; color: var(--muted); font-size: 14px }
+
+    .controls { display: flex; align-items: center; gap: 10px }
+    .chip {
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px;
+      background: var(--bg-soft); border: 1px solid var(--border); color: var(--muted);
+    }
+
+    .btn { cursor: pointer; border: 1px solid var(--border); background: var(--bg-elev); color: var(--text);
+      padding: 8px 12px; border-radius: var(--btn-radius); transition: transform .05s ease, background .15s ease, border-color .15s ease }
+    .btn:hover { border-color: color-mix(in oklab, var(--accent), var(--border) 60%) }
+    .btn:active { transform: translateY(1px) }
+
+    .iconbtn { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; background: var(--bg-elev); border: 1px solid var(--border); color: var(--muted) }
+    .iconbtn:hover { color: var(--text); border-color: color-mix(in oklab, var(--accent), var(--border) 60%) }
+
+    .main {
+      display: grid; grid-template-columns: 220px 1fr; gap: 16px; padding: 16px clamp(12px, 3vw, 24px);
+    }
+    nav.sidenav {
+      position: sticky; top: 76px; align-self: start;
+      background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--card-radius);
+      padding: 10px; box-shadow: var(--shadow);
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .nav-item { display: flex; align-items: center; gap: 10px; color: var(--muted); padding: 10px 12px; border-radius: 10px }
+    .nav-item.active, .nav-item:hover { color: var(--text); background: var(--bg-soft) }
+
+    .content { min-width: 0 }
+
+    .view { display: none }
+    .view.active { display: block }
+
+    /* Dashboard grid */
+    .dashboard-controls { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap }
+    .grid {
+      --cols: 2; display: grid; gap: var(--grid-gap);
+      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    }
+    @media (max-width: 1100px) { .grid { --cols: 2 } }
+    @media (max-width: 800px) { .main { grid-template-columns: 1fr } .grid { --cols: 1 } nav.sidenav { position: static } header.topbar { grid-template-columns: 1fr; gap: 8px } }
+
+    .card { background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--card-radius); box-shadow: var(--shadow); overflow: hidden }
+    .card-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border) }
+    .card-title { display: flex; align-items: center; gap: 10px; font-weight: 700 }
+    .card-actions { display: flex; gap: 6px }
+    .card-body { padding: 12px 14px }
+
+    .stat-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px }
+    @media (max-width: 1200px) { .stat-row { grid-template-columns: repeat(2,1fr) } }
+    @media (max-width: 720px) { .stat-row { grid-template-columns: 1fr } }
+
+    .kpi { background: var(--bg-soft); border: 1px dashed var(--border); border-radius: 12px; padding: 12px }
+    .kpi .label { color: var(--muted); font-size: .9em }
+    .kpi .value { font-weight: 800; font-size: 1.6em }
+    .kpi .trend.up { color: var(--success) }
+    .kpi .trend.down { color: var(--danger) }
+
+    /* Tables and lists */
+    .table { width: 100%; border-collapse: collapse }
+    .table th, .table td { padding: 10px 8px; border-bottom: 1px dashed var(--border); text-align: left; color: var(--text) }
+    .table th { color: var(--muted); font-weight: 700 }
+
+    .list { display: grid; gap: 10px }
+    .list-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg-soft); border: 1px solid var(--border); padding: 10px; border-radius: 10px }
+
+    .pill { padding: 4px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-elev); color: var(--muted); font-size: .85em }
+    .pill.accent { color: var(--text); border-color: color-mix(in oklab, var(--accent), var(--border) 40%) }
+
+    /* Drag n drop */
+    .draggable { cursor: move }
+    .drag-over { outline: 2px dashed var(--accent); outline-offset: -6px }
+
+    /* Modals */
+    dialog.modal { border: 1px solid var(--border); background: var(--bg-elev); color: var(--text); border-radius: 16px; padding: 0; width: min(720px, 92vw); box-shadow: var(--shadow) }
+    .modal header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between }
+    .modal .body { padding: 16px }
+    .modal .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+    @media (max-width: 700px) { .modal .row { grid-template-columns: 1fr } }
+
+    .color-swatch { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer }
+
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap }
+
+    .subtle { color: var(--muted); font-size: .92em }
+
+    .toast {
+      position: fixed; right: 16px; bottom: 16px; background: var(--bg-elev); border: 1px solid var(--border); color: var(--text);
+      border-radius: 12px; padding: 10px 12px; box-shadow: var(--shadow); transform: translateY(20px); opacity: 0; transition: .2s ease; z-index: 50
+    }
+    .toast.show { transform: translateY(0); opacity: 1 }
+  </style>
+</head>
+<body>
+  <div class="app" id="app" data-theme="dark">
+    <header class="topbar" aria-label="Top Navigation">
+      <div class="brand" role="img" aria-label="Product brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div style="font-size: 1.1em">DeFree Market</div>
+          <div class="subtle" style="margin-top:-4px">Decentralised Freelance Marketplace</div>
+        </div>
+      </div>
+      <div class="searchbar">
+        <span class="icon">🔎</span>
+        <input id="search" placeholder="Search projects, freelancers, skills..." aria-label="Search" />
+      </div>
+      <div class="controls">
+        <div class="chip" title="Select role">
+          <label for="roleSel" class="subtle">Role</label>
+          <select id="roleSel" class="btn" aria-label="Role selector">
+            <option value="freelancer">Freelancer</option>
+            <option value="client">Client</option>
+          </select>
+        </div>
+        <button id="btnTheme" class="iconbtn" title="Toggle theme" aria-label="Toggle theme">🌓</button>
+        <button id="btnCustomize" class="iconbtn" title="Customize dashboard" aria-label="Customize dashboard">⚙️</button>
+        <button class="iconbtn" title="Notifications" aria-label="Notifications">🔔</button>
+        <div class="chip" title="Account"><span>👤</span><span id="userName">Guest</span></div>
+      </div>
+    </header>
+
+    <div class="main">
+      <nav class="sidenav" aria-label="Primary">
+        <a class="nav-item active" href="#dashboard">🏠 Dashboard</a>
+        <a class="nav-item" href="#browse">🧭 Browse Projects</a>
+        <a class="nav-item" href="#post">➕ Post Project</a>
+        <a class="nav-item" href="#messages">💬 Messages</a>
+        <a class="nav-item" href="#profile">👤 Profile</a>
+        <a class="nav-item" href="#settings">⚙️ Settings</a>
+        <div style="height:8px"></div>
+        <div class="subtle" style="padding:6px 10px">Quick access</div>
+        <a class="nav-item" href="#help">❓ Help Center</a>
+        <a class="nav-item" href="#status">📈 Status</a>
+      </nav>
+
+      <main class="content" id="content" tabindex="-1">
+        <!-- Dashboard -->
+        <section id="view-dashboard" class="view active" aria-label="Dashboard">
+          <div class="dashboard-controls">
+            <button id="btnAddWidget" class="btn">➕ Add widget</button>
+            <button id="btnResetLayout" class="btn">↺ Reset layout</button>
+            <span class="subtle" id="layoutInfo">Drag to rearrange. Saved automatically.</span>
+          </div>
+          <div id="grid" class="grid" aria-live="polite"></div>
+        </section>
+
+        <!-- Browse Projects (placeholder) -->
+        <section id="view-browse" class="view" aria-label="Browse Projects">
+          <div class="card">
+            <div class="card-header"><div class="card-title">🧭 Browse Projects</div></div>
+            <div class="card-body">
+              <div class="toolbar">
+                <input class="btn" placeholder="Keyword" aria-label="Keyword filter"/>
+                <select class="btn" aria-label="Budget filter">
+                  <option>Any budget</option>
+                  <option>Micro (<= $500)</option>
+                  <option>Small ($500-$5k)</option>
+                  <option>Medium ($5k-$50k)</option>
+                  <option>Large ($50k+)</option>
+                </select>
+                <select class="btn" aria-label="Chain filter">
+                  <option>Any chain</option>
+                  <option>Ethereum</option>
+                  <option>Polygon</option>
+                  <option>Base</option>
+                  <option>Solana</option>
+                </select>
+                <button class="btn">Filter</button>
+              </div>
+              <div style="height:12px"></div>
+              <table class="table" aria-describedby="browse projects">
+                <thead><tr><th>Project</th><th>Budget</th><th>Skills</th><th>Chain</th><th></th></tr></thead>
+                <tbody id="browseTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Post Project (placeholder) -->
+        <section id="view-post" class="view" aria-label="Post Project">
+          <div class="card">
+            <div class="card-header"><div class="card-title">➕ Post a Project</div></div>
+            <div class="card-body">
+              <div class="row">
+                <div>
+                  <label>Title<br><input class="btn" style="width:100%" placeholder="e.g., Build a DeFi dashboard"/></label>
+                </div>
+                <div>
+                  <label>Budget (USD)<br><input type="number" class="btn" style="width:100%" placeholder="e.g., 5000"/></label>
+                </div>
+                <div>
+                  <label>Chain<br>
+                    <select class="btn" style="width:100%">
+                      <option>Ethereum</option>
+                      <option>Polygon</option>
+                      <option>Base</option>
+                      <option>Solana</option>
+                    </select>
+                  </label>
+                </div>
+                <div>
+                  <label>Skills<br><input class="btn" style="width:100%" placeholder="e.g., React, Solidity, GraphQL"/></label>
+                </div>
+                <div style="grid-column: 1/-1">
+                  <label>Description<br>
+                    <textarea class="btn" style="width:100%; height:120px" placeholder="Describe your project"></textarea>
+                  </label>
+                </div>
+              </div>
+              <div style="height:12px"></div>
+              <button class="btn">Create Draft</button>
+              <button class="btn">Publish</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Messages (placeholder) -->
+        <section id="view-messages" class="view" aria-label="Messages">
+          <div class="card">
+            <div class="card-header"><div class="card-title">💬 Messages</div></div>
+            <div class="card-body">
+              <div class="list" id="messagesList"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Profile (placeholder) -->
+        <section id="view-profile" class="view" aria-label="Profile">
+          <div class="card">
+            <div class="card-header"><div class="card-title">👤 Profile</div></div>
+            <div class="card-body">
+              <p>Edit your profile, skills, verification status, and wallet connections.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Settings (placeholder) -->
+        <section id="view-settings" class="view" aria-label="Settings">
+          <div class="card">
+            <div class="card-header"><div class="card-title">⚙️ Settings</div></div>
+            <div class="card-body">
+              <p>Security (2FA), privacy preferences, notification settings, connected apps.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Help -->
+        <section id="view-help" class="view" aria-label="Help Center">
+          <div class="card">
+            <div class="card-header"><div class="card-title">❓ Help Center</div></div>
+            <div class="card-body">
+              <p>Find guides, FAQs, and contact support. 24/7 chatbot coming in Step 5.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Status -->
+        <section id="view-status" class="view" aria-label="System Status">
+          <div class="card">
+            <div class="card-header"><div class="card-title">📈 Platform Status</div></div>
+            <div class="card-body">
+              <p>Uptime, chain RPC health, and throughput metrics (to be powered in Step 8).</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Customize Modal -->
+  <dialog id="customizeModal" class="modal">
+    <header>
+      <div style="font-weight:800">Customize Dashboard</div>
+      <form method="dialog"><button class="iconbtn" aria-label="Close">✖️</button></form>
+    </header>
+    <div class="body">
+      <div class="row">
+        <section>
+          <h3 style="margin-top:0">Appearance</h3>
+          <div class="list">
+            <label class="list-item" style="justify-content:flex-start; gap:10px">
+              <span class="subtle" style="width:140px">Theme</span>
+              <select id="selTheme" class="btn" style="min-width:180px">
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+              </select>
+            </label>
+            <label class="list-item" style="justify-content:flex-start; gap:10px">
+              <span class="subtle" style="width:140px">Accent</span>
+              <div style="display:flex; gap:8px">
+                <button class="color-swatch" data-color="#00a3ff" style="background:#00a3ff"></button>
+                <button class="color-swatch" data-color="#2ee59d" style="background:#2ee59d"></button>
+                <button class="color-swatch" data-color="#f97316" style="background:#f97316"></button>
+                <button class="color-swatch" data-color="#8b5cf6" style="background:#8b5cf6"></button>
+                <button class="color-swatch" data-color="#ef4444" style="background:#ef4444"></button>
+              </div>
+            </label>
+            <label class="list-item" style="justify-content:flex-start; gap:10px">
+              <span class="subtle" style="width:140px">Density</span>
+              <input id="rngDensity" type="range" min="0.9" max="1.1" step="0.01" value="1" />
+            </label>
+            <label class="list-item" style="justify-content:flex-start; gap:10px">
+              <span class="subtle" style="width:140px">Columns</span>
+              <input id="rngCols" type="range" min="1" max="4" step="1" value="2" />
+            </label>
+          </div>
+        </section>
+        <section>
+          <h3 style="margin-top:0">Widgets</h3>
+          <div id="widgetPicker" class="list"></div>
+        </section>
+      </div>
+      <div style="height:10px"></div>
+      <div style="display:flex; gap:8px; justify-content:flex-end">
+        <button id="btnSaveCustomization" class="btn">Save</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // Simple state and persistence
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+    const defaultLayouts = {
+      freelancer: {
+        widgets: [
+          'kpis', 'tasks', 'activeContracts', 'messages', 'recommendations', 'skills'
+        ],
+        settings: { theme: 'dark', accent: '#00a3ff', density: 1, cols: 2 }
+      },
+      client: {
+        widgets: [
+          'kpisClient', 'projects', 'pipeline', 'messages', 'milestones', 'shortlists'
+        ],
+        settings: { theme: 'dark', accent: '#00a3ff', density: 1, cols: 2 }
+      }
+    };
+
+    function loadState(role) {
+      const raw = localStorage.getItem('dfm::' + role);
+      if (!raw) return structuredClone(defaultLayouts[role]);
+      try {
+        const parsed = JSON.parse(raw);
+        const base = structuredClone(defaultLayouts[role]);
+        return { widgets: parsed.widgets || base.widgets, settings: { ...base.settings, ...(parsed.settings||{}) } };
+      } catch (e) {
+        console.warn('Failed to parse state', e);
+        return structuredClone(defaultLayouts[role]);
+      }
+    }
+    function saveState(role, state) {
+      localStorage.setItem('dfm::' + role, JSON.stringify(state));
+      toast('Saved');
+    }
+
+    // Router
+    const routes = ['dashboard','browse','post','messages','profile','settings','help','status'];
+    function setRoute(route) {
+      routes.forEach(r => {
+        $('#view-' + r)?.classList.toggle('active', r === route);
+        $$('a.nav-item').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + route));
+      });
+      // focus main content for accessibility
+      if ($('#view-' + route)?.classList.contains('active')) $('#content')?.focus({ preventScroll: true });
+    }
+
+    // Widgets registry
+    const widgets = {
+      kpis: {
+        role: 'freelancer',
+        title: 'My KPIs',
+        render: () => {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <div class="card-header"><div class="card-title">📊 My KPIs</div><div class="card-actions"></div></div>
+            <div class="card-body">
+              <div class="stat-row">
+                <div class="kpi"><div class="label">Earnings (30d)</div><div class="value">$7,840</div><div class="trend up">▲ 12%</div></div>
+                <div class="kpi"><div class="label">Open Contracts</div><div class="value">4</div><div class="trend">•</div></div>
+                <div class="kpi"><div class="label">Job Win Rate</div><div class="value">68%</div><div class="trend up">▲ 3%</div></div>
+                <div class="kpi"><div class="label">On-time Delivery</div><div class="value">97%</div><div class="trend up">▲ 1%</div></div>
+              </div>
+            </div>`;
+          return el;
+        }
+      },
+      tasks: {
+        role: 'freelancer',
+        title: 'My Tasks',
+        render: () => {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <div class="card-header"><div class="card-title">✅ My Tasks</div><div class="card-actions"><button class="btn btn-add">Add</button></div></div>
+            <div class="card-body">
+              <div class="list tasks"></div>
+            </div>`;
+          const list = $('.tasks', el);
+          const tasks = JSON.parse(localStorage.getItem('dfm::tasks')||'[]');
+          function render() {
+            list.innerHTML = '';
+            if (!tasks.length) list.innerHTML = '<div class="subtle">No tasks yet</div>';
+            tasks.forEach((t, i) => {
+              const item = document.createElement('div');
+              item.className = 'list-item';
+              item.innerHTML = `<div style="display:flex; align-items:center; gap:8px"><input type="checkbox" ${t.done?'checked':''}/> <span ${t.done?'style="text-decoration: line-through; color: var(--muted)"':''}>${t.text}</span></div><div class="card-actions"><button class="btn" data-action="up">↑</button><button class="btn" data-action="down">↓</button><button class="btn" data-action="delete">✖</button></div>`;
+              item.querySelector('input').addEventListener('change', (e) => { t.done = e.target.checked; persist(); render(); });
+              item.querySelector('[data-action="delete"]').addEventListener('click', () => { tasks.splice(i,1); persist(); render(); });
+              item.querySelector('[data-action="up"]').addEventListener('click', () => { if (i>0) { const x = tasks.splice(i,1)[0]; tasks.splice(i-1,0,x); persist(); render(); } });
+              item.querySelector('[data-action="down"]').addEventListener('click', () => { if (i<tasks.length-1) { const x = tasks.splice(i,1)[0]; tasks.splice(i+1,0,x); persist(); render(); } });
+              list.appendChild(item);
+            });
+          }
+          function persist(){ localStorage.setItem('dfm::tasks', JSON.stringify(tasks)); }
+          $('.btn-add', el).addEventListener('click', () => {
+            const text = prompt('Task'); if (text) { tasks.push({ text, done:false }); persist(); render(); }
+          });
+          render();
+          return el;
+        }
+      },
+      activeContracts: {
+        role: 'freelancer',
+        title: 'Active Contracts',
+        render: () => {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <div class="card-header"><div class="card-title">📄 Active Contracts</div></div>
+            <div class="card-body">
+              <table class="table">
+                <thead><tr><th>Client</th><th>Project</th><th>Due</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td>Acme Labs</td><td>DeFi Dashboard</td><td>Oct 15</td><td><span class="pill accent">On track</span></td></tr>
+                  <tr><td>MetaOps</td><td>Smart Contract Audit</td><td>Oct 19</td><td><span class="pill">Pending review</span></td></tr>
+                </tbody>
+              </table>
+            </div>`;
+          return el;
+        }
+      },
+      messages: {
+        role: 'both',
+        title: 'Messages',
+        render: () => {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <div class="card-header"><div class="card-title">💬 Messages</div></div>
+            <div class="card-body">
+              <div class="list">
+                <div class="list-item"><div><strong>Acme Labs</strong><div class="subtle">Can we sync tomorrow 10am UTC?</div></div><button class="btn">Reply</button></div>
+                <div class="list-item"><div><strong>NovaChain</strong><div class="subtle">Proposal received. Reviewing now.</div></div><button class="btn">Open</button></div>
+              </div>
+            </div>`;
+          return el;
+        }
+      },
+      recommendations: {
+        role: 'freelancer',
+        title: 'AI Recommendations',
+        render: () => {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <div class="card-header"><div class="card-title">🤖 AI Recommendations</div><div class="card-actions"><button class="btn btn-refresh">Refresh</button></div></div>
+            <div class="card-body">
+              <div class="list recs"></div>
+            </div>`;
+          const recs = $('.recs', el);
+          function randomRec() {
+            const skills = ['React','Solidity','Subgraph','Rust','Node.js','DevOps'];
+            const chains = ['Ethereum','Polygon','Base','Solana'];
+            const s = skills[Math.floor(Math.random()*skills.length)];
+            const c = chains[Math.floor(Math.random()*chains.length)];
+            const pay = [1500, 2400, 5200, 780, 3400][Math.floor(Math.random()*5)];
+            return { title: `${s} project on ${c}`, budget: `$${pay}`, score: (70+Math.floor(Math.random()*30)) };
+          }
+          function render(){
+            recs.innerHTML = '';
+            for (let i=0;i<5;i++){
+              const r = randomRec();
+              const item = document.createElement('div');
+              item.className = 'list-item';
+              item.innerHTML = `<div><strong>${r.title}</strong><div class="subtle">Budget ${r.budget} • Match ${r.score}%</div></div><button class="btn">View</button>`;
+              recs.appendChild(item);
+            }
+          }
+          render();
+          $('.btn-refresh', el).addEventListener('click', render);
+          return el;
+        }
+      },
+      skills: {
+        role: 'freelancer',
+        title: 'Skills & Badges',
+        render: () => {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <div class="card-header"><div class="card-title">🏅 Skills & Badges</div></div>
+            <div class="card-body"><div class="list">
+              <div class="list-item"><div>Solidity (verified)</div><span class="pill accent">Level 3</span></div>
+              <div class="list-item"><div>React (verified)</div><span class="pill accent">Level 4</span></div>
+              <div class="list-item"><div>Graph Protocol</div><span class="pill">Level 2</span></div>
+            </div></div>`;
+          return el;
+        }
+      },
+
+      // Client widgets
+      kpisClient: {
+        role: 'client',
+        title: 'Portfolio KPIs',
+        render: () => {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <div class="card-header"><div class="card-title">📊 Portfolio KPIs</div></div>
+            <div class="card-body">
+              <div class="stat-row">
+                <div class="kpi"><div class="label">Budget (30d)</div><div class="value">$42,300</div><div class="trend down">▼ 5%</div></div>
+                <div class="kpi"><div class="label">Active Projects</div><div class="value">6</div><div class="trend">•</div></div>
+                <div class="kpi"><div class="label">Avg Lead Time</div><div class="value">5.2d</div><div class="trend up">▲ 8%</div></div>
+                <div class="kpi"><div class="label">On-budget</div><div class="value">92%</div><div class="trend up">▲ 2%</div></div>
+              </div>
+            </div>`;
+          return el;
+        }
+      },
+      projects: {
+        role: 'client', title: 'My Projects',
+        render: () => {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <div class="card-header"><div class="card-title">📁 My Projects</div><div class="card-actions"><button class="btn">New</button></div></div>
+            <div class="card-body">
+              <table class="table"><thead><tr><th>Project</th><th>Status</th><th>Budget</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Wallet SDK</td><td><span class="pill accent">In progress</span></td><td>$18,000</td><td><button class="btn">Open</button></td></tr>
+                <tr><td>NFT Launchpad</td><td><span class="pill">Discovery</span></td><td>$7,500</td><td><button class="btn">Open</button></td></tr>
+              </tbody></table>
+            </div>`;
+          return el;
+        }
+      },
+      pipeline: {
+        role: 'client', title: 'Candidate Pipeline',
+        render: () => {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <div class="card-header"><div class="card-title">🧪 Candidate Pipeline</div></div>
+            <div class="card-body">
+              <div class="list">
+                <div class="list-item"><div><strong>Sara K.</strong><div class="subtle">Solidity • Audit</div></div><span class="pill accent">Interview</span></div>
+                <div class="list-item"><div><strong>James P.</strong><div class="subtle">React • dApp</div></div><span class="pill">Screen</span></div>
+              </div>
+            </div>`;
+          return el;
+        }
+      },
+      milestones: {
+        role: 'client', title: 'Upcoming Milestones',
+        render: () => {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <div class="card-header"><div class="card-title">⏱️ Upcoming Milestones</div></div>
+            <div class="card-body">
+              <div class="list">
+                <div class="list-item"><div>Wallet SDK • Phase 2</div><span class="pill">Oct 14</span></div>
+                <div class="list-item"><div>Launchpad • Beta</div><span class="pill">Oct 22</span></div>
+              </div>
+            </div>`;
+          return el;
+        }
+      },
+      shortlists: {
+        role: 'client', title: 'Shortlists',
+        render: () => {
+          const el = document.createElement('div');
+          el.innerHTML = `
+            <div class="card-header"><div class="card-title">📝 Shortlists</div></div>
+            <div class="card-body">
+              <div class="list">
+                <div class="list-item"><div>DeFi Frontend Experts</div><span class="pill">12</span></div>
+                <div class="list-item"><div>Auditors (Rust)</div><span class="pill">5</span></div>
+              </div>
+            </div>`;
+          return el;
+        }
+      }
+    };
+
+    // Widget picker list from registry
+    function buildWidgetPicker(role) {
+      const container = $('#widgetPicker');
+      container.innerHTML = '';
+      const items = Object.entries(widgets).filter(([k, w]) => w.role === role || w.role === 'both');
+      items.forEach(([key, w]) => {
+        const row = document.createElement('label');
+        row.className = 'list-item';
+        row.style.justifyContent = 'space-between';
+        row.innerHTML = `<div><strong>${w.title}</strong><div class="subtle">${key}</div></div><input type="checkbox" data-key="${key}" />`;
+        container.appendChild(row);
+      });
+    }
+
+    // Dashboard rendering
+    function renderDashboard(role) {
+      const state = loadState(role);
+      const grid = $('#grid');
+      // grid columns
+      grid.style.setProperty('--cols', state.settings.cols);
+      // apply theme + density + accent
+      const app = $('#app');
+      app.dataset.theme = state.settings.theme;
+      app.style.setProperty('--density', state.settings.density);
+      app.style.setProperty('--accent', state.settings.accent);
+
+      grid.innerHTML = '';
+      state.widgets.forEach(key => {
+        const def = widgets[key];
+        if (!def) return;
+        const card = document.createElement('article');
+        card.className = 'card draggable';
+        card.setAttribute('draggable', 'true');
+        card.dataset.key = key;
+        const body = def.render();
+        // add common action buttons (remove)
+        const header = body.querySelector('.card-header');
+        if (header) {
+          const actions = header.querySelector('.card-actions') || document.createElement('div');
+          actions.classList.add('card-actions');
+          const btnRemove = document.createElement('button');
+          btnRemove.className = 'btn';
+          btnRemove.textContent = 'Remove';
+          btnRemove.addEventListener('click', () => {
+            const s = loadState(role);
+            s.widgets = s.widgets.filter(k => k !== key);
+            saveState(role, s);
+            renderDashboard(role);
+          });
+          actions.appendChild(btnRemove);
+          header.appendChild(actions);
+        }
+        card.appendChild(body);
+        grid.appendChild(card);
+      });
+
+      enableDragAndDrop(grid, role);
+      $('#layoutInfo').textContent = `Columns: ${state.settings.cols} • Theme: ${state.settings.theme}`;
+    }
+
+    function enableDragAndDrop(container, role) {
+      let dragEl = null;
+      container.addEventListener('dragstart', (e) => {
+        dragEl = e.target.closest('.draggable');
+        if (!dragEl) return; e.dataTransfer.effectAllowed = 'move';
+      });
+      container.addEventListener('dragover', (e) => {
+        if (!dragEl) return; e.preventDefault();
+        const target = e.target.closest('.draggable');
+        if (!target || target === dragEl) return;
+        target.classList.add('drag-over');
+      });
+      container.addEventListener('dragleave', (e) => {
+        e.target.closest('.draggable')?.classList.remove('drag-over');
+      });
+      container.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const target = e.target.closest('.draggable');
+        if (!dragEl || !target || dragEl === target) return;
+        target.classList.remove('drag-over');
+        const children = Array.from(container.children);
+        const dragIndex = children.indexOf(dragEl);
+        const targetIndex = children.indexOf(target);
+        if (dragIndex < targetIndex) container.insertBefore(dragEl, target.nextSibling);
+        else container.insertBefore(dragEl, target);
+        persistOrder(role, container);
+      });
+      container.addEventListener('dragend', () => { dragEl = null; $$('.drag-over', container).forEach(e => e.classList.remove('drag-over')); });
+    }
+
+    function persistOrder(role, container) {
+      const s = loadState(role);
+      const order = Array.from(container.children).map(c => c.dataset.key);
+      s.widgets = order;
+      saveState(role, s);
+    }
+
+    // Customize modal behavior
+    const customizeModal = $('#customizeModal');
+    $('#btnCustomize').addEventListener('click', () => {
+      const role = $('#roleSel').value;
+      const state = loadState(role);
+      // set form fields
+      $('#selTheme').value = state.settings.theme;
+      $('#rngDensity').value = state.settings.density;
+      $('#rngCols').value = state.settings.cols;
+      buildWidgetPicker(role);
+      // check current widgets
+      $$('#widgetPicker input[type="checkbox"]').forEach(ch => { ch.checked = state.widgets.includes(ch.dataset.key); });
+      customizeModal.showModal();
+    });
+
+    // Accent color swatches
+    $$('#customizeModal .color-swatch').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const color = btn.dataset.color; $('#app').style.setProperty('--accent', color);
+        $('#customizeModal').dataset.accent = color; // temp store
+      });
+    });
+
+    $('#btnSaveCustomization').addEventListener('click', () => {
+      const role = $('#roleSel').value;
+      const s = loadState(role);
+      s.settings.theme = $('#selTheme').value;
+      s.settings.density = parseFloat($('#rngDensity').value);
+      s.settings.cols = parseInt($('#rngCols').value, 10);
+      const accent = $('#customizeModal').dataset.accent; if (accent) s.settings.accent = accent;
+      // widgets selection
+      const selected = $$('#widgetPicker input:checked').map(x => x.dataset.key);
+      if (selected.length) s.widgets = selected;
+      saveState(role, s);
+      customizeModal.close();
+      renderDashboard(role);
+    });
+
+    // Add widget quick action
+    $('#btnAddWidget').addEventListener('click', () => {
+      const role = $('#roleSel').value;
+      buildWidgetPicker(role);
+      const s = loadState(role);
+      $$('#widgetPicker input[type="checkbox"]').forEach(ch => { ch.checked = s.widgets.includes(ch.dataset.key); });
+      customizeModal.showModal();
+    });
+
+    // Reset layout
+    $('#btnResetLayout').addEventListener('click', () => {
+      const role = $('#roleSel').value;
+      const def = structuredClone(defaultLayouts[role]);
+      saveState(role, def);
+      renderDashboard(role);
+    });
+
+    // Role selector
+    $('#roleSel').addEventListener('change', (e) => {
+      const role = e.target.value; renderDashboard(role);
+    });
+
+    // Theme toggle quick access
+    $('#btnTheme').addEventListener('click', () => {
+      const role = $('#roleSel').value; const s = loadState(role);
+      s.settings.theme = s.settings.theme === 'dark' ? 'light' : 'dark';
+      saveState(role, s); renderDashboard(role);
+    });
+
+    // Toast helper
+    function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._timer); t._timer = setTimeout(()=>t.classList.remove('show'), 1400); }
+
+    // Populate Browse table with sample data
+    function seedBrowse(){
+      const rows = [
+        { p:'NFT Analytics Dashboard', b:'$4,200', s:'React, GraphQL', c:'Polygon' },
+        { p:'DEX Aggregator Bot', b:'$7,800', s:'Node.js, Solidity', c:'Ethereum' },
+        { p:'Program for NFT compression', b:'$2,500', s:'Rust', c:'Solana' },
+        { p:'On-chain Reputation Oracle', b:'$9,000', s:'Solidity, Subgraph', c:'Base' }
+      ];
+      const tb = $('#browseTable'); tb.innerHTML = '';
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.p}</td><td>${r.b}</td><td>${r.s}</td><td>${r.c}</td><td><button class='btn'>Details</button></td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    // Messages seed
+    function seedMessages(){
+      const list = $('#messagesList'); list.innerHTML = '';
+      ['Acme Labs','NovaChain','OrbitFi'].forEach((n,i)=>{
+        const row = document.createElement('div');
+        row.className = 'list-item';
+        row.innerHTML = `<div><strong>${n}</strong><div class='subtle'>${i===0?'New message':'Last seen 2h ago'}</div></div><button class='btn'>Open</button>`;
+        list.appendChild(row);
+      });
+    }
+
+    // Hash routing
+    window.addEventListener('hashchange', () => {
+      const route = (location.hash||'#dashboard').replace('#','');
+      if (!routes.includes(route)) return;
+      setRoute(route);
+    });
+
+    // Init
+    (function init(){
+      // default role
+      const role = $('#roleSel').value;
+      renderDashboard(role);
+      seedBrowse(); seedMessages();
+      setRoute((location.hash||'#dashboard').replace('#',''));
+    })();
+  </script>
+</body>
+</html>

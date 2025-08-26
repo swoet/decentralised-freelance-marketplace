@@ -15,7 +15,54 @@ interface WidgetDef {
   render: () => JSX.Element;
 }
 
+// Match feed widget using the new /api/v1/matching/feed endpoint
+const MatchFeed: React.FC = () => {
+  const [items, setItems] = useState<{ project_id: number; title: string; score: number; reasons?: string[]; }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const res = await fetch('/api/v1/matching/feed', { credentials: 'include' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        setItems(Array.isArray(data.items) ? data.items : []);
+      } catch (e: any) {
+        setError(e?.message || 'Failed to load');
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="text-red-600">Failed to load: {error}</div>;
+  if (!items.length) return <div>No matches yet. Verify your skills to improve recommendations.</div>;
+
+  return (
+    <ul>
+      {items.map((it) => (
+        <li key={it.project_id} style={{ marginBottom: 8 }}>
+          <div style={{ fontWeight: 600 }}>{it.title}</div>
+          <div style={{ fontSize: 12, color: '#6b7280' }}>Score: {(it.score * 100).toFixed(0)}%</div>
+          {it.reasons?.length ? (
+            <div style={{ fontSize: 12, color: '#6b7280' }}>Reasons: {it.reasons.join(', ')}</div>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  );
+};
+
 const defaultWidgets: WidgetDef[] = [
+  {
+    id: "match-feed",
+    title: "Recommended Projects",
+    defaultVisible: true,
+    render: () => <MatchFeed />,
+  },
   {
     id: "active-projects",
     title: "Active Projects",

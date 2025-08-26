@@ -77,6 +77,43 @@ class Settings(BaseSettings):
     # Stripe
     STRIPE_SECRET_KEY: str = ""
     STRIPE_WEBHOOK_SECRET: str = ""
+    
+    # Background Worker Configuration
+    WORKER_ENABLED: bool = True
+    WORKER_REDIS_URL: str = "redis://localhost:6379/1"
+    WORKER_CONCURRENCY: int = 2
+    WORKER_RETRY_ATTEMPTS: int = 3
+    WORKER_RETRY_DELAY: int = 60
+    JOB_TIMEOUT: int = 300
+    ESCROW_AUTO_PERSIST: bool = True
+    ESCROW_PAGINATION_SIZE: int = 20
+    
+    # OAuth Configuration
+    OAUTH_ENABLED: bool = True
+    SLACK_CLIENT_ID: str = ""
+    SLACK_CLIENT_SECRET: str = ""
+    SLACK_REDIRECT_URI: str = "http://localhost:3000/oauth/slack/callback"
+    JIRA_CLIENT_ID: str = ""
+    JIRA_CLIENT_SECRET: str = ""
+    JIRA_REDIRECT_URI: str = "http://localhost:3000/oauth/jira/callback"
+    TRELLO_CLIENT_ID: str = ""
+    TRELLO_CLIENT_SECRET: str = ""
+    TRELLO_REDIRECT_URI: str = "http://localhost:3000/oauth/trello/callback"
+    WEBHOOK_SECRET_KEY: str = "your-webhook-signing-key"
+    
+    # Session Management Configuration
+    SESSION_DEVICE_TRACKING: bool = True
+    REFRESH_TOKEN_ENABLED: bool = True
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
+    SESSION_CLEANUP_ENABLED: bool = True
+    MAX_SESSIONS_PER_USER: int = 10
+    
+    # AI/ML Configuration
+    AI_MATCHING_ENABLED: bool = True
+    EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
+    SKILLS_VERIFICATION_ENABLED: bool = True
+    REPUTATION_V2_ENABLED: bool = True
+    MATCHING_CACHE_TTL: int = 3600
 
     class Config:
         env_file = ".env"

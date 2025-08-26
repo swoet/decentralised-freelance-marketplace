@@ -3,6 +3,7 @@ from typing import Any, Union
 from jose import jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+import pyotp
 
 from app.core.config import settings
 from app.models.user import User
@@ -43,9 +44,15 @@ def authenticate_user(db: Session, email: str, password: str) -> User:
     return user
 
 
-def generate_2fa_secret():
-    return "stub-secret"
+def generate_2fa_secret() -> str:
+    """Generate a random base32 TOTP secret suitable for authenticator apps."""
+    return pyotp.random_base32()
 
 
-def verify_2fa_token(secret, token):
-    return True  # stub 
+def verify_2fa_token(secret: str, token: str) -> bool:
+    """Verify a submitted TOTP token with small time-window tolerance."""
+    try:
+        totp = pyotp.TOTP(secret)
+        return bool(totp.verify(token, valid_window=1))
+    except Exception:
+        return False 

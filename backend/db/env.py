@@ -2,8 +2,21 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool, text
 from sqlalchemy.engine import Connection
-
 from alembic import context
+import logging
+import sys
+import os
+from pathlib import Path
+
+# Add the backend directory to Python path for module resolution
+# Get the absolute path to the backend directory (parent of db directory)
+backend_dir = Path(__file__).parent.parent.resolve()
+if str(backend_dir) not in sys.path:
+    sys.path.insert(0, str(backend_dir))
+
+# Also ensure the current working directory context is correct
+os.chdir(str(backend_dir))
+
 from app.core.config import settings
 
 # Import all models to register them with SQLAlchemy for Alembic migrations
@@ -19,13 +32,29 @@ from app.models import (  # type: ignore # noqa
     project,  # type: ignore
     review,  # type: ignore
     user,  # type: ignore
+    skills,  # type: ignore
+    community,  # type: ignore
+    integration,  # type: ignore
+    token,  # type: ignore
+    security,  # type: ignore
+    matching,  # type: ignore
+    job_queue,  # type: ignore
+    oauth,  # type: ignore
+    device,  # type: ignore
 )
 
 from app.models.base import Base
 
 # Create new metadata with schema and set it up with Base
 target_metadata = Base.metadata
-target_metadata.schema = 'marketplace'
+
+# Properly configure schema for all tables
+def configure_schema_for_metadata():
+    """Ensure all tables are created in the marketplace schema"""
+    for table in target_metadata.tables.values():
+        table.schema = 'marketplace'
+
+configure_schema_for_metadata()
 
 # Alembic configuration
 config = context.config
@@ -117,6 +146,9 @@ def run_migrations_online() -> None:
 
     # Now run migrations in a new transaction
     with connectable.begin() as connection:
+        # Ensure search path is set for this connection
+        connection.execute(text('SET search_path TO marketplace, public'))
+        
         context.configure(
             connection=connection,
             target_metadata=target_metadata,

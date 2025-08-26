@@ -1,142 +1,174 @@
-import os
+from typing import List, Any, Optional
+
 from web3 import Web3
-import json
-from typing import List, Any
 
-ETH_NODE_URL = os.getenv('ETH_NODE_URL', 'http://127.0.0.1:8545')
-FACTORY_ADDRESS = os.getenv('ESCROW_FACTORY_ADDRESS')
-FACTORY_ABI_PATH = os.getenv('ESCROW_FACTORY_ABI', 'contracts/abi/EscrowFactory.json')
-ESCROW_ABI_PATH = os.getenv('ESCROW_FACTORY_ABI', 'contracts/abi/Escrow.json')
+from app.services.chain_registry import registry
+from app.core.db import SessionLocal
+from app.models.token import TokenTransaction
 
-w3 = Web3(Web3.HTTPProvider(ETH_NODE_URL))
 
-# Initialize contract ABIs and factory contract conditionally
-FACTORY_ABI = None
-ESCROW_ABI = None
-factory = None
+def _sign_and_send(w3: Web3, tx: dict, private_key: str) -> str:
+    signed = w3.eth.account.sign_transaction(tx, private_key)
+    tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
+    return tx_hash.hex()
 
-try:
-    if os.path.exists(FACTORY_ABI_PATH):
-        with open(FACTORY_ABI_PATH) as f:
-            FACTORY_ABI = json.load(f)
-    if os.path.exists(ESCROW_ABI_PATH):
-        with open(ESCROW_ABI_PATH) as f:
-            ESCROW_ABI = json.load(f)
-    if FACTORY_ABI and FACTORY_ADDRESS:
-        factory = w3.eth.contract(address=FACTORY_ADDRESS, abi=FACTORY_ABI)
-except Exception as e:
-    print(f"Warning: Could not load contract ABIs: {e}")
 
-def deploy_escrow(client: str, freelancer: str, milestone_descriptions: List[str], milestone_amounts: List[int], private_key: str) -> str:
-    if not factory:
-        raise RuntimeError("Escrow factory not initialized. Check contract configuration.")
+def _build_tx_params(w3: Web3, from_addr: str) -> dict:
+    """Build generic tx params with broad chain compatibility (gasPrice-based)."""
+    return {
+        "from": from_addr,
+        "nonce": w3.eth.get_transaction_count(from_addr),
+        "gas": 3_000_000,
+        "gasPrice": w3.to_wei("20", "gwei"),
+    }
+
+
+def deploy_escrow(
+    client: str,
+    freelancer: str,
+    milestone_descriptions: List[str],
+    milestone_amounts: List[int],
+    private_key: str,
+    chain_id: Optional[int] = None,
+    user_id: Optional[str] = None,
+) -> str:
+    factory = registry.get_factory_contract(chain_id)
+    w3 = registry.get_web3(chain_id)
+    from_addr = w3.eth.account.from_key(private_key).address
+
     try:
         tx = factory.functions.createEscrow(
             client, freelancer, milestone_descriptions, milestone_amounts
-        ).build_transaction({
-            'from': client,
-            'nonce': w3.eth.get_transaction_count(client),
-            'gas': 3000000,
-            'gasPrice': w3.to_wei('20', 'gwei'),
-        })
-        signed = w3.eth.account.sign_transaction(tx, private_key)
-        tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
+        ).build_transaction(_build_tx_params(w3, from_addr))
+        tx_hash = _sign_and_send(w3, tx, private_key)
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
-        # Assume event emits new escrow address
-        logs = factory.events.EscrowCreated().process_receipt(receipt)
-        escrow_address = logs[0]['args']['escrow'] if logs else None
-        return escrow_address
+        # If confirmations > 1, optionally wait more blocks (lightweight approach)
+        confirmations = registry.get_confirmations(chain_id)
+        if confirmations > 1:
+            target_block = receipt.blockNumber + confirmations - 1
+            while w3.eth.block_number < target_block:
+                w3.provider.make_request("evm_mine", []) if hasattr(w3.provider, "make_request") else None
+        # Parse event for escrow address if available
+        try:
+            logs = factory.events.EscrowCreated().process_receipt(receipt)
+            escrow_address = logs[0]["args"].get("escrow") if logs else None
+        except Exception:
+            escrow_address = None
+        # Log transaction if user_id provided
+        try:
+            if user_id:
+                db = SessionLocal()
+                tt = TokenTransaction(
+                    user_id=user_id,
+                    chain_id=registry.get_config(chain_id).chain_id,
+                    tx_hash=tx_hash,
+                    tx_type="escrow_deploy",
+                    amount=sum(milestone_amounts) if milestone_amounts else None,
+                    token_address=None,
+                    status="confirmed",
+                    metadata={"escrow_address": escrow_address or "", "client": client, "freelancer": freelancer},
+                )
+                db.add(tt)
+                db.commit()
+                db.close()
+        except Exception:
+            pass
+        # Fallback: if factory returns via return data (less common)
+        return escrow_address or ""
     except Exception as e:
-        # Add logging here
         raise RuntimeError(f"Failed to deploy escrow: {e}")
 
-def get_escrow_status(escrow_address: str) -> Any:
-    if not ESCROW_ABI:
-        raise RuntimeError("Escrow ABI not loaded. Check contract configuration.")
+
+def get_escrow_status(escrow_address: str, chain_id: Optional[int] = None) -> Any:
     try:
-        escrow = w3.eth.contract(address=escrow_address, abi=ESCROW_ABI)
-        status = escrow.functions.status().call()
-        return status
+        escrow = registry.get_escrow_contract(chain_id, escrow_address)
+        return escrow.functions.status().call()
     except Exception as e:
         raise RuntimeError(f"Failed to get escrow status: {e}")
 
-def release_milestone(escrow_address: str, milestone_id: int, client_private_key: str) -> str:
-    if not ESCROW_ABI:
-        raise RuntimeError("Escrow ABI not loaded. Check contract configuration.")
+
+def release_milestone(
+    escrow_address: str, milestone_id: int, client_private_key: str, chain_id: Optional[int] = None, user_id: Optional[str] = None
+) -> str:
     try:
-        escrow = w3.eth.contract(address=escrow_address, abi=ESCROW_ABI)
-        client = w3.eth.account.privateKeyToAccount(client_private_key).address
-        tx = escrow.functions.releaseMilestone(milestone_id).build_transaction({
-            'from': client,
-            'nonce': w3.eth.get_transaction_count(client),
-            'gas': 200000,
-            'gasPrice': w3.to_wei('20', 'gwei'),
-        })
-        signed = w3.eth.account.sign_transaction(tx, client_private_key)
-        tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
-        return tx_hash.hex()
+        w3 = registry.get_web3(chain_id)
+        escrow = registry.get_escrow_contract(chain_id, escrow_address)
+        client = w3.eth.account.from_key(client_private_key).address
+        tx = escrow.functions.releaseMilestone(milestone_id).build_transaction(
+            _build_tx_params(w3, client)
+        )
+        tx_hash = _sign_and_send(w3, tx, client_private_key)
+        # Log pending transaction if user_id provided
+        try:
+            if user_id:
+                db = SessionLocal()
+                tt = TokenTransaction(
+                    user_id=user_id,
+                    chain_id=registry.get_config(chain_id).chain_id,
+                    tx_hash=tx_hash,
+                    tx_type="milestone_release",
+                    amount=None,
+                    token_address=None,
+                    status="pending",
+                    metadata={"escrow_address": escrow_address, "milestone_id": milestone_id},
+                )
+                db.add(tt)
+                db.commit()
+                db.close()
+        except Exception:
+            pass
+        return tx_hash
     except Exception as e:
         raise RuntimeError(f"Failed to release milestone: {e}")
 
-def raise_dispute(escrow_address: str, user_private_key: str) -> str:
-    if not ESCROW_ABI:
-        raise RuntimeError("Escrow ABI not loaded. Check contract configuration.")
+
+def raise_dispute(escrow_address: str, user_private_key: str, chain_id: Optional[int] = None) -> str:
     try:
-        escrow = w3.eth.contract(address=escrow_address, abi=ESCROW_ABI)
-        user = w3.eth.account.privateKeyToAccount(user_private_key).address
-        tx = escrow.functions.raiseDispute().build_transaction({
-            'from': user,
-            'nonce': w3.eth.get_transaction_count(user),
-            'gas': 200000,
-            'gasPrice': w3.to_wei('20', 'gwei'),
-        })
-        signed = w3.eth.account.sign_transaction(tx, user_private_key)
-        tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
-        return tx_hash.hex()
+        w3 = registry.get_web3(chain_id)
+        escrow = registry.get_escrow_contract(chain_id, escrow_address)
+        user = w3.eth.account.from_key(user_private_key).address
+        tx = escrow.functions.raiseDispute().build_transaction(_build_tx_params(w3, user))
+        return _sign_and_send(w3, tx, user_private_key)
     except Exception as e:
         raise RuntimeError(f"Failed to raise dispute: {e}")
 
-def resolve_dispute(escrow_address: str, payout: int, owner_private_key: str) -> str:
-    if not ESCROW_ABI:
-        raise RuntimeError("Escrow ABI not loaded. Check contract configuration.")
+
+def resolve_dispute(
+    escrow_address: str, payout: int, owner_private_key: str, chain_id: Optional[int] = None
+) -> str:
     try:
-        escrow = w3.eth.contract(address=escrow_address, abi=ESCROW_ABI)
-        owner = w3.eth.account.privateKeyToAccount(owner_private_key).address
-        tx = escrow.functions.resolveDispute(payout).build_transaction({
-            'from': owner,
-            'nonce': w3.eth.get_transaction_count(owner),
-            'gas': 200000,
-            'gasPrice': w3.to_wei('20', 'gwei'),
-        })
-        signed = w3.eth.account.sign_transaction(tx, owner_private_key)
-        tx_hash = w3.eth.send_raw_transaction(signed.rawTransaction)
-        return tx_hash.hex()
+        w3 = registry.get_web3(chain_id)
+        escrow = registry.get_escrow_contract(chain_id, escrow_address)
+        owner = w3.eth.account.from_key(owner_private_key).address
+        tx = escrow.functions.resolveDispute(payout).build_transaction(_build_tx_params(w3, owner))
+        return _sign_and_send(w3, tx, owner_private_key)
     except Exception as e:
         raise RuntimeError(f"Failed to resolve dispute: {e}")
 
-# Placeholder functions for backward compatibility
-def create_escrow_contract(*args, **kwargs):
-    raise NotImplementedError("create_escrow_contract not implemented yet")
 
-def release_escrow(*args, **kwargs):
-    raise NotImplementedError("release_escrow not implemented yet")
+# Functions used by web3 API layer
 
-def get_escrow_contracts(*args, **kwargs):
-    raise NotImplementedError("get_escrow_contracts not implemented yet")
-
-# Functions needed by web3 API
 def deploy_escrow_contract(data: dict, user):
-    # Extract data from the request
-    client = data.get('client')
-    freelancer = data.get('freelancer')
-    milestone_descriptions = data.get('milestone_descriptions', [])
-    milestone_amounts = data.get('milestone_amounts', [])
-    private_key = data.get('private_key')
-    
+    client = data.get("client")
+    freelancer = data.get("freelancer")
+    milestone_descriptions = data.get("milestone_descriptions", [])
+    milestone_amounts = data.get("milestone_amounts", [])
+    private_key = data.get("private_key")
+    chain_id = data.get("chain_id")
+
     if not all([client, freelancer, private_key]):
         raise ValueError("Missing required parameters: client, freelancer, private_key")
-    
-    return deploy_escrow(client, freelancer, milestone_descriptions, milestone_amounts, private_key)
 
-def get_contract_status(contract_address: str, user):
-    return get_escrow_status(contract_address) 
+    return deploy_escrow(
+        client,
+        freelancer,
+        milestone_descriptions,
+        milestone_amounts,
+        private_key,
+        chain_id,
+        str(getattr(user, "id", "")) or None,
+    )
+
+
+def get_contract_status(contract_address: str, user, chain_id: Optional[int] = None):
+    return get_escrow_status(contract_address, chain_id)

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Numeric, DateTime, ForeignKey
+from sqlalchemy import Column, String, Numeric, DateTime, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.models.base import Base
@@ -14,6 +14,9 @@ class EscrowContract(Base):
     freelancer_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     total_amount = Column(Numeric, nullable=False)
     status = Column(String, nullable=False, default="created")
+    payment_mode = Column(String, nullable=True)  # 'native' or 'token'
+    chain_id = Column(Integer, nullable=True)
+    token_address = Column(String, nullable=True)
     created_at = Column(
         DateTime(timezone=True), default=datetime.utcnow, nullable=False
     )

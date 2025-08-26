@@ -37,11 +37,25 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8001:8001"
     environment:
       - DATABASE_URL=postgresql://user:password@postgres:5432/freelance_db
       - REDIS_HOST=redis://redis:6379
       - ENV=development
+      # AI/ML Configuration
+      - AI_MATCHING_ENABLED=true
+      - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+      - SKILLS_VERIFICATION_ENABLED=true
+      - REPUTATION_V2_ENABLED=true
+      - MATCHING_CACHE_TTL=3600
+      # OAuth Configuration
+      - OAUTH_ENCRYPTION_KEY=your-32-byte-encryption-key-here
+      - SLACK_CLIENT_ID=your-slack-client-id
+      - SLACK_CLIENT_SECRET=your-slack-client-secret
+      - JIRA_CLIENT_ID=your-jira-client-id
+      - JIRA_CLIENT_SECRET=your-jira-client-secret
+      - TRELLO_CLIENT_ID=your-trello-client-id
+      - TRELLO_CLIENT_SECRET=your-trello-client-secret
     depends_on:
       postgres:
         condition: service_healthy
@@ -66,6 +80,46 @@ services:
       - ./frontend:/app
       - /app/node_modules
     command: npm run dev
+
+  # RQ Worker for Background Jobs
+  rq-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/freelance_db
+      - REDIS_HOST=redis://redis:6379
+      - ENV=development
+      # AI/ML Configuration
+      - AI_MATCHING_ENABLED=true
+      - EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+      - SKILLS_VERIFICATION_ENABLED=true
+      - REPUTATION_V2_ENABLED=true
+      - MATCHING_CACHE_TTL=3600
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: python -m rq worker --url redis://redis:6379
+
+  # RQ Dashboard for Job Monitoring
+  rq-dashboard:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "9181:9181"
+    environment:
+      - REDIS_HOST=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: rq-dashboard --redis-url redis://redis:6379 --port 9181 --bind 0.0.0.0
 
   # Hardhat Node (for local blockchain development)
   hardhat:

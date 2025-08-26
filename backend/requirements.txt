@@ -17,3 +17,20 @@ stripe
 pydantic-settings
 python-multipart
 pytest
+prometheus-fastapi-instrumentator
+prometheus-client
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-exporter-otlp
+opentelemetry-instrumentation-fastapi
+opentelemetry-instrumentation-logging
+# Background worker dependencies
+rq
+rq-dashboard
+schedule
+# AI/ML dependencies
+sentence-transformers
+scikit-learn
+numpy
+pandas
+user-agents

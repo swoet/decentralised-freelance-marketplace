@@ -12,6 +12,19 @@ from .messages import router as messages_router
 from .web3 import router as web3_router
 from .stripe import router as stripe_router
 from .ws import router as ws_router
+from .health import router as health_router
+from .matching import router as matching_router
+from .sustainability import router as sustainability_router
+from .integrations import router as integrations_router
+from .developer import router as developer_router
+from .reputation import router as reputation_router
+from .skills import router as skills_router
+from .community import router as community_router
+from .token import router as token_router
+from .security import router as security_router
+from .oauth import router as oauth_router
+from .sessions import router as sessions_router
+from .matching_v2 import router as matching_v2_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
@@ -25,3 +38,16 @@ api_router.include_router(messages_router)
 api_router.include_router(web3_router)
 api_router.include_router(stripe_router)
 api_router.include_router(ws_router)
+api_router.include_router(health_router)
+api_router.include_router(matching_router)
+api_router.include_router(sustainability_router)
+api_router.include_router(integrations_router)
+api_router.include_router(developer_router)
+api_router.include_router(reputation_router)
+api_router.include_router(skills_router)
+api_router.include_router(community_router)
+api_router.include_router(token_router)
+api_router.include_router(security_router)
+api_router.include_router(oauth_router, prefix="/oauth", tags=["oauth"])
+api_router.include_router(sessions_router, prefix="/sessions", tags=["sessions"])
+api_router.include_router(matching_v2_router, prefix="/matching/v2", tags=["matching-v2"])
