@@ -11,7 +11,7 @@ from app.schemas.escrow import (
     EscrowContractResponse, EscrowListResponse, EscrowContractFilter,
     EscrowContractUpdate
 )
-from app.services.escrow_web3 import deploy_escrow, get_escrow_status, create_escrow_contract, release_escrow, get_escrow_contracts
+from app.services.escrow_web3 import deploy_escrow, get_escrow_status, deploy_escrow_contract, release_milestone, get_contract_status
 from app.services.escrow_service import EscrowService
 from app.core.config import settings
 
@@ -191,14 +191,16 @@ def get_contract_status(
 
 @router.post("/", response_model=EscrowResponse)
 def create_escrow_view(escrow_in: EscrowCreate, db: Session = Depends(deps.get_db), user=Depends(deps.get_current_active_user)):
-    return create_escrow_contract(db, escrow_in, user)
+    return deploy_escrow_contract(escrow_in.dict(), user)
 
 
 @router.post("/{escrow_id}/release", response_model=EscrowResponse)
 def release_escrow_view(escrow_id: str, db: Session = Depends(deps.get_db), user=Depends(deps.get_current_active_user)):
-    return release_escrow(db, escrow_id, user)
+    # This endpoint needs to be implemented with proper escrow service
+    raise HTTPException(status_code=501, detail="Release escrow endpoint not implemented")
 
 
 @router.get("/", response_model=List[EscrowResponse])
 def list_escrow_contracts_legacy(db: Session = Depends(deps.get_db), user=Depends(deps.get_current_active_user)):
-    return get_escrow_contracts(db, user) 
+    # This endpoint needs to be implemented with proper escrow service
+    raise HTTPException(status_code=501, detail="List escrow contracts endpoint not implemented") 

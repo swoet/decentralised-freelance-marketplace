@@ -3,7 +3,7 @@
 import os
 import sys
 import logging
-from rq import Worker, Connection
+from rq import Worker
 import redis
 
 # Add the backend directory to Python path

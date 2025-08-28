@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime, timedelta
 from uuid import UUID
 import redis
-from rq import Queue, Worker, Connection
+from rq import Queue, Worker
 from rq.job import Job
 from sqlalchemy.orm import Session
 

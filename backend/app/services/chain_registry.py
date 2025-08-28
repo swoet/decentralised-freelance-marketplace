@@ -4,7 +4,14 @@ from dataclasses import dataclass
 from typing import Dict, Optional, Any, List
 
 from web3 import Web3
-from web3.middleware import geth_poa_middleware
+try:
+    from web3.middleware import geth_poa_middleware
+except ImportError:
+    try:
+        from web3.middleware.geth_poa import geth_poa_middleware
+    except ImportError:
+        # For very old web3 versions or if middleware is not available
+        geth_poa_middleware = None
 
 from app.core.config import settings
 
@@ -105,8 +112,9 @@ class ChainRegistry:
         if cfg.chain_id in self._web3_by_chain:
             return self._web3_by_chain[cfg.chain_id]
         w3 = Web3(Web3.HTTPProvider(cfg.rpc_url))
-        # Add POA middleware for chains like Polygon, BSC, etc.
-        w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+        # Add POA middleware for chains like Polygon, BSC, etc. if available
+        if geth_poa_middleware is not None:
+            w3.middleware_onion.inject(geth_poa_middleware, layer=0)
         self._web3_by_chain[cfg.chain_id] = w3
         return w3
 

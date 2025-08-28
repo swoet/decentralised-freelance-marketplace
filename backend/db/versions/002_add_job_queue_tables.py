@@ -1,7 +1,7 @@
 """Add job queue and webhook event tables
 
 Revision ID: 002_add_job_queue_tables
-Revises: 001_enhance_escrow_contract
+Revises: f6a7b8c9d0e1
 Create Date: 2024-08-26 11:48:51.000000
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '002_add_job_queue_tables'
-down_revision = '001_enhance_escrow_contract'
+down_revision = 'f6a7b8c9d0e1'
 branch_labels = None
 depends_on = None
 

@@ -39,7 +39,7 @@ class UserResponse(UserBase):
     updated_at: Optional[datetime] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # Additional properties stored in DB

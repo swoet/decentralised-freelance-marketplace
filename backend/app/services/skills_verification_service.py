@@ -9,8 +9,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc
 
 from app.core.config import settings
-from app.models.matching import SkillVerification
-from app.models.skills import Skill
+from app.models.skills import Skill, SkillVerification
 from app.models.user import User
 
 logger = logging.getLogger(__name__)

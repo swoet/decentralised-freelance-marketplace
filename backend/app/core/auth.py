@@ -1,12 +1,15 @@
 from datetime import datetime, timedelta
-from typing import Any, Union
-from jose import jwt
+from typing import Any, Union, Optional
+from jose import jwt, JWTError
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import pyotp
 
 from app.core.config import settings
 from app.models.user import User
+from app.core.db import get_db
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -55,4 +58,43 @@ def verify_2fa_token(secret: str, token: str) -> bool:
         totp = pyotp.TOTP(secret)
         return bool(totp.verify(token, valid_window=1))
     except Exception:
-        return False 
+        return False
+
+
+security = HTTPBearer()
+
+
+def verify_token(token: str) -> Optional[str]:
+    """Verify JWT token and return user ID."""
+    try:
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=["HS256"]
+        )
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            return None
+        return user_id
+    except JWTError:
+        return None
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
+) -> User:
+    """Get current authenticated user."""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    user_id = verify_token(credentials.credentials)
+    if user_id is None:
+        raise credentials_exception
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise credentials_exception
+    
+    return user 
