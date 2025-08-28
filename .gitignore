@@ -2,10 +2,50 @@ frontend/.next/
 **/__pycache__/
 *.pyc
 backend/uvicorn.log
-frontend/.env.local
+# Environment variables and secrets
+frontend/.env*
+backend/.env*
+.env*
+**/.env*
+*.env*
+!*.env.example
+!*.env.template
+
+# IDE and editor files
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs and temporary files
 TROUBLESHOOTING.md
-backend/.env
-.env
-**/.env
-*.env
+*.log
+logs/
+**/*.log
+
+# Security and keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+keys/
+
+# Node modules
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.tgz
+*.tar.gz
+
+# Cache directories
+.cache/
+.parcel-cache/
