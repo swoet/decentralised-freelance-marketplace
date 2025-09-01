@@ -33,19 +33,53 @@ logs/
 secrets/
 keys/
 
-# Node modules
+# Dependencies and package files
 node_modules/
 **/node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package-lock.json.backup
+yarn.lock.backup
 
-# Build outputs
+# Build outputs and artifacts
+.next/
+frontend/.next/
 dist/
 build/
 *.tgz
 *.tar.gz
+out/
 
 # Cache directories
 .cache/
 .parcel-cache/
+.nyc_output/
+coverage/
+
+# Python cache and artifacts
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+PYTHONPATH

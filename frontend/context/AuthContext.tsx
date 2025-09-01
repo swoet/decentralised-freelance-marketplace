@@ -1,6 +1,34 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/router';
 
+// Safe localStorage wrapper for SSR
+const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+      return window.localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(key, value);
+    } catch {
+      // Silently fail if localStorage is not available
+    }
+  },
+  removeItem: (key: string): void => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.removeItem(key);
+    } catch {
+      // Silently fail if localStorage is not available
+    }
+  }
+};
+
 interface User {
   id: string;
   email: string;
@@ -26,29 +54,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-    const storedWalletAddress = localStorage.getItem('walletAddress');
-    
-    if (storedToken && storedUser) {
-      try {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Error parsing stored user data:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('walletAddress');
-      }
-    } else if (storedWalletAddress) {
-      // If we have a wallet address but no user/token, clear it
-      localStorage.removeItem('walletAddress');
-    }
-    setLoading(false);
+    setMounted(true);
   }, []);
+
+  useEffect(() => {
+    // Only run after component is mounted and we're on client side
+    if (!mounted || typeof window === 'undefined') {
+      if (mounted) setLoading(false);
+      return;
+    }
+
+    try {
+      const storedToken = safeLocalStorage.getItem('token');
+      const storedUser = safeLocalStorage.getItem('user');
+      const storedWalletAddress = safeLocalStorage.getItem('walletAddress');
+      
+      if (storedToken && storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setToken(storedToken);
+          setUser(parsedUser);
+        } catch (parseError) {
+          console.error('Error parsing stored user data:', parseError);
+          safeLocalStorage.removeItem('token');
+          safeLocalStorage.removeItem('user');
+          safeLocalStorage.removeItem('walletAddress');
+        }
+      } else if (storedWalletAddress) {
+        // If we have a wallet address but no user/token, clear it
+        safeLocalStorage.removeItem('walletAddress');
+      }
+    } catch (error) {
+      console.error('Error accessing localStorage:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [mounted]);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
@@ -60,7 +105,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       
       if (!response.ok) {
-        throw new Error('Login failed');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
       }
       
       const data = await response.json();
@@ -71,8 +117,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         role: data.user.role
       };
       
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      if (typeof window !== 'undefined') {
+        safeLocalStorage.setItem('token', data.token);
+        safeLocalStorage.setItem('user', JSON.stringify(userData));
+      }
       setToken(data.token);
       setUser(userData);
       router.push('/dashboard');
@@ -85,9 +133,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('walletAddress');
+    safeLocalStorage.removeItem('token');
+    safeLocalStorage.removeItem('user');
+    safeLocalStorage.removeItem('walletAddress');
     setToken(null);
     setUser(null);
     router.push('/login');
@@ -115,8 +163,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         role: data.user.role
       };
       
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      if (typeof window !== 'undefined') {
+        safeLocalStorage.setItem('token', data.token);
+        safeLocalStorage.setItem('user', JSON.stringify(userData));
+      }
       setToken(data.token);
       setUser(userData);
       router.push('/dashboard');
@@ -140,24 +190,58 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
         if (resp.ok) {
           const data = await resp.json();
-          localStorage.setItem('token', data.token || '');
-          localStorage.setItem('user', JSON.stringify(data.user || {}));
-          localStorage.setItem('walletAddress', walletAddress);
+          if (typeof window !== 'undefined') {
+            safeLocalStorage.setItem('token', data.token || '');
+            safeLocalStorage.setItem('user', JSON.stringify(data.user || {}));
+            safeLocalStorage.setItem('walletAddress', walletAddress);
+          }
           setToken(data.token || '');
           setUser(data.user || null);
           return;
+        } else {
+          // If wallet registration fails, extract error message
+          let errorMessage = 'Wallet registration failed';
+          try {
+            const errorData = await resp.json();
+            errorMessage = errorData.message || errorData.detail || errorMessage;
+          } catch {
+            // If JSON parsing fails, use default message
+          }
+          throw new Error(errorMessage);
         }
-      } catch (_) {}
+      } catch (error) {
+        console.error('Wallet registration error details:', error);
+        if (error instanceof Error) {
+          throw error; // Re-throw if it's already a proper Error
+        }
+        // Convert any non-Error objects to Error with string message
+        const errorMessage = typeof error === 'object' && error !== null && 'message' in error 
+          ? String(error.message) 
+          : 'Failed to connect wallet';
+        throw new Error(errorMessage);
+      }
       const fallbackToken = `wallet-${Date.now()}`;
       const fallbackUser = { id: `wallet-${Date.now()}`, email, full_name: fullName, role, wallet_address: walletAddress };
-      localStorage.setItem('token', fallbackToken);
-      localStorage.setItem('user', JSON.stringify(fallbackUser));
-      localStorage.setItem('walletAddress', walletAddress);
+      if (typeof window !== 'undefined') {
+        safeLocalStorage.setItem('token', fallbackToken);
+        safeLocalStorage.setItem('user', JSON.stringify(fallbackUser));
+        safeLocalStorage.setItem('walletAddress', walletAddress);
+      }
       setToken(fallbackToken);
       setUser(fallbackUser);
     } catch (error) {
       console.error('Error connecting wallet:', error);
-      throw error;
+      // Ensure we always throw a proper Error instance with a string message
+      if (error instanceof Error) {
+        throw error;
+      }
+      // Convert any non-Error objects to Error with string message
+      const errorMessage = typeof error === 'object' && error !== null && 'message' in error 
+        ? String(error.message) 
+        : typeof error === 'string' 
+          ? error 
+          : 'Failed to connect wallet';
+      throw new Error(errorMessage);
     }
   };
 
@@ -165,7 +249,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
       setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      if (typeof window !== 'undefined') {
+        safeLocalStorage.setItem('user', JSON.stringify(updatedUser));
+      }
     }
   };
 

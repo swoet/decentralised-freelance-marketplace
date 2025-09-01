@@ -58,7 +58,7 @@ export default async function handler(
     }).catch(error => {
       console.error('Backend connection error:', error);
       console.error('Attempting to connect to:', `${API_URL}/auth/register`);
-      throw new Error(`Failed to connect to backend server at ${API_URL}. Ensure the backend is running on port 8001.`);
+      throw new Error(`Failed to connect to backend server at ${API_URL}. Ensure the backend is running and reachable.`);
     });
 
     if (!upstream.ok) {

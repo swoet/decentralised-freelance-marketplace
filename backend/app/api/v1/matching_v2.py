@@ -1,6 +1,7 @@
 """Enhanced AI matching API endpoints."""
 
 from typing import List, Optional, Dict, Any
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Query, BackgroundTasks
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
@@ -8,15 +9,25 @@ from pydantic import BaseModel, Field
 from app.core.db import get_db
 from app.core.config import settings
 from app.core.auth import get_current_user
-from app.models.user import User
-from app.services.ai_matching_service import AIMatchingService
+from app.models.user import User, UserRole
+from app.models.skills import SkillVerification, ReputationScore
+
+# Optional AI service import (graceful failure for compatibility)
+try:
+    from app.services.ai_matching_service import AIMatchingService
+    AI_MATCHING_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: AI matching service not available: {e}")
+    AIMatchingService = None
+    AI_MATCHING_AVAILABLE = False
+
 from app.services.skills_verification_service import SkillsVerificationService
 from app.services.reputation_service import ReputationService
 
 router = APIRouter()
 
 # Initialize services
-ai_matching_service = AIMatchingService()
+ai_matching_service = AIMatchingService() if AI_MATCHING_AVAILABLE else None
 skills_service = SkillsVerificationService()
 reputation_service = ReputationService()
 
@@ -42,7 +53,7 @@ class ProjectMatchingResponse(BaseModel):
 
 class QuizStartRequest(BaseModel):
     skill_id: str
-    difficulty_level: str = Field(default="intermediate", regex="^(beginner|intermediate|advanced)$")
+    difficulty_level: str = Field(default="intermediate", pattern="^(beginner|intermediate|advanced)$")
 
 
 class QuizSubmissionRequest(BaseModel):
@@ -53,20 +64,20 @@ class QuizSubmissionRequest(BaseModel):
 class EvidenceSubmissionRequest(BaseModel):
     skill_id: str
     evidence_url: str
-    evidence_type: str = Field(regex="^(portfolio|certificate|code_sample|diploma)$")
+    evidence_type: str = Field(pattern="^(portfolio|certificate|code_sample|diploma)$")
     description: str
 
 
 class OAuthVerificationRequest(BaseModel):
     skill_id: str
-    provider: str = Field(regex="^(github|linkedin)$")
+    provider: str = Field(pattern="^(github|linkedin)$")
     oauth_data: Dict[str, Any]
 
 
 class VerificationReviewRequest(BaseModel):
     approved: bool
     notes: Optional[str] = None
-    skill_level: Optional[str] = Field(None, regex="^(beginner|intermediate|advanced|expert)$")
+    skill_level: Optional[str] = Field(None, pattern="^(beginner|intermediate|advanced|expert)$")
 
 
 class ReputationResponse(BaseModel):
@@ -93,8 +104,8 @@ async def get_project_matches(
     db: Session = Depends(get_db)
 ):
     """Get AI-powered matching results for a project."""
-    if not settings.AI_MATCHING_ENABLED:
-        raise HTTPException(status_code=501, detail="AI matching is not enabled")
+    if not settings.AI_MATCHING_ENABLED or not AI_MATCHING_AVAILABLE or not ai_matching_service:
+        raise HTTPException(status_code=501, detail="AI matching is not available")
     
     try:
         matches = ai_matching_service.find_matching_freelancers(
@@ -121,11 +132,11 @@ async def get_freelancer_project_recommendations(
     db: Session = Depends(get_db)
 ):
     """Get AI-powered project recommendations for a freelancer."""
-    if not settings.AI_MATCHING_ENABLED:
-        raise HTTPException(status_code=501, detail="AI matching is not enabled")
+    if not settings.AI_MATCHING_ENABLED or not AI_MATCHING_AVAILABLE or not ai_matching_service:
+        raise HTTPException(status_code=501, detail="AI matching is not available")
     
     # Verify user can access this freelancer's data
-    if str(current_user.id) != freelancer_id and not current_user.is_admin:
+    if str(current_user.id) != freelancer_id and str(current_user.role) != UserRole.ADMIN.value:
         raise HTTPException(status_code=403, detail="Access denied")
     
     try:
@@ -152,8 +163,8 @@ async def generate_project_embedding(
     db: Session = Depends(get_db)
 ):
     """Generate or update embedding for a project."""
-    if not settings.AI_MATCHING_ENABLED:
-        raise HTTPException(status_code=501, detail="AI matching is not enabled")
+    if not settings.AI_MATCHING_ENABLED or not AI_MATCHING_AVAILABLE or not ai_matching_service:
+        raise HTTPException(status_code=501, detail="AI matching is not available")
     
     try:
         # Get project and verify access
@@ -164,7 +175,7 @@ async def generate_project_embedding(
             raise HTTPException(status_code=404, detail="Project not found")
         
         # Verify user owns the project or is admin
-        if project.client_id != current_user.id and not current_user.is_admin:
+        if str(project.client_id) != str(current_user.id) and str(current_user.role) != UserRole.ADMIN.value:
             raise HTTPException(status_code=403, detail="Access denied")
         
         # Generate embedding
@@ -193,11 +204,11 @@ async def generate_freelancer_embedding(
     db: Session = Depends(get_db)
 ):
     """Generate or update embedding for a freelancer profile."""
-    if not settings.AI_MATCHING_ENABLED:
-        raise HTTPException(status_code=501, detail="AI matching is not enabled")
+    if not settings.AI_MATCHING_ENABLED or not AI_MATCHING_AVAILABLE or not ai_matching_service:
+        raise HTTPException(status_code=501, detail="AI matching is not available")
     
     # Verify user can generate embedding for this freelancer
-    if str(current_user.id) != freelancer_id and not current_user.is_admin:
+    if str(current_user.id) != freelancer_id and str(current_user.role) != UserRole.ADMIN.value:
         raise HTTPException(status_code=403, detail="Access denied")
     
     try:
@@ -295,10 +306,14 @@ async def submit_evidence_verification(
         )
         
         if verification:
+            # Extract method and status values properly
+            method_value = verification.method.value if hasattr(verification.method, 'value') else str(verification.method)
+            status_value = verification.status.value if hasattr(verification.status, 'value') else str(verification.status)
+            
             return {
                 "verification_id": str(verification.id),
-                "status": verification.status,
-                "evidence_type": verification.evidence_type,
+                "status": status_value,
+                "evidence_type": method_value,
                 "created_at": verification.created_at.isoformat()
             }
         else:
@@ -328,11 +343,15 @@ async def submit_oauth_verification(
         )
         
         if verification:
+            # Extract method and status values properly
+            method_value = verification.method.value if hasattr(verification.method, 'value') else str(verification.method)
+            status_value = verification.status.value if hasattr(verification.status, 'value') else str(verification.status)
+            
             return {
                 "verification_id": str(verification.id),
-                "status": verification.status,
-                "provider": verification.oauth_provider,
-                "confidence_score": verification.confidence_score,
+                "status": status_value,
+                "provider": method_value,
+                "confidence_score": verification.score or 0,
                 "created_at": verification.created_at.isoformat()
             }
         else:
@@ -344,7 +363,7 @@ async def submit_oauth_verification(
 
 @router.get("/skills/verification/my-verifications")
 async def get_my_verifications(
-    status: Optional[str] = Query(None, regex="^(pending|approved|rejected)$"),
+    status: Optional[str] = Query(None, pattern="^(pending|approved|rejected)$"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -359,12 +378,12 @@ async def get_my_verifications(
                 {
                     "id": str(v.id),
                     "skill_id": str(v.skill_id),
-                    "verification_type": v.verification_type,
-                    "status": v.status,
-                    "confidence_score": v.confidence_score,
-                    "skill_level": v.skill_level,
+                    "verification_type": v.method.value if hasattr(v.method, 'value') else str(v.method),
+                    "status": v.status.value if hasattr(v.status, 'value') else str(v.status),
+                    "confidence_score": v.score or 0,
+                    "skill_level": "intermediate",  # Default since not in model
                     "created_at": v.created_at.isoformat(),
-                    "verified_at": v.verified_at.isoformat() if v.verified_at else None
+                    "verified_at": v.updated_at.isoformat() if v.updated_at is not None else None
                 }
                 for v in verifications
             ]
@@ -376,13 +395,13 @@ async def get_my_verifications(
 
 @router.get("/skills/verification/pending")
 async def get_pending_verifications(
-    verification_type: Optional[str] = Query(None, regex="^(quiz|evidence|oauth|peer_review)$"),
+    verification_type: Optional[str] = Query(None, pattern="^(quiz|evidence|oauth|peer_review)$"),
     limit: int = Query(50, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Get pending verifications for admin review."""
-    if not current_user.is_admin:
+    if str(current_user.role) != UserRole.ADMIN.value:
         raise HTTPException(status_code=403, detail="Admin access required")
     
     try:
@@ -396,11 +415,11 @@ async def get_pending_verifications(
                     "id": str(v.id),
                     "user_id": str(v.user_id),
                     "skill_id": str(v.skill_id),
-                    "verification_type": v.verification_type,
-                    "evidence_url": v.evidence_url,
-                    "evidence_type": v.evidence_type,
-                    "evidence_description": v.evidence_description,
-                    "oauth_provider": v.oauth_provider,
+                    "verification_type": v.method.value if hasattr(v.method, 'value') else str(v.method),
+                    "evidence_url": None,  # Not in model, stored in metadata
+                    "evidence_type": v.method.value if hasattr(v.method, 'value') else str(v.method),
+                    "evidence_description": None,  # Not in model, stored in metadata
+                    "oauth_provider": v.method.value if hasattr(v.method, 'value') and str(v.method) == 'oauth' else None,
                     "created_at": v.created_at.isoformat()
                 }
                 for v in verifications
@@ -419,7 +438,7 @@ async def review_verification(
     db: Session = Depends(get_db)
 ):
     """Review a skill verification (admin only)."""
-    if not current_user.is_admin:
+    if str(current_user.role) != UserRole.ADMIN.value:
         raise HTTPException(status_code=403, detail="Admin access required")
     
     try:
@@ -433,12 +452,13 @@ async def review_verification(
         )
         
         if verification:
+            status_value = verification.status.value if hasattr(verification.status, 'value') else str(verification.status)
             return {
                 "verification_id": str(verification.id),
-                "status": verification.status,
-                "reviewed_by": str(verification.verified_by) if verification.verified_by else None,
-                "reviewer_notes": verification.reviewer_notes,
-                "verified_at": verification.verified_at.isoformat() if verification.verified_at else None
+                "status": status_value,
+                "reviewed_by": None,  # Not in current model
+                "reviewer_notes": None,  # Not in current model
+                "verified_at": verification.updated_at.isoformat() if verification.updated_at is not None else None
             }
         else:
             raise HTTPException(status_code=404, detail="Verification not found")
@@ -467,17 +487,17 @@ async def get_user_reputation(
         if reputation:
             return ReputationResponse(
                 user_id=str(reputation.user_id),
-                total_score=reputation.total_score,
-                quality_score=reputation.quality_score,
-                reliability_score=reputation.reliability_score,
-                expertise_score=reputation.expertise_score,
-                professionalism_score=reputation.professionalism_score,
-                growth_score=reputation.growth_score,
-                badges=reputation.badges or [],
-                projects_completed=reputation.projects_completed,
-                avg_rating=reputation.avg_rating,
-                verified_skills_count=reputation.verified_skills_count,
-                last_calculated_at=reputation.last_calculated_at.isoformat()
+                total_score=getattr(reputation, 'total_score', 0.0),
+                quality_score=getattr(reputation, 'quality_score', 0.0),
+                reliability_score=getattr(reputation, 'reliability_score', 0.0),
+                expertise_score=getattr(reputation, 'expertise_score', 0.0),
+                professionalism_score=getattr(reputation, 'professionalism_score', 0.0),
+                growth_score=getattr(reputation, 'growth_score', 0.0),
+                badges=getattr(reputation, 'badges', []) or [],
+                projects_completed=getattr(reputation, 'projects_completed', 0),
+                avg_rating=getattr(reputation, 'avg_rating', None),
+                verified_skills_count=getattr(reputation, 'verified_skills_count', 0),
+                last_calculated_at=getattr(reputation, 'last_calculated_at', datetime.utcnow()).isoformat()
             )
         else:
             raise HTTPException(status_code=404, detail="Reputation not found")
@@ -500,7 +520,7 @@ async def recalculate_reputation(
         raise HTTPException(status_code=501, detail="Advanced reputation is not enabled")
     
     # Verify user can recalculate this reputation
-    if str(current_user.id) != user_id and not current_user.is_admin:
+    if str(current_user.id) != user_id and str(current_user.role) != UserRole.ADMIN.value:
         raise HTTPException(status_code=403, detail="Access denied")
     
     try:
@@ -519,7 +539,7 @@ async def recalculate_reputation(
 
 @router.get("/reputation/leaderboard")
 async def get_reputation_leaderboard(
-    category: Optional[str] = Query(None, regex="^(quality|reliability|expertise|professionalism|growth)$"),
+    category: Optional[str] = Query(None, pattern="^(quality|reliability|expertise|professionalism|growth)$"),
     limit: int = Query(50, ge=1, le=100),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)

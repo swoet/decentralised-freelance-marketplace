@@ -57,14 +57,6 @@ const Signup = () => {
             let message = 'Registration failed. Please try again.';
             if (error instanceof Error) {
                 message = error.message;
-            } else if (typeof error === 'object' && error !== null) {
-                if ('detail' in error && typeof error.detail === 'string') {
-                    message = error.detail;
-                } else if ('message' in error && typeof error.message === 'string') {
-                    message = error.message;
-                } else {
-                    message = JSON.stringify(error);
-                }
             }
             toast.error(message);
         } finally {
@@ -99,13 +91,11 @@ const Signup = () => {
             const address = await signer.getAddress()
             setAccount(address)
             
-            // Connect wallet in AuthContext with required fields
-            await connectWallet(
-                address,
-                formData.fullName,
-                formData.email,
-                formData.role
-            )
+            // Store wallet address for profile setup
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('walletAddress', address)
+            }
+            
             toast.success('Wallet connected! Please complete your profile.')
             // Redirect to profile completion page
             router.push('/profile-setup')
@@ -121,14 +111,6 @@ const Signup = () => {
                     message = 'MetaMask connection already in progress. Please check MetaMask.';
                 } else {
                     message = error.message;
-                }
-            } else if (typeof error === 'object' && error !== null) {
-                if ('detail' in error && typeof error.detail === 'string') {
-                    message = error.detail;
-                } else if ('message' in error && typeof error.message === 'string') {
-                    message = error.message;
-                } else {
-                    message = JSON.stringify(error);
                 }
             }
             toast.error(message);
