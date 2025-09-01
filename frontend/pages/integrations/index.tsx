@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import AppShell from '../../components/layout/AppShell'
+import { useAuth } from '../../context/AuthContext'
 
 interface ConnectedItem { id: string; provider: string; status: string }
 interface IntegrationsResp { providers: string[]; connected: ConnectedItem[] }
@@ -9,12 +10,17 @@ export default function IntegrationsIndex() {
   const [data, setData] = useState<IntegrationsResp>({ providers: [], connected: [] })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { token } = useAuth()
+
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'
 
   const load = async () => {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch('/api/v1/integrations', { credentials: 'include' })
+      const headers: Record<string, string> = {}
+      if (token) headers['Authorization'] = `Bearer ${token}`
+      const res = await fetch(`${API_BASE}/integrations`, { headers })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const j = await res.json()
       setData(j)
@@ -25,11 +31,13 @@ export default function IntegrationsIndex() {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [token])
 
   const connectGitHub = async () => {
     try {
-      const res = await fetch('/api/v1/integrations/github/connect', { credentials: 'include' })
+      const headers: Record<string, string> = {}
+      if (token) headers['Authorization'] = `Bearer ${token}`
+      const res = await fetch(`${API_BASE}/integrations/github/connect`, { headers })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const j = await res.json()
       if (j.url) {
@@ -45,7 +53,9 @@ export default function IntegrationsIndex() {
   const disconnectGitHub = async () => {
     if (!confirm('Disconnect GitHub?')) return
     try {
-      const res = await fetch('/api/v1/integrations/github', { method: 'DELETE', credentials: 'include' })
+      const headers: Record<string, string> = {}
+      if (token) headers['Authorization'] = `Bearer ${token}`
+      const res = await fetch(`${API_BASE}/integrations/github`, { method: 'DELETE', headers })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       await load()
     } catch (e: any) {

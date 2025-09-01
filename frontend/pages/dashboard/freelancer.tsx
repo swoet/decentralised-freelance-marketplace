@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { NextPage } from "next";
+import { useAuth } from "../../context/AuthContext";
 
 // Freelancer Dashboard - self-contained, responsive, customizable via localStorage
 // Features:
@@ -15,16 +16,21 @@ interface WidgetDef {
   render: () => JSX.Element;
 }
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api/v1";
+
 // Match feed widget using the new /api/v1/matching/feed endpoint
 const MatchFeed: React.FC = () => {
   const [items, setItems] = useState<{ project_id: number; title: string; score: number; reasons?: string[]; }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { token } = useAuth();
 
   useEffect(() => {
     const run = async () => {
       try {
-        const res = await fetch('/api/v1/matching/feed', { credentials: 'include' });
+        const headers: Record<string, string> = {};
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const res = await fetch(`${API_BASE}/matching/feed`, { headers });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         setItems(Array.isArray(data.items) ? data.items : []);
@@ -35,7 +41,7 @@ const MatchFeed: React.FC = () => {
       }
     };
     run();
-  }, []);
+  }, [token]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-600">Failed to load: {error}</div>;
@@ -62,73 +68,6 @@ const defaultWidgets: WidgetDef[] = [
     title: "Recommended Projects",
     defaultVisible: true,
     render: () => <MatchFeed />,
-  },
-  {
-    id: "active-projects",
-    title: "Active Projects",
-    defaultVisible: true,
-    render: () => (
-      <ul>
-        <li>Project A — 60% complete</li>
-        <li>Project B — 25% complete</li>
-        <li>Project C — Awaiting client feedback</li>
-      </ul>
-    ),
-  },
-  {
-    id: "milestones",
-    title: "Milestones",
-    defaultVisible: true,
-    render: () => (
-      <ul>
-        <li>Project A — Milestone 2 due in 3 days</li>
-        <li>Project B — Milestone 1 payment pending</li>
-      </ul>
-    ),
-  },
-  {
-    id: "earnings",
-    title: "Earnings",
-    defaultVisible: true,
-    render: () => (
-      <div>
-        <div style={{ fontSize: 24, fontWeight: 700 }}>$12,840</div>
-        <div>Total earned this quarter</div>
-      </div>
-    ),
-  },
-  {
-    id: "messages",
-    title: "Messages",
-    defaultVisible: true,
-    render: () => (
-      <ul>
-        <li>Client X: "Can we adjust the timeline?"</li>
-        <li>Client Y: "Draft looks great — sent comments."</li>
-      </ul>
-    ),
-  },
-  {
-    id: "alerts",
-    title: "Alerts",
-    defaultVisible: true,
-    render: () => (
-      <ul>
-        <li>Security: Enable 2FA for enhanced protection</li>
-        <li>Profile: Verify skills to improve matching</li>
-      </ul>
-    ),
-  },
-  {
-    id: "reputation",
-    title: "Reputation",
-    defaultVisible: true,
-    render: () => (
-      <div>
-        <div style={{ fontSize: 24, fontWeight: 700 }}>4.7 / 5.0</div>
-        <div>Based on 28 reviews</div>
-      </div>
-    ),
   },
 ];
 

@@ -173,10 +173,10 @@ class ApiKeyMiddleware(BaseHTTPMiddleware):
             except Exception:
                 pass
 
-# Add SecurityHeadersMiddleware BEFORE CORSMiddleware to avoid conflicts
-app.add_middleware(SecurityHeadersMiddleware)
-# Add API key usage/validation middleware
+# Add API key usage/validation middleware first
 app.add_middleware(ApiKeyMiddleware)
+# Add SecurityHeadersMiddleware after other middleware to avoid CORS conflicts
+app.add_middleware(SecurityHeadersMiddleware)
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)

@@ -62,14 +62,24 @@ export default async function handler(
     });
 
     if (!upstream.ok) {
-      let msg;
+      let errMsg = 'Wallet registration failed';
       try {
-        msg = await upstream.json();
-      } catch (e) {
-        msg = await upstream.text();
+        const errBody = await upstream.json();
+        errMsg = typeof errBody?.message === 'string'
+          ? errBody.message
+          : typeof errBody?.detail === 'string'
+            ? errBody.detail
+            : JSON.stringify(errBody);
+      } catch {
+        try {
+          const text = await upstream.text();
+          errMsg = text || errMsg;
+        } catch {
+          // ignore secondary parsing errors
+        }
       }
-      console.error('Upstream error:', msg);
-      return res.status(upstream.status).json({ message: msg?.message || msg || 'Wallet registration failed' });
+      console.error('Upstream error:', errMsg);
+      return res.status(upstream.status).json({ message: errMsg });
     }
 
     const data = await upstream.json();

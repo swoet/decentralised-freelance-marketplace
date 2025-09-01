@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from uuid import UUID
 from typing import List, Optional
+from pydantic import BaseModel
 
 from app.api import deps
 from app.schemas.escrow import (
@@ -11,7 +12,13 @@ from app.schemas.escrow import (
     EscrowContractResponse, EscrowListResponse, EscrowContractFilter,
     EscrowContractUpdate
 )
-from app.services.escrow_web3 import deploy_escrow, get_escrow_status, deploy_escrow_contract, release_milestone, get_contract_status
+from app.services.escrow_web3 import (
+    deploy_escrow as web3_deploy_escrow,
+    get_escrow_status as web3_get_escrow_status,
+    deploy_escrow_contract as web3_deploy_escrow_contract,
+    release_milestone as web3_release_milestone,
+    get_contract_status as web3_get_contract_status,
+)
 from app.services.escrow_service import EscrowService
 from app.core.config import settings
 
@@ -154,16 +161,64 @@ def get_escrow_milestones(
     return {"milestones": milestones}
 
 
+class ReleaseRequest(BaseModel):
+    milestone_index: int
+    client_private_key: str
+
+
+@router.post("/contracts/{escrow_id}/release")
+def release_escrow_milestone(
+    escrow_id: UUID,
+    req: ReleaseRequest,
+    db: Session = Depends(deps.get_db),
+    current_user=Depends(deps.get_current_user)
+):
+    """Release a milestone for an escrow contract (client only). Returns tx hash."""
+    escrow_service = EscrowService(db)
+
+    # Validate access and ensure the caller is the client
+    has_access, role = escrow_service.validate_escrow_access(escrow_id, current_user.id)
+    if not has_access:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Escrow contract not found"
+        )
+    if role != 'client':
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only the client can release milestones"
+        )
+
+    contract = escrow_service.get_escrow_contract(escrow_id)
+    if not contract:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Escrow contract not found"
+        )
+
+    try:
+        tx_hash = web3_release_milestone(
+            escrow_address=contract.contract_address,
+            milestone_id=req.milestone_index,
+            client_private_key=req.client_private_key,
+            chain_id=contract.chain_id,
+            user_id=str(current_user.id),
+        )
+        return {"tx_hash": tx_hash}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # Legacy endpoints (kept for backward compatibility)
 @router.post("/deploy", response_model=EscrowContract)
-def deploy_escrow_contract(
+def deploy_escrow_contract_route(
     escrow_in: EscrowContractCreate,
     db: Session = Depends(deps.get_db),
     current_user=Depends(deps.get_current_user)
 ):
     """Deploy a new escrow contract."""
     try:
-        contract_address = deploy_escrow(
+        contract_address = web3_deploy_escrow(
             escrow_in.client,
             escrow_in.freelancer,
             escrow_in.milestone_descriptions,
@@ -183,7 +238,7 @@ def get_contract_status(
 ):
     """Get escrow contract status."""
     try:
-        status = get_escrow_status(contract_address)
+        status = web3_get_escrow_status(contract_address)
         return {"status": status}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -191,7 +246,7 @@ def get_contract_status(
 
 @router.post("/", response_model=EscrowResponse)
 def create_escrow_view(escrow_in: EscrowCreate, db: Session = Depends(deps.get_db), user=Depends(deps.get_current_active_user)):
-    return deploy_escrow_contract(escrow_in.dict(), user)
+    return web3_deploy_escrow_contract(escrow_in.dict(), user)
 
 
 @router.post("/{escrow_id}/release", response_model=EscrowResponse)

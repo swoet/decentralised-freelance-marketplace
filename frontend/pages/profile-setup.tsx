@@ -15,7 +15,7 @@ const ProfileSetup = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [walletAddress, setWalletAddress] = useState<string | null>(null)
     const router = useRouter()
-    const { updateUser } = useAuth()
+    const { setAuth } = useAuth()
 
     useEffect(() => {
         const address = localStorage.getItem('walletAddress') || router.query.address
@@ -56,16 +56,31 @@ const ProfileSetup = () => {
             if (response.ok) {
                 const data = await response.json()
                 
-                localStorage.setItem('token', data.token)
-                localStorage.setItem('user', JSON.stringify(data.user))
-                
-                updateUser(data.user)
+                // Immediately set auth context (also persists to localStorage inside setAuth)
+                if (data?.token && data?.user) {
+                    setAuth(data.token, data.user)
+                }
                 
                 toast.success('Profile setup complete!')
                 router.push('/dashboard')
             } else {
-                const error = await response.json()
-                toast.error(error.message || 'Profile setup failed')
+                let message = 'Profile setup failed'
+                try {
+                    const errorData = await response.json()
+                    if (typeof errorData?.message === 'string') {
+                        message = errorData.message
+                    } else if (typeof errorData?.detail === 'string') {
+                        message = errorData.detail
+                    } else if (errorData?.message && typeof errorData.message?.detail === 'string') {
+                        // Handle nested message object: { message: { detail: '...' } }
+                        message = errorData.message.detail
+                    } else if (errorData) {
+                        message = JSON.stringify(errorData)
+                    }
+                } catch {
+                    // ignore JSON parse errors and use default message
+                }
+                toast.error(message)
             }
         } catch (error) {
             console.error('Profile setup error:', error);

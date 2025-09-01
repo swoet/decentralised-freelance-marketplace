@@ -71,25 +71,6 @@ def list_posts(thread_id: str, db: Session = Depends(get_db)):
     return {"items": [{"id": str(p.id), "body": p.body, "author_id": str(p.author_id)} for p in rows]}
 
 
-# Events
-class EventCreate(BaseModel):
-    title: str
-    description: Optional[str] = None
-    starts_at: Optional[str] = None
-    ends_at: Optional[str] = None
-    link: Optional[str] = None
-
-
-@router.post("/events")
-def create_event(payload: EventCreate, db: Session = Depends(get_db), user=Depends(get_current_active_user)):
-    ev = Event(title=payload.title, description=payload.description, link=payload.link)
-    db.add(ev)
-    db.commit()
-    db.refresh(ev)
-    return {"id": str(ev.id), "title": ev.title, "starts_at": ev.starts_at.isoformat() if ev.starts_at else None}
-
-
-@router.get("/events")
-def list_events(db: Session = Depends(get_db)):
-    rows = db.query(Event).order_by(Event.starts_at.desc()).limit(100).all()
-    return {"items": [{"id": str(e.id), "title": e.title, "starts_at": e.starts_at.isoformat() if e.starts_at else None, "link": e.link} for e in rows]}
+# Events endpoints - include events router under community
+from app.api.v1.events import router as events_router
+router.include_router(events_router, prefix="/events", tags=["community-events"])

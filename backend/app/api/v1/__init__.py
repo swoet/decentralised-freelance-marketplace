@@ -20,6 +20,7 @@ from .developer import router as developer_router
 from .reputation import router as reputation_router
 from .skills import router as skills_router
 from .community import router as community_router
+from .events import router as events_router
 from .token import router as token_router
 from .security import router as security_router
 from .oauth import router as oauth_router
@@ -46,6 +47,7 @@ api_router.include_router(developer_router)
 api_router.include_router(reputation_router)
 api_router.include_router(skills_router)
 api_router.include_router(community_router)
+api_router.include_router(events_router, prefix="/events", tags=["events"])
 api_router.include_router(token_router)
 api_router.include_router(security_router)
 api_router.include_router(oauth_router, prefix="/oauth", tags=["oauth"])

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy import Column, String, Boolean, DateTime, Float
 from sqlalchemy.orm import relationship
 from .base import Base
 import enum
@@ -21,6 +21,13 @@ class User(Base):
     wallet_address = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), nullable=True)
+    
+    # Location fields for event recommendations
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    city = Column(String, nullable=True)
+    country = Column(String, nullable=True)
+    timezone_name = Column(String, nullable=True)
     
     # Relationships
     organization = relationship("Organization", back_populates="owner", uselist=False)

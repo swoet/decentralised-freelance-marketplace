@@ -90,15 +90,16 @@ class Settings(BaseSettings):
     
     # OAuth Configuration
     OAUTH_ENABLED: bool = True
+    OAUTH_ENCRYPTION_KEY: str = ""
     SLACK_CLIENT_ID: str = ""
     SLACK_CLIENT_SECRET: str = ""
-    SLACK_REDIRECT_URI: str = "http://localhost:3000/oauth/slack/callback"
+    SLACK_REDIRECT_URI: str = "http://localhost:3001/oauth/slack/callback"
     JIRA_CLIENT_ID: str = ""
     JIRA_CLIENT_SECRET: str = ""
-    JIRA_REDIRECT_URI: str = "http://localhost:3000/oauth/jira/callback"
+    JIRA_REDIRECT_URI: str = "http://localhost:3001/oauth/jira/callback"
     TRELLO_CLIENT_ID: str = ""
     TRELLO_CLIENT_SECRET: str = ""
-    TRELLO_REDIRECT_URI: str = "http://localhost:3000/oauth/trello/callback"
+    TRELLO_REDIRECT_URI: str = "http://localhost:3001/oauth/trello/callback"
     WEBHOOK_SECRET_KEY: str = "your-webhook-signing-key"
     
     # Session Management Configuration
@@ -114,6 +115,10 @@ class Settings(BaseSettings):
     SKILLS_VERIFICATION_ENABLED: bool = True
     REPUTATION_V2_ENABLED: bool = True
     MATCHING_CACHE_TTL: int = 3600
+    
+    # Event Scraping API Keys
+    EVENTBRITE_API_KEY: str = ""
+    MEETUP_API_KEY: str = ""
 
     class Config:
         env_file = ".env"

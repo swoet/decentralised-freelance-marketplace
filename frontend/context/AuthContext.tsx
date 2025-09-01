@@ -46,6 +46,7 @@ interface AuthContextType {
   register: (email: string, password: string, full_name: string, role: string) => Promise<void>;
   connectWallet: (walletAddress: string, fullName: string, email: string, role: string) => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
+  setAuth: (token: string, user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -181,7 +182,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const connectWallet = async (walletAddress: string, fullName: string, email: string, role: string) => {
     try {
       // Attempt to register/login by wallet (best-effort), else store minimal user
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
       try {
         const resp = await fetch('/api/auth/wallet-register', {
           method: 'POST',
@@ -190,13 +190,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
         if (resp.ok) {
           const data = await resp.json();
+          // Require a real token and user from backend; no fallbacks
+          if (!data?.token || !data?.user) {
+            throw new Error('Invalid auth response from server');
+          }
           if (typeof window !== 'undefined') {
-            safeLocalStorage.setItem('token', data.token || '');
-            safeLocalStorage.setItem('user', JSON.stringify(data.user || {}));
+            safeLocalStorage.setItem('token', data.token);
+            safeLocalStorage.setItem('user', JSON.stringify(data.user));
             safeLocalStorage.setItem('walletAddress', walletAddress);
           }
-          setToken(data.token || '');
-          setUser(data.user || null);
+          setToken(data.token);
+          setUser(data.user);
           return;
         } else {
           // If wallet registration fails, extract error message
@@ -220,15 +224,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           : 'Failed to connect wallet';
         throw new Error(errorMessage);
       }
-      const fallbackToken = `wallet-${Date.now()}`;
-      const fallbackUser = { id: `wallet-${Date.now()}`, email, full_name: fullName, role, wallet_address: walletAddress };
-      if (typeof window !== 'undefined') {
-        safeLocalStorage.setItem('token', fallbackToken);
-        safeLocalStorage.setItem('user', JSON.stringify(fallbackUser));
-        safeLocalStorage.setItem('walletAddress', walletAddress);
-      }
-      setToken(fallbackToken);
-      setUser(fallbackUser);
     } catch (error) {
       console.error('Error connecting wallet:', error);
       // Ensure we always throw a proper Error instance with a string message
@@ -255,6 +250,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const setAuth = (newToken: string, newUser: User) => {
+    setToken(newToken);
+    setUser(newUser);
+    if (typeof window !== 'undefined') {
+      safeLocalStorage.setItem('token', newToken);
+      safeLocalStorage.setItem('user', JSON.stringify(newUser));
+      if (newUser.wallet_address) {
+        safeLocalStorage.setItem('walletAddress', newUser.wallet_address);
+      }
+    }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -264,7 +271,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       logout, 
       register, 
       connectWallet, 
-      updateUser 
+      updateUser,
+      setAuth 
     }}>
       {children}
     </AuthContext.Provider>

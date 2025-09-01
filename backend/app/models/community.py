@@ -1,5 +1,5 @@
 from __future__ import annotations
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Float, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from datetime import datetime, timezone
@@ -37,3 +37,21 @@ class Event(Base):
     starts_at = Column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
     ends_at = Column(DateTime(timezone=True), nullable=True)
     link = Column(String, nullable=True)
+    
+    # Location fields
+    location_name = Column(String, nullable=True)
+    location_address = Column(String, nullable=True)
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+    
+    # Event metadata
+    external_id = Column(String, nullable=True, unique=True)  # ID from external source
+    external_url = Column(String, nullable=True)
+    source = Column(String, nullable=True)  # eventbrite, meetup, etc.
+    category = Column(String, nullable=True)  # tech, business, conference, etc.
+    is_online = Column(Boolean, default=False)
+    is_free = Column(Boolean, default=True)
+    
+    # User interaction
+    author_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True)
+    author = relationship("User")
