@@ -1,19 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Loader from '@/components/Loader';
 import Toast from '@/components/Toast';
 import Head from 'next/head';
-
-interface DashboardStats {
-  totalProjects: number;
-  activeProjects: number;
-  completedProjects: number;
-  totalEarnings: number;
-  totalBids: number;
-  acceptedBids: number;
-}
 
 interface DashboardData {
   user: {
@@ -76,15 +68,6 @@ interface DashboardData {
   };
 }
 
-type ActivityItem = {
-  id: string;
-  type: 'project' | 'bid' | 'message' | 'payment';
-  title: string;
-  subtitle?: string;
-  time?: string;
-  createdAtMs: number;
-};
-
 export default function Dashboard() {
   const { user, token, loading } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
@@ -93,12 +76,7 @@ export default function Dashboard() {
   const router = useRouter();
   const isPublicMode = !user || !token;
 
-  useEffect(() => {
-    // Always load dashboard data (public or authenticated)
-    fetchDashboardData();
-  }, [user, token]);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setDataLoading(true);
       setError(null);
@@ -130,7 +108,12 @@ export default function Dashboard() {
     } finally {
       setDataLoading(false);
     }
-  };
+  }, [isPublicMode, token]);
+
+  useEffect(() => {
+    // Always load dashboard data (public or authenticated)
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   // Show loading while auth is being checked
   if (loading) {
@@ -174,7 +157,7 @@ export default function Dashboard() {
           </h1>
           <p className="mt-2 text-gray-600">
             {isPublicMode ? (
-              <>Discover the latest projects, community discussions, and integrations. <a href="/login" className="text-blue-600 hover:underline">Sign in</a> for personalized content.</>
+              <>Discover the latest projects, community discussions, and integrations. <Link href="/login" className="text-blue-600 hover:underline">Sign in</Link> for personalized content.</>
             ) : (
               <>Welcome back, {user?.full_name || user?.email || 'User'}!</>
             )}
@@ -187,7 +170,7 @@ export default function Dashboard() {
           {isPublicMode && (
             <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-blue-800">
-                🎯 <strong>Preview Mode:</strong> You're viewing public data. <a href="/signup" className="underline hover:no-underline">Create an account</a> to access personalized features.
+                🎯 <strong>Preview Mode:</strong> You&apos;re viewing public data. <Link href="/signup" className="underline hover:no-underline">Create an account</Link> to access personalized features.
               </p>
             </div>
           )}
@@ -247,8 +230,12 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Earnings</p>
-                <p className="text-2xl font-semibold text-gray-900">${stats?.totalEarnings?.toLocaleString() || 0}</p>
+                <p className="text-sm font-medium text-gray-500">
+                  {isPublicMode ? 'Upcoming Events' : 'Total Earnings'}
+                </p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {isPublicMode ? (dashboardData?.stats?.upcoming_events || 0) : '$0'}
+                </p>
               </div>
             </div>
           </div>
@@ -263,8 +250,12 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Accepted Bids</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats?.acceptedBids || 0}</p>
+                <p className="text-sm font-medium text-gray-500">
+                  {isPublicMode ? 'Platform Activity' : 'Accepted Bids'}
+                </p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {isPublicMode ? (dashboardData?.stats?.platform_activity || 'Moderate') : '0'}
+                </p>
               </div>
             </div>
           </div>
@@ -304,29 +295,57 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
-          {!activity.length && (
-            <div className="text-gray-500 text-sm">No recent activity.</div>
-          )}
-          <div className="space-y-4">
-            {activity.map((a) => (
-              <div key={a.id} className="flex items-center space-x-4">
-                <div className="flex-shrink-0">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${a.type === 'project' ? 'bg-green-100' : a.type === 'bid' ? 'bg-blue-100' : 'bg-gray-100'}`}>
-                    <svg className={`w-4 h-4 ${a.type === 'project' ? 'text-green-600' : a.type === 'bid' ? 'text-blue-600' : 'text-gray-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
+        {/* Recent Activity / Community Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Projects */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              {isPublicMode ? 'Featured Projects' : 'Recent Projects'}
+            </h2>
+            {dashboardData?.projects?.featured_projects?.length || dashboardData?.projects?.user_projects?.length ? (
+              <div className="space-y-4">
+                {(dashboardData.projects.featured_projects || dashboardData.projects.user_projects || []).slice(0, 3).map((project) => (
+                  <div key={project.id} className="border-l-4 border-blue-500 pl-4">
+                    <h3 className="font-medium text-gray-900 truncate">{project.title}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{project.description}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-sm font-medium text-green-600">{project.budget_range}</span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(project.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{a.title}</p>
-                  {a.subtitle && <p className="text-sm text-gray-500">{a.subtitle}</p>}
-                </div>
-                <div className="text-sm text-gray-500">{a.time || ''}</div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className="text-gray-500 text-sm">No projects available.</div>
+            )}
+          </div>
+
+          {/* Community Activity */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Community Activity</h2>
+            {dashboardData?.community?.recent_threads?.length ? (
+              <div className="space-y-4">
+                {dashboardData.community.recent_threads.slice(0, 4).map((thread) => (
+                  <div key={thread.id} className="border-l-4 border-green-500 pl-4">
+                    <h3 className="font-medium text-gray-900">{thread.title}</h3>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {thread.tags.slice(0, 3).map((tag, index) => (
+                        <span key={index} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <span className="text-xs text-gray-500 mt-1 block">
+                      {new Date(thread.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-gray-500 text-sm">No community activity.</div>
+            )}
           </div>
         </div>
       </div>
