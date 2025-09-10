@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Optional, Dict, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -26,12 +26,25 @@ def create_thread(payload: ThreadCreate, db: Session = Depends(get_db), user=Dep
 
 
 @router.get("/threads")
-def list_threads(q: Optional[str] = Query(default=None), db: Session = Depends(get_db)):
+def list_threads(
+    response: Response,
+    q: Optional[str] = Query(default=None),
+    preview: bool = Query(False, description="Preview mode for anonymous users - returns featured threads"),
+    db: Session = Depends(get_db)
+):
+    # Add caching headers
+    cache_time = 120 if preview else 240  # 2-4 min cache
+    response.headers["Cache-Control"] = f"public, max-age={cache_time}, stale-while-revalidate=30"
+    response.headers["Vary"] = "Authorization"
+    
     query = db.query(CommunityThread)
     if q:
         like = f"%{q}%"
         query = query.filter(CommunityThread.title.ilike(like))
-    rows = query.order_by(CommunityThread.created_at.desc()).limit(100).all()
+    
+    # Limit results for preview mode
+    limit = 8 if preview else 100
+    rows = query.order_by(CommunityThread.created_at.desc()).limit(limit).all()
     return {"items": [{"id": str(t.id), "title": t.title, "tags": t.tags} for t in rows]}
 
 

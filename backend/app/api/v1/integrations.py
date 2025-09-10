@@ -6,10 +6,12 @@ import time
 import os
 import requests
 from urllib.parse import urlencode
-from fastapi import APIRouter, Depends, HTTPException, Header, Request
+from fastapi import APIRouter, Depends, HTTPException, Header, Request, Response, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-from app.api.deps import get_current_active_user, get_db
+from app.api.deps import get_current_active_user, get_current_user_optional, get_db
+from app.models.user import User
+from typing import Optional
 from app.models.integration import Integration, Webhook
 from app.core.config import settings
 
@@ -17,7 +19,35 @@ router = APIRouter(prefix="/integrations", tags=["integrations"])
 
 
 @router.get("")
-def list_integrations(db: Session = Depends(get_db), user=Depends(get_current_active_user)):
+def list_integrations(
+    response: Response,
+    preview: bool = Query(False, description="Preview mode for anonymous users - shows available integrations"),
+    db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_current_user_optional)
+):
+    # Add caching headers
+    cache_time = 600 if user is None else 120  # 10 min for anonymous, 2 min for authenticated
+    response.headers["Cache-Control"] = f"public, max-age={cache_time}, stale-while-revalidate=60"
+    response.headers["Vary"] = "Authorization"
+    
+    # For anonymous users, just return available providers
+    if user is None:
+        providers = ["slack", "github", "jira", "discord"]
+        if preview:
+            # In preview mode, add description for each provider
+            return {
+                "providers": [
+                    {"name": "slack", "description": "Team communication and project notifications", "category": "communication"},
+                    {"name": "github", "description": "Code repositories and version control", "category": "development"},
+                    {"name": "jira", "description": "Issue tracking and project management", "category": "project-management"},
+                    {"name": "discord", "description": "Community and voice chat", "category": "communication"}
+                ],
+                "connected": [],
+                "preview": True
+            }
+        return {"providers": providers, "connected": []}
+    
+    # For authenticated users, return their connected integrations
     rows = db.query(Integration).filter(Integration.owner_id == user.id).all()
     return {"providers": ["slack", "github", "jira", "discord"], "connected": [
         {"id": str(r.id), "provider": r.provider, "status": r.status} for r in rows

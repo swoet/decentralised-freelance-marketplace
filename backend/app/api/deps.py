@@ -30,4 +30,33 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 def get_current_active_user(current_user: User = Depends(get_current_user)) -> User:
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user 
+    return current_user
+
+# Optional authentication - returns None if no token provided
+from typing import Optional
+from fastapi.security.utils import get_authorization_scheme_param
+from fastapi import Request
+
+def get_current_user_optional(request: Request, db: Session = Depends(get_db)) -> Optional[User]:
+    """Get current user if authenticated, otherwise return None"""
+    authorization = request.headers.get("Authorization")
+    if not authorization:
+        return None
+    
+    scheme, token = get_authorization_scheme_param(authorization)
+    if not authorization or scheme.lower() != "bearer":
+        return None
+    
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            return None
+    except JWTError:
+        return None
+    
+    user = get_user_by_id(db, user_id)
+    if user is None or not user.is_active:
+        return None
+    
+    return user

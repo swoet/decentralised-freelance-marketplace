@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Navbar from '@/components/Navbar';
 import Loader from '@/components/Loader';
 import Toast from '@/components/Toast';
+import Head from 'next/head';
 
 interface DashboardStats {
   totalProjects: number;
@@ -12,6 +13,67 @@ interface DashboardStats {
   totalEarnings: number;
   totalBids: number;
   acceptedBids: number;
+}
+
+interface DashboardData {
+  user: {
+    authenticated: boolean;
+    preview_mode: boolean;
+  };
+  projects: {
+    featured_projects?: Array<{
+      id: string;
+      title: string;
+      description: string;
+      budget_range: string;
+      created_at: string;
+    }>;
+    user_projects?: Array<{
+      id: string;
+      title: string;
+      description: string;
+      budget_range: string;
+      status: string;
+      created_at: string;
+    }>;
+    recommended_projects?: Array<{
+      id: string;
+      title: string;
+      description: string;
+      budget_range: string;
+      created_at: string;
+    }>;
+  };
+  community: {
+    recent_threads: Array<{
+      id: string;
+      title: string;
+      tags: string[];
+      created_at: string;
+    }>;
+    upcoming_events: Array<{
+      id: string;
+      title: string;
+      starts_at: string;
+      is_online: boolean;
+      is_free: boolean;
+      category: string;
+    }>;
+  };
+  integrations: {
+    connected_count?: number;
+    available_providers: Array<{
+      name: string;
+      description: string;
+      category: string;
+    }> | string[];
+  };
+  stats: {
+    total_projects: number;
+    active_threads: number;
+    upcoming_events: number;
+    platform_activity: string;
+  };
 }
 
 type ActivityItem = {
@@ -25,80 +87,46 @@ type ActivityItem = {
 
 export default function Dashboard() {
   const { user, token, loading } = useAuth();
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activity, setActivity] = useState<ActivityItem[]>([]);
   const router = useRouter();
+  const isPublicMode = !user || !token;
 
   useEffect(() => {
-    // If no user or token, redirect to login
-    if (!loading && (!user || !token)) {
-      router.push('/login');
-      return;
-    }
-
-    if (user && token) {
-      fetchDashboardData();
-    }
-  }, [user, token, loading, router]);
+    // Always load dashboard data (public or authenticated)
+    fetchDashboardData();
+  }, [user, token]);
 
   const fetchDashboardData = async () => {
     try {
       setDataLoading(true);
-      // Derive simple stats from available endpoints; default to 0 if unavailable
+      setError(null);
+      
       const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1';
-      const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
-
-      const [projectsRes, bidsRes] = await Promise.all([
-        fetch(`${API_URL}/projects/?limit=50`, { headers }).catch(() => null),
-        fetch(`${API_URL}/bids/`, { headers }).catch(() => null),
-      ]);
-
-      const projectsJson = projectsRes && projectsRes.ok ? await projectsRes.json() : [];
-      const bidsJson = bidsRes && bidsRes.ok ? await bidsRes.json() : [];
-      const totalBids = Array.isArray(bidsJson) ? bidsJson.length : 0;
-
-      const computed: DashboardStats = {
-        totalProjects: 0,
-        activeProjects: 0,
-        completedProjects: 0,
-        totalEarnings: 0,
-        totalBids,
-        acceptedBids: 0,
-      };
-      setStats(computed);
-
-      // Build recent activity from projects and bids
-      const projectItems: ActivityItem[] = (Array.isArray(projectsJson) ? projectsJson : []).map((p: any) => {
-        const ts = Date.parse(p.created_at || p.createdAt || '') || 0;
-        return {
-          id: String(p.id || Math.random()),
-          type: 'project',
-          title: 'Project created',
-          subtitle: String(p.title || ''),
-          time: ts ? new Date(ts).toLocaleString() : undefined,
-          createdAtMs: ts,
-        };
+      const headers: Record<string, string> = {};
+      
+      // Add auth header if user is logged in
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      // Call the new dashboard API with preview mode for anonymous users
+      const response = await fetch(`${API_URL}/dashboard?preview=${isPublicMode}`, {
+        headers,
+        method: 'GET',
       });
-      const bidItems: ActivityItem[] = (Array.isArray(bidsJson) ? bidsJson : []).map((b: any) => {
-        const ts = Date.parse(b.created_at || b.createdAt || '') || 0;
-        const amount = typeof b.amount === 'number' ? b.amount : Number(b.amount || 0);
-        return {
-          id: String(b.id || Math.random()),
-          type: 'bid',
-          title: 'Bid submitted',
-          subtitle: `$${amount || 0} on project ${b.project_id || ''}`,
-          time: ts ? new Date(ts).toLocaleString() : undefined,
-          createdAtMs: ts,
-        };
-      });
-      const combined = [...projectItems, ...bidItems]
-        .sort((a, b) => b.createdAtMs - a.createdAtMs)
-        .slice(0, 5);
-      setActivity(combined);
-    } catch (err) {
-      setError('Failed to load dashboard data');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data: DashboardData = await response.json();
+      setDashboardData(data);
+      
+    } catch (err: any) {
+      console.error('Dashboard fetch error:', err);
+      setError(err?.message || 'Failed to load dashboard data');
     } finally {
       setDataLoading(false);
     }
@@ -134,17 +162,34 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Head>
+        <title>{isPublicMode ? 'Marketplace Dashboard' : 'My Dashboard'} - Decentralized Freelance Marketplace</title>
+        <meta name="description" content={isPublicMode ? 'Explore the freelance marketplace with real-time projects, community activity, and integrations' : 'Your personalized freelance dashboard'} />
+      </Head>
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {isPublicMode ? 'Marketplace Overview' : 'My Dashboard'}
+          </h1>
           <p className="mt-2 text-gray-600">
-            Welcome back, {user?.full_name || user?.email || 'User'}!
+            {isPublicMode ? (
+              <>Discover the latest projects, community discussions, and integrations. <a href="/login" className="text-blue-600 hover:underline">Sign in</a> for personalized content.</>
+            ) : (
+              <>Welcome back, {user?.full_name || user?.email || 'User'}!</>
+            )}
           </p>
           {user?.wallet_address && (
             <p className="mt-1 text-sm text-gray-500">
               Wallet: {`${user.wallet_address.substring(0, 6)}...${user.wallet_address.substring(user.wallet_address.length - 4)}`}
             </p>
+          )}
+          {isPublicMode && (
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-800">
+                🎯 <strong>Preview Mode:</strong> You're viewing public data. <a href="/signup" className="underline hover:no-underline">Create an account</a> to access personalized features.
+              </p>
+            </div>
           )}
         </div>
 
@@ -162,8 +207,12 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Projects</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats?.totalProjects || 0}</p>
+                <p className="text-sm font-medium text-gray-500">
+                  {isPublicMode ? 'Platform Projects' : 'My Projects'}
+                </p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {dashboardData?.stats?.total_projects || 0}
+                </p>
               </div>
             </div>
           </div>
@@ -173,13 +222,17 @@ export default function Dashboard() {
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                   </svg>
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Active Projects</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats?.activeProjects || 0}</p>
+                <p className="text-sm font-medium text-gray-500">
+                  {isPublicMode ? 'Active Discussions' : 'Community Threads'}
+                </p>
+                <p className="text-2xl font-semibold text-gray-900">
+                  {dashboardData?.stats?.active_threads || 0}
+                </p>
               </div>
             </div>
           </div>

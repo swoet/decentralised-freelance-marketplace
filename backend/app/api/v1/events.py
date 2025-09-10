@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Query, Response
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timedelta
@@ -6,6 +6,7 @@ import asyncio
 
 from app.core.db import get_db
 from app.core.auth import get_current_user
+from app.api.deps import get_current_user_optional
 from app.models.user import User
 from app.models.community import Event
 from app.services.event_scraper import EventScraperService
@@ -18,17 +19,24 @@ router = APIRouter()
 
 @router.get("/", response_model=List[EventResponse])
 async def get_events(
+    response: Response,
     background_tasks: BackgroundTasks,
-    auto_refresh: bool = Query(True, description="Auto-refresh events from external sources"),
+    auto_refresh: bool = Query(False, description="Auto-refresh events from external sources"),
     radius_km: int = Query(50, description="Search radius in kilometers"),
-    personalized: bool = Query(True, description="Filter events by user interests"),
+    personalized: bool = Query(False, description="Filter events by user interests"),
+    preview: bool = Query(False, description="Preview mode for anonymous users - returns upcoming featured events"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_current_user_optional)
 ):
     """Get events, optionally filtered by user location and interests, auto-refreshed"""
     
+    # Add caching headers
+    cache_time = 180 if preview else (300 if current_user is None else 120)  # 3-5 min for anonymous, 2 min for authenticated
+    response.headers["Cache-Control"] = f"public, max-age={cache_time}, stale-while-revalidate=60"
+    response.headers["Vary"] = "Authorization"
+    
     # If user has location and auto_refresh is enabled, fetch new events in background
-    if (auto_refresh and current_user.latitude and current_user.longitude):
+    if (auto_refresh and current_user and current_user.latitude and current_user.longitude):
         background_tasks.add_task(
             refresh_events_for_location,
             current_user.latitude,
@@ -43,7 +51,7 @@ async def get_events(
     ).order_by(Event.starts_at)
     
     # Filter by location if user has coordinates
-    if current_user.latitude and current_user.longitude:
+    if current_user and current_user.latitude and current_user.longitude:
         # Simple bounding box filter (in production, use proper geospatial queries)
         lat_range = radius_km / 111.0  # Rough km to degrees conversion
         lon_range = radius_km / (111.0 * abs(current_user.latitude))
@@ -59,16 +67,21 @@ async def get_events(
             )
         )
     
-    events = query.limit(100).all()  # Get more events for filtering
+    # Adjust limits based on preview mode
+    event_limit = 6 if preview else (100 if personalized else 50)
+    events = query.limit(event_limit * 2).all()  # Get more events for filtering
     
-    # Apply relevance filtering if requested
-    if personalized:
+    # Apply relevance filtering if requested and user is authenticated
+    if personalized and current_user:
         relevance_service = EventRelevanceService()
         scored_events = relevance_service.filter_and_rank_events(events, current_user, db)
-        # Return top 50 most relevant events
-        return [EventResponse.from_orm(item['event']) for item in scored_events[:50]]
+        # Return top events based on mode
+        final_limit = 6 if preview else 50
+        return [EventResponse.from_orm(item['event']) for item in scored_events[:final_limit]]
     
-    return [EventResponse.from_orm(event) for event in events[:50]]
+    # For preview mode or anonymous users, return limited results
+    final_limit = 6 if preview else 50
+    return [EventResponse.from_orm(event) for event in events[:final_limit]]
 
 @router.post("/", response_model=EventResponse)
 async def create_event(

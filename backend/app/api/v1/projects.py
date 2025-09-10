@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, Query
 from sqlalchemy.orm import Session
 from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
 from app.services.project import create_project, get_projects, update_project, delete_project
@@ -15,10 +15,21 @@ def create_project_view(
 
 @router.get("/", response_model=List[ProjectResponse])
 def list_projects(
+    response: Response,
     skip: int = 0,
     limit: int = 100,
+    preview: bool = Query(False, description="Preview mode for anonymous users - returns featured/sample projects"),
     db: Session = Depends(get_db),
 ):
+    # Add caching headers for public endpoint
+    cache_time = 180 if preview else 300  # Shorter cache for preview mode
+    response.headers["Cache-Control"] = f"public, max-age={cache_time}, stale-while-revalidate=60"
+    response.headers["Vary"] = "Authorization"
+    
+    if preview:
+        # For preview mode, return only featured/recent projects with limited data
+        limit = min(limit, 6)  # Max 6 projects for preview
+    
     projects = get_projects(db, skip=skip, limit=limit)
     return projects
 
