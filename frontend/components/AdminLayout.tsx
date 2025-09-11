@@ -1,6 +1,8 @@
 import React, { useState, ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useTheme } from '../context/ThemeContext';
+import { useRBAC, ADMIN_PERMISSIONS } from '../context/RBACContext';
 import {
   HomeIcon,
   ChartBarIcon,
@@ -21,6 +23,8 @@ import {
   ServerIcon,
   EyeIcon,
   ClipboardDocumentListIcon,
+  SunIcon,
+  MoonIcon,
 } from '@heroicons/react/24/outline';
 
 interface AdminLayoutProps {
@@ -35,11 +39,15 @@ interface NavigationItem {
   description: string;
   badge?: string;
   badgeColor?: string;
+  permission?: any;
+  minLevel?: number;
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dashboard' }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
+  const { theme, toggleTheme, isDark } = useTheme();
+  const { canAccess, userRole, getRoleLevel } = useRBAC();
 
   const navigation: NavigationItem[] = [
     {
@@ -55,18 +63,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
       description: 'AI matching and personality analysis',
       badge: 'ACTIVE',
       badgeColor: 'bg-green-500',
+      permission: ADMIN_PERMISSIONS.AI_VIEW,
     },
     {
       name: 'Performance',
       href: '/admin/performance',
       icon: ChartBarIcon,
       description: 'Matching performance and analytics',
+      permission: ADMIN_PERMISSIONS.PERFORMANCE_VIEW,
     },
     {
       name: 'User Analytics',
       href: '/admin/users',
       icon: UserGroupIcon,
       description: 'User behavior and engagement metrics',
+      permission: ADMIN_PERMISSIONS.USER_VIEW,
     },
     {
       name: 'Skill Analysis',
@@ -75,42 +86,58 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
       description: 'Market demand and skill predictions',
       badge: 'HOT',
       badgeColor: 'bg-red-500',
+      permission: ADMIN_PERMISSIONS.AI_VIEW,
     },
     {
       name: 'System Health',
       href: '/admin/health',
       icon: ShieldCheckIcon,
       description: 'Infrastructure and service monitoring',
+      permission: ADMIN_PERMISSIONS.HEALTH_VIEW,
     },
     {
       name: 'Migration Tools',
       href: '/admin/migrations',
       icon: ServerIcon,
       description: 'Database migration management',
+      permission: ADMIN_PERMISSIONS.MIGRATION_VIEW,
+      minLevel: 80,
     },
     {
       name: 'Activity Logs',
       href: '/admin/logs',
       icon: ClipboardDocumentListIcon,
       description: 'System activity and audit trails',
+      permission: ADMIN_PERMISSIONS.LOGS_VIEW,
     },
     {
       name: 'Configuration',
       href: '/admin/config',
       icon: AdjustmentsHorizontalIcon,
       description: 'System settings and parameters',
+      permission: ADMIN_PERMISSIONS.CONFIG_VIEW,
+      minLevel: 80,
     },
     {
       name: 'API Console',
       href: '/admin/api',
       icon: CommandLineIcon,
       description: 'Direct API interaction and testing',
+      permission: ADMIN_PERMISSIONS.API_CONSOLE,
+      minLevel: 100,
     },
   ];
 
   const isCurrentPath = (path: string) => {
     return router.pathname === path;
   };
+
+  // Filter navigation items based on permissions and role level
+  const filteredNavigation = navigation.filter(item => {
+    if (item.minLevel && getRoleLevel() < item.minLevel) return false;
+    if (item.permission && !canAccess(item.permission.resource, item.permission.action)) return false;
+    return true;
+  });
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
@@ -156,7 +183,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 overflow-y-auto">
             <div className="space-y-2">
-              {navigation.map((item) => {
+              {filteredNavigation.map((item) => {
                 const isActive = isCurrentPath(item.href);
                 return (
                   <Link
@@ -225,15 +252,33 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
             </div>
           </div>
 
+          {/* Theme Switcher */}
+          <div className="px-6 py-4 border-t border-slate-700">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-white">Theme</span>
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+                title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+              >
+                {isDark ? (
+                  <SunIcon className="h-5 w-5" />
+                ) : (
+                  <MoonIcon className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+          </div>
+
           {/* User info and logout */}
           <div className="px-6 py-4 border-t border-slate-700">
             <div className="flex items-center">
               <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                <span className="text-sm font-bold text-white">A</span>
+                <span className="text-sm font-bold text-white">{userRole?.name.charAt(0) || 'A'}</span>
               </div>
               <div className="ml-3 flex-1">
                 <p className="text-sm font-medium text-white">Administrator</p>
-                <p className="text-xs text-slate-400">Super Admin</p>
+                <p className="text-xs text-slate-400">{userRole?.name || 'Admin'}</p>
               </div>
               <button
                 onClick={handleLogout}
