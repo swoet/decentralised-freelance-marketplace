@@ -1,8 +1,8 @@
 """Add AI matching and blockchain reputation models
 
-Revision ID: dc53e9f9dd66
+Revision ID: 82c57e734935
 Revises: 01e6735adbf8
-Create Date: 2025-09-11 09:59:32.163371
+Create Date: 2025-09-11 11:05:12.278760
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = 'dc53e9f9dd66'
+revision: str = '82c57e734935'
 down_revision: Union[str, Sequence[str], None] = '01e6735adbf8'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

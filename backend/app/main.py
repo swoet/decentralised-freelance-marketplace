@@ -19,6 +19,7 @@ from app.core.config import settings
 from app.core.db import engine
 from app.core.db import SessionLocal
 from app.models.integration import ApiKey, ApiKeyUsage
+from app.middleware.rate_limit_middleware import RateLimitMiddleware
 from datetime import datetime
 import time
 import hashlib
@@ -175,6 +176,8 @@ class ApiKeyMiddleware(BaseHTTPMiddleware):
 
 # Add API key usage/validation middleware first
 app.add_middleware(ApiKeyMiddleware)
+# Add RateLimiting middleware
+app.add_middleware(RateLimitMiddleware)
 # Add SecurityHeadersMiddleware after other middleware to avoid CORS conflicts
 app.add_middleware(SecurityHeadersMiddleware)
 

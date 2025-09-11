@@ -6,7 +6,7 @@ from .users import router as users_router
 from .organizations import router as orgs_router
 from .projects import router as projects_router
 from .bids import router as bids_router
-from .escrow import router as escrow_router
+from .escrow import router as escrow_router, smart_router as smart_escrow_router
 from .reviews import router as reviews_router
 from .messages import router as messages_router
 from .web3 import router as web3_router
@@ -36,6 +36,7 @@ api_router.include_router(orgs_router)
 api_router.include_router(projects_router)
 api_router.include_router(bids_router)
 api_router.include_router(escrow_router)
+api_router.include_router(smart_escrow_router)
 api_router.include_router(reviews_router)
 api_router.include_router(messages_router)
 api_router.include_router(web3_router)

@@ -27,5 +27,7 @@ class Project(Base):
     bids = relationship("Bid", back_populates="project")
     milestones = relationship("Milestone", back_populates="project")
     escrow_contract = relationship("EscrowContract", back_populates="project", uselist=False)
+    smart_escrow = relationship("SmartEscrow", back_populates="project", uselist=False)
+    smart_milestones = relationship("SmartMilestone", back_populates="project")
     reviews = relationship("Review", back_populates="project")
-    embedding = relationship("ProjectEmbedding", back_populates="project", uselist=False) 
+    embedding = relationship("ProjectEmbedding", back_populates="project", uselist=False)

@@ -29,6 +29,7 @@ export default function Navbar() {
           /* Authenticated user menu */
           <>
             <Link href="/profile" className="text-gray-700 hover:text-blue-600">Profile</Link>
+            <Link href="/security" className="text-gray-700 hover:text-blue-600">Security</Link>
             <button 
               onClick={logout} 
               className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"

@@ -96,6 +96,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
       permission: ADMIN_PERMISSIONS.HEALTH_VIEW,
     },
     {
+      name: 'Security',
+      href: '/admin/security',
+      icon: ShieldCheckIcon,
+      description: 'Security events, lockouts, and monitoring',
+      permission: ADMIN_PERMISSIONS.SECURITY_VIEW,
+      badge: 'NEW',
+      badgeColor: 'bg-blue-500',
+    },
+    {
       name: 'Migration Tools',
       href: '/admin/migrations',
       icon: ServerIcon,

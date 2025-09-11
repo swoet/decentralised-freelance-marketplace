@@ -3,6 +3,8 @@ import ProfileEditor from '../components/ProfileEditor';
 import Loader from '../components/Loader';
 import Toast from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
+import Link from 'next/link';
+import MFAManagement from '../components/security/MFAManagement';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<any>(null);
@@ -136,6 +138,22 @@ export default function ProfilePage() {
         </ul>
       </div>
       <div className="mt-8">
+        <h2 className="text-lg font-semibold mb-2 text-gray-700">Security Settings</h2>
+        <div className="bg-white rounded-lg shadow p-4 mb-4">
+          <MFAManagement
+            apiUrl={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}
+            token={token || ''}
+            onStatusChange={() => {}} // Profile page doesn't need to handle status changes
+          />
+          <div className="mt-4">
+            <Link href="/security/mfa" className="text-blue-600 hover:underline text-sm">
+              Manage MFA Settings →
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8">
         <h2 className="text-lg font-semibold mb-2 text-gray-700">Reviews</h2>
         <ul className="divide-y divide-gray-200 bg-white rounded-lg shadow">
           {profile.reviews.map((review: any) => (
@@ -149,4 +167,4 @@ export default function ProfilePage() {
       </div>
     </div>
   );
-} 
+}
