@@ -20,7 +20,7 @@ export default function Navbar() {
           <Link href="/orgs" className="text-gray-700 hover:text-blue-600">Organizations</Link>
         )}
         {user?.role === 'admin' && (
-          <Link href="/admin" className="text-gray-700 hover:text-blue-600">Admin</Link>
+          <Link href="/admin/dashboard" className="text-gray-700 hover:text-blue-600">AI Admin</Link>
         )}
       </div>
       
