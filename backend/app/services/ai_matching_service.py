@@ -9,15 +9,23 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_, or_
+from sqlalchemy import func, and_, or_, desc
+try:
+    from sentence_transformers import SentenceTransformer
+except ImportError:
+    SentenceTransformer = None
 
 from app.models.ai_matching import (
     PersonalityProfile, WorkPattern, CompatibilityScore, 
     SkillDemandPrediction, MatchingQueueItem
 )
+from app.models.matching import (
+    ProjectEmbedding, FreelancerProfile, MatchingResult
+)
 from app.models.user import User
 from app.models.project import Project
 from app.models.bid import Bid
+from app.models.skills import Skill
 from app.core.config import settings
 import re
 import logging
@@ -384,7 +392,8 @@ class AIMatchingService:
             return 0.0
         
         # Simple keyword matching (in production, use semantic similarity)
-        project_skills = project.required_skills or []
+        # Note: Project model doesn't have required_skills field, using skills from project_metadata or empty
+        project_skills = project.project_metadata.get('required_skills', []) if project.project_metadata else []
         freelancer_skills = freelancer.skills or []
         
         if not project_skills:

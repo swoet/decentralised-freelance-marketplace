@@ -378,7 +378,7 @@ export default function CreateSmartEscrow() {
               {Math.abs(milestones.reduce((sum, m) => sum + (Number(m.amount) || 0), 0) - Number(escrowData.total_amount || 0)) >= 0.01 && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
                   <div className="text-sm text-yellow-800">
-                    ⚠️ Warning: Milestone amounts don't match the total escrow amount
+                    ⚠️ Warning: Milestone amounts don&apos;t match the total escrow amount
                   </div>
                 </div>
               )}

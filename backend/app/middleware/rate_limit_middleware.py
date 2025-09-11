@@ -13,7 +13,7 @@ from starlette.responses import Response, JSONResponse
 from sqlalchemy.orm import Session
 from fastapi import status
 
-from app.database.database import SessionLocal
+from app.core.db import SessionLocal
 from app.services.rate_limit_service import RateLimitService
 from app.models.security import RateLimitRule
 

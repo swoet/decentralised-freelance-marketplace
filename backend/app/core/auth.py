@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, Union, Optional
+from typing import Any, Union, Optional, List
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
@@ -45,6 +45,26 @@ def authenticate_user(db: Session, email: str, password: str) -> User:
     if not verify_password(password, user.hashed_password):
         return None
     return user
+
+
+def require_roles(allowed_roles: List[str]):
+    """Dependency that requires user to have one of the specified roles."""
+    def check_roles(current_user: User = Depends(get_current_user)):
+        if not hasattr(current_user, 'role') or not current_user.role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User has no role assigned"
+            )
+        
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied. Required roles: {', '.join(allowed_roles)}"
+            )
+        
+        return current_user
+    
+    return check_roles
 
 
 def generate_2fa_secret() -> str:

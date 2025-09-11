@@ -119,6 +119,26 @@ class Settings(BaseSettings):
     # Event Scraping API Keys
     EVENTBRITE_API_KEY: str = ""
     MEETUP_API_KEY: str = ""
+    
+    # OpenAI Configuration for AI Content Generation
+    OPENAI_API_KEY: str = ""
+    OPENAI_MODEL: str = "gpt-3.5-turbo"
+    AI_CONTENT_GENERATION_ENABLED: bool = True
+    
+    # Blockchain Network Configuration
+    BLOCKCHAIN_NETWORK: str = "local"
+    ETHEREUM_RPC_URL: str = "https://mainnet.infura.io/v3/your-project-id"
+    POLYGON_RPC_URL: str = "https://polygon-mainnet.g.alchemy.com/v2/your-api-key"
+    TESTNET_RPC_URL: str = "https://goerli.infura.io/v3/your-project-id"
+    LOCAL_RPC_URL: str = "http://localhost:8545"
+    
+    # Contract addresses (placeholder values)
+    ESCROW_CONTRACT_ADDRESS: str = "0x0000000000000000000000000000000000000000"
+    PAYMENT_TOKEN_CONTRACT_ADDRESS: str = ""
+    
+    # Contract ABI paths (placeholder values)  
+    ESCROW_CONTRACT_ABI_PATH: str = "contracts/escrow_abi.json"
+    PAYMENT_TOKEN_ABI_PATH: str = "contracts/token_abi.json"
 
     class Config:
         env_file = ".env"

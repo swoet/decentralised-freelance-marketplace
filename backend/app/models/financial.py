@@ -197,12 +197,13 @@ class PaymentTransaction(Base):
     completed_at = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    payer = relationship("User", foreign_keys=[payer_id])
-    payee = relationship("User", foreign_keys=[payee_id])
+    payer = relationship("User", foreign_keys=[payer_id], overlaps="payment_transactions_sent")
+    payee = relationship("User", foreign_keys=[payee_id], overlaps="payment_transactions_received")
     currency = relationship("Currency", foreign_keys=[currency_id])
     original_currency = relationship("Currency", foreign_keys=[original_currency_id])
     exchange_rate = relationship("ExchangeRate")
     project = relationship("Project")
+    escrow = relationship("MultiCurrencyEscrow", back_populates="transactions")
 
     # Indexes
     __table_args__ = (
@@ -262,8 +263,8 @@ class MultiCurrencyEscrow(Base):
 
     # Relationships
     project = relationship("Project")
-    client = relationship("User", foreign_keys=[client_id])
-    freelancer = relationship("User", foreign_keys=[freelancer_id])
+    client = relationship("User", foreign_keys=[client_id], overlaps="escrow_accounts_client")
+    freelancer = relationship("User", foreign_keys=[freelancer_id], overlaps="escrow_accounts_freelancer")
     currency = relationship("Currency")
     arbitrator = relationship("User", foreign_keys=[arbitrator_id])
     transactions = relationship("PaymentTransaction", back_populates="escrow")

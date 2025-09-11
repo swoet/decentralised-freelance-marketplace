@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { NextPage } from "next";
 import { useAuth } from "../../context/AuthContext";
+import { ProjectMatches } from "../../components/ai-matching";
 
 // Freelancer Dashboard - self-contained, responsive, customizable via localStorage
 // Features:
@@ -62,12 +63,29 @@ const MatchFeed: React.FC = () => {
   );
 };
 
+// AI Projects widget wrapper
+const AIProjectsWidget: React.FC = () => {
+  const { user } = useAuth();
+  
+  if (!user?.id) {
+    return <div>Please log in to see AI recommendations</div>;
+  }
+  
+  return <ProjectMatches freelancerId={user.id} limit={5} className="" />;
+};
+
 const defaultWidgets: WidgetDef[] = [
   {
     id: "match-feed",
     title: "Recommended Projects",
     defaultVisible: true,
     render: () => <MatchFeed />,
+  },
+  {
+    id: "ai-projects",
+    title: "AI-Powered Project Matches",
+    defaultVisible: true,
+    render: () => <AIProjectsWidget />,
   },
 ];
 

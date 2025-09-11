@@ -5,6 +5,7 @@ import Toast from '../components/Toast';
 import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
 import MFAManagement from '../components/security/MFAManagement';
+import { ProjectMatches } from '../components/ai-matching';
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<any>(null);

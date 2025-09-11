@@ -23,6 +23,12 @@ from app.models.integration import Integration, Webhook, ApiKey, ApiKeyUsage
 from app.models.oauth import OAuthToken, OAuthState, WebhookSignature
 from app.models.escrow_contract import EscrowContract
 
+# Import financial models
+from app.models.financial import (
+    Currency, ExchangeRate, MultiCurrencyAccount, PaymentTransaction,
+    MultiCurrencyEscrow, CurrencyConversion
+)
+
 # Import AI matching models
 from app.models.ai_matching import (
     PersonalityProfile, WorkPattern, CompatibilityScore, 
@@ -33,6 +39,12 @@ from app.models.ai_matching import (
 from app.models.blockchain_reputation import (
     BlockchainReputation, SkillCertificateNFT, CrossPlatformVerification,
     ReputationStake, ReputationChallenge, ReputationInsurance
+)
+
+# Import smart escrow models
+from app.models.smart_escrow import (
+    SmartEscrow, SmartMilestone, MilestoneCondition, 
+    MilestoneDeliverable, EscrowDispute, EscrowAutomationEvent
 )
 
 __all__ = ["Base", "metadata"]

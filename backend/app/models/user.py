@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Boolean, DateTime, Float, Text
+from sqlalchemy import Column, String, Boolean, DateTime, Float, Text, JSON
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
 from .base import Base
@@ -21,7 +21,7 @@ class User(Base):
     two_fa_secret = Column(String, nullable=True)
     wallet_address = Column(String, nullable=True)
     bio = Column(Text, nullable=True)  # User bio/description
-    skills = Column(ARRAY(String), nullable=True)  # User skills list
+    skills = Column(JSON, nullable=True)  # User skills list
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), nullable=True)
     
@@ -50,3 +50,14 @@ class User(Base):
     
     # Blockchain reputation relationships
     blockchain_reputation = relationship("BlockchainReputation", back_populates="user", uselist=False)
+    
+    # MFA relationships
+    mfa_settings = relationship("UserMFA", back_populates="user")
+    
+    # Financial relationships
+    currency_accounts = relationship("MultiCurrencyAccount", back_populates="user")
+    payment_transactions_sent = relationship("PaymentTransaction", foreign_keys="PaymentTransaction.payer_id", overlaps="payment_transactions_received")
+    payment_transactions_received = relationship("PaymentTransaction", foreign_keys="PaymentTransaction.payee_id", overlaps="payment_transactions_sent")
+    escrow_accounts_client = relationship("MultiCurrencyEscrow", foreign_keys="MultiCurrencyEscrow.client_id", overlaps="escrow_accounts_freelancer")
+    escrow_accounts_freelancer = relationship("MultiCurrencyEscrow", foreign_keys="MultiCurrencyEscrow.freelancer_id", overlaps="escrow_accounts_client")
+    currency_conversions = relationship("CurrencyConversion", back_populates="user")

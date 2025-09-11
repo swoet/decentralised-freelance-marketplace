@@ -89,12 +89,12 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS Configuration - Use FastAPI's native CORSMiddleware properly
+# CORS Configuration - Allow frontend localhost:3000
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
-    allow_credentials=False,  # Must be False when using allow_origins=["*"]
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Specific origins for development
+    allow_credentials=True,  # Allow credentials with specific origins
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
     expose_headers=["*"],
 )

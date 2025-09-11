@@ -20,7 +20,7 @@ import logging
 
 from app.models.security import UserMFA, MFAType, SecurityEvent, SecurityEventType
 from app.models.user import User
-from app.database.database import get_db
+from app.core.db import get_db
 from app.core.config import settings
 from app.services.security_event_service import SecurityEventService
 

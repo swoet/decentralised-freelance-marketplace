@@ -5,6 +5,7 @@ import BidForm from '../../components/BidForm';
 import ChatBox from '../../components/ChatBox';
 import Loader from '../../components/Loader';
 import Toast from '../../components/Toast';
+import { FreelancerMatches } from '../../components/ai-matching';
 import { Project } from '../../types';
 
 export default function ProjectDetailPage() {
@@ -15,8 +16,6 @@ export default function ProjectDetailPage() {
   const [bids, setBids] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [smartMatches, setSmartMatches] = useState<any[] | null>(null);
-  const [matchesLoading, setMatchesLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -41,23 +40,6 @@ export default function ProjectDetailPage() {
       }
     };
     load();
-
-    // Load AI Smart Matches (client-only)
-    const loadMatches = async () => {
-      try {
-        setMatchesLoading(true);
-        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
-        const res = await fetch(`${API_URL}/ai/matching/project/${id}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        setSmartMatches(Array.isArray(data?.matches) ? data.matches : []);
-      } catch (_) {
-        setSmartMatches([]);
-      } finally {
-        setMatchesLoading(false);
-      }
-    };
-    loadMatches();
   }, [id]);
 
   const handleBidSubmit = async (data: any) => {
@@ -105,35 +87,7 @@ export default function ProjectDetailPage() {
         </ul>
       </div>
       <div className="mb-6">
-        <h2 className="text-lg font-semibold mb-2 text-gray-700">AI Smart Matches</h2>
-        <div className="bg-white rounded-lg shadow p-4">
-          {matchesLoading ? (
-            <div className="text-sm text-gray-500">Loading matches...</div>
-          ) : smartMatches && smartMatches.length ? (
-            <ul className="divide-y divide-gray-200">
-              {smartMatches.map((m: any) => (
-                <li key={m.freelancer_id} className="py-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium text-gray-900">{m.freelancer?.full_name || 'Freelancer'}</div>
-                      <div className="text-sm text-gray-600">Compatibility: <span className="font-semibold">{Math.round(m.compatibility_score)}%</span></div>
-                      <div className="text-xs text-gray-500">Skill match {Math.round(m.skill_match)}% · Personality {Math.round(m.personality_match)}% · Risk {Math.round(m.risk_score)}%</div>
-                      {Array.isArray(m.match_reasons) && m.match_reasons.length > 0 && (
-                        <div className="mt-1 text-xs text-gray-500">Reasons: {m.match_reasons.join(', ')}</div>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <button className="px-3 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700">Invite</button>
-                      <button className="px-3 py-1 text-sm rounded border">View Profile</button>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="text-sm text-gray-500">No matches available yet.</div>
-          )}
-        </div>
+        <FreelancerMatches projectId={id as string} className="" />
       </div>
 
       <div className="mb-6">

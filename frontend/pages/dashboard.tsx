@@ -138,10 +138,8 @@ export default function Dashboard() {
     );
   }
 
-  // If no user, redirect to login (this should be handled by useEffect, but just in case)
-  if (!user || !token) {
-    return null; // Will redirect in useEffect
-  }
+  // Allow public mode (preview) to continue rendering
+  // Only redirect if we're not in public mode and there's no user/token
 
   return (
     <div className="min-h-screen bg-gray-50">
