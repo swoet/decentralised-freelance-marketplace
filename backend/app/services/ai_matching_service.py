@@ -1,32 +1,650 @@
-"""AI-powered matching service for projects and freelancers."""
+"""AI-Powered Smart Matching Service - Tier 1 Revolutionary Implementation"""
 
-import logging
-from typing import List, Dict, Optional, Tuple
-from datetime import datetime, timedelta
+import asyncio
+import json
+import hashlib
+from typing import Dict, List, Optional, Tuple, Any
+from datetime import datetime, timezone, timedelta
 import numpy as np
-from sentence_transformers import SentenceTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, desc
+from sqlalchemy import func, and_, or_
 
-from app.core.config import settings
-from app.models.matching import ProjectEmbedding, FreelancerProfile, MatchingResult
-from app.models.project import Project
+from app.models.ai_matching import (
+    PersonalityProfile, WorkPattern, CompatibilityScore, 
+    SkillDemandPrediction, MatchingQueueItem
+)
 from app.models.user import User
-from app.models.skills import Skill
+from app.models.project import Project
+from app.models.bid import Bid
+from app.core.config import settings
+import re
+import logging
 
 logger = logging.getLogger(__name__)
 
 
-class AIMatchingService:
-    """Service for AI-powered project-freelancer matching."""
+class PersonalityAnalyzer:
+    """Analyzes personality traits from text and behavior patterns"""
     
     def __init__(self):
-        self.model = None
-        self.embedding_version = "1.0"
-        self._load_model()
+        # Personality indicators (simplified for demo - in production use advanced NLP models)
+        self.personality_indicators = {
+            'openness': {
+                'high': ['creative', 'innovative', 'artistic', 'imaginative', 'experimental', 'novel'],
+                'low': ['traditional', 'conventional', 'practical', 'routine', 'standard']
+            },
+            'conscientiousness': {
+                'high': ['organized', 'planned', 'detailed', 'systematic', 'methodical', 'thorough'],
+                'low': ['flexible', 'spontaneous', 'casual', 'adaptive', 'informal']
+            },
+            'extraversion': {
+                'high': ['collaborative', 'team', 'communication', 'presentation', 'social', 'networking'],
+                'low': ['independent', 'focused', 'analytical', 'research', 'individual', 'quiet']
+            },
+            'agreeableness': {
+                'high': ['cooperative', 'supportive', 'helpful', 'understanding', 'diplomatic'],
+                'low': ['competitive', 'direct', 'challenging', 'critical', 'assertive']
+            },
+            'neuroticism': {
+                'high': ['urgent', 'pressure', 'stress', 'concern', 'worry', 'issue'],
+                'low': ['calm', 'stable', 'consistent', 'reliable', 'steady', 'composed']
+            }
+        }
     
-    def _load_model(self):
+    async def analyze_text_personality(self, texts: List[str]) -> Dict[str, float]:
+        """Analyze personality from text samples"""
+        if not texts:
+            return self._default_personality_scores()
+        
+        # Combine all texts
+        combined_text = ' '.join(texts).lower()
+        
+        personality_scores = {}
+        
+        for trait, indicators in self.personality_indicators.items():
+            high_count = sum(combined_text.count(word) for word in indicators['high'])
+            low_count = sum(combined_text.count(word) for word in indicators['low'])
+            
+            # Calculate score (0-100 scale)
+            total_indicators = high_count + low_count
+            if total_indicators == 0:
+                score = 50.0  # Neutral
+            else:
+                score = ((high_count / total_indicators) * 100)
+            
+            personality_scores[trait] = min(100.0, max(0.0, score))
+        
+        return personality_scores
+    
+    def _default_personality_scores(self) -> Dict[str, float]:
+        """Return default neutral personality scores"""
+        return {
+            'openness': 50.0,
+            'conscientiousness': 50.0,
+            'extraversion': 50.0,
+            'agreeableness': 50.0,
+            'neuroticism': 50.0
+        }
+
+
+class AIMatchingService:
+    """Revolutionary AI-Powered Smart Matching Service with Personality & Work Pattern Analysis"""
+    
+    def __init__(self):
+        self.personality_analyzer = PersonalityAnalyzer()
+        self.compatibility_weights = {
+            'personality_match': 0.20,
+            'work_style_match': 0.25,
+            'skill_technical_match': 0.30,
+            'communication_match': 0.15,
+            'schedule_compatibility': 0.10
+        }
+    
+    async def analyze_user_personality(self, user_id: str, db: Session) -> PersonalityProfile:
+        """Analyze and store user personality profile using AI"""
+        
+        # Get existing profile or create new one
+        profile = db.query(PersonalityProfile).filter(
+            PersonalityProfile.user_id == user_id
+        ).first()
+        
+        if not profile:
+            profile = PersonalityProfile(user_id=user_id)
+            db.add(profile)
+        
+        # Gather text samples for analysis
+        text_samples = await self._gather_user_text_samples(user_id, db)
+        
+        # Analyze personality from text
+        personality_scores = await self.personality_analyzer.analyze_text_personality(text_samples)
+        
+        # Update profile
+        profile.openness = personality_scores.get('openness', 50.0)
+        profile.conscientiousness = personality_scores.get('conscientiousness', 50.0)
+        profile.extraversion = personality_scores.get('extraversion', 50.0)
+        profile.agreeableness = personality_scores.get('agreeableness', 50.0)
+        profile.neuroticism = personality_scores.get('neuroticism', 50.0)
+        
+        profile.text_analysis_count = len(text_samples)
+        profile.data_points_analyzed = len(text_samples)
+        profile.analysis_confidence = min(1.0, len(text_samples) / 20)
+        profile.last_analysis = datetime.now(timezone.utc)
+        profile.updated_at = datetime.now(timezone.utc)
+        
+        db.commit()
+        db.refresh(profile)
+        
+        logger.info(f"Analyzed personality for user {user_id}: confidence {profile.analysis_confidence}")
+        return profile
+    
+    async def calculate_smart_compatibility(
+        self, 
+        freelancer_id: str, 
+        project_id: str, 
+        db: Session
+    ) -> CompatibilityScore:
+        """Calculate revolutionary compatibility score using AI analysis"""
+        
+        # Get project details
+        project = db.query(Project).filter(Project.id == project_id).first()
+        if not project:
+            raise ValueError("Project not found")
+        
+        client_id = project.client_id
+        
+        # Get personality profiles
+        freelancer_personality = db.query(PersonalityProfile).filter(
+            PersonalityProfile.user_id == freelancer_id
+        ).first()
+        
+        client_personality = db.query(PersonalityProfile).filter(
+            PersonalityProfile.user_id == client_id
+        ).first()
+        
+        # Get work patterns
+        freelancer_pattern = db.query(WorkPattern).filter(
+            WorkPattern.user_id == freelancer_id
+        ).first()
+        
+        # Calculate compatibility dimensions
+        personality_match = await self._calculate_personality_match(
+            freelancer_personality, client_personality
+        )
+        
+        skill_match = await self._calculate_skill_match(
+            freelancer_id, project_id, db
+        )
+        
+        work_style_match = await self._calculate_work_style_match(
+            freelancer_pattern, project, db
+        )
+        
+        communication_match = await self._calculate_communication_match(
+            freelancer_personality, client_personality
+        )
+        
+        schedule_compatibility = await self._calculate_schedule_compatibility(
+            freelancer_personality, client_personality
+        )
+        
+        # Calculate overall compatibility
+        overall_compatibility = (
+            personality_match * self.compatibility_weights['personality_match'] +
+            work_style_match * self.compatibility_weights['work_style_match'] +
+            skill_match * self.compatibility_weights['skill_technical_match'] +
+            communication_match * self.compatibility_weights['communication_match'] +
+            schedule_compatibility * self.compatibility_weights['schedule_compatibility']
+        )
+        
+        # Predict success metrics
+        predicted_success = self._predict_project_success(
+            overall_compatibility, freelancer_pattern
+        )
+        
+        predicted_satisfaction = self._predict_satisfaction(
+            overall_compatibility, communication_match
+        )
+        
+        risk_score = self._assess_project_risk(
+            freelancer_pattern, overall_compatibility
+        )
+        
+        # Create or update compatibility score
+        score = db.query(CompatibilityScore).filter(
+            and_(
+                CompatibilityScore.freelancer_id == freelancer_id,
+                CompatibilityScore.project_id == project_id
+            )
+        ).first()
+        
+        if not score:
+            score = CompatibilityScore(
+                freelancer_id=freelancer_id,
+                client_id=client_id,
+                project_id=project_id
+            )
+            db.add(score)
+        
+        # Update with calculated data
+        score.overall_compatibility = overall_compatibility
+        score.personality_match = personality_match
+        score.work_style_match = work_style_match
+        score.skill_technical_match = skill_match
+        score.communication_match = communication_match
+        score.schedule_compatibility = schedule_compatibility
+        score.predicted_success_rate = predicted_success
+        score.predicted_satisfaction_score = predicted_satisfaction
+        score.risk_assessment_score = risk_score
+        score.confidence_score = min(
+            freelancer_personality.analysis_confidence if freelancer_personality else 0.5,
+            client_personality.analysis_confidence if client_personality else 0.5
+        )
+        score.calculation_timestamp = datetime.now(timezone.utc)
+        score.model_version = "2.0"  # Enhanced version
+        
+        db.commit()
+        db.refresh(score)
+        
+        logger.info(f"Calculated compatibility: {overall_compatibility:.2f} for freelancer {freelancer_id} and project {project_id}")
+        return score
+    
+    async def get_revolutionary_matches(
+        self, 
+        project_id: str, 
+        db: Session, 
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """Get revolutionary AI-powered smart matches for a project"""
+        
+        project = db.query(Project).filter(Project.id == project_id).first()
+        if not project:
+            return []
+        
+        # Get all freelancers
+        freelancers = db.query(User).filter(User.role == 'freelancer').all()
+        
+        matches = []
+        
+        for freelancer in freelancers:
+            try:
+                # Ensure personality profile exists
+                await self.analyze_user_personality(freelancer.id, db)
+                
+                # Calculate comprehensive compatibility
+                compatibility = await self.calculate_smart_compatibility(
+                    freelancer.id, project_id, db
+                )
+                
+                match_data = {
+                    'freelancer_id': freelancer.id,
+                    'freelancer': {
+                        'id': freelancer.id,
+                        'full_name': freelancer.full_name,
+                        'email': freelancer.email,
+                        'skills': freelancer.skills,
+                        'bio': freelancer.bio
+                    },
+                    'compatibility_score': compatibility.overall_compatibility,
+                    'personality_match': compatibility.personality_match,
+                    'skill_match': compatibility.skill_technical_match,
+                    'work_style_match': compatibility.work_style_match,
+                    'communication_match': compatibility.communication_match,
+                    'success_prediction': compatibility.predicted_success_rate,
+                    'satisfaction_prediction': compatibility.predicted_satisfaction_score,
+                    'risk_score': compatibility.risk_assessment_score,
+                    'confidence': compatibility.confidence_score,
+                    'match_reasons': self._generate_match_reasons(compatibility),
+                    'ai_insights': self._generate_ai_insights(compatibility)
+                }
+                
+                matches.append(match_data)
+                
+            except Exception as e:
+                logger.error(f"Error calculating compatibility for freelancer {freelancer.id}: {e}")
+                continue
+        
+        # Sort by compatibility score
+        matches.sort(key=lambda x: x['compatibility_score'], reverse=True)
+        
+        logger.info(f"Generated {len(matches)} AI-powered matches for project {project_id}")
+        return matches[:limit]
+    
+    async def _gather_user_text_samples(self, user_id: str, db: Session) -> List[str]:
+        """Gather text samples from user's messages, project descriptions, etc."""
+        text_samples = []
+        
+        # Get user's profile info
+        user = db.query(User).filter(User.id == user_id).first()
+        if user and user.bio:
+            text_samples.append(user.bio)
+        
+        # Get user's bids
+        bids = db.query(Bid).filter(Bid.freelancer_id == user_id).limit(20).all()
+        for bid in bids:
+            if bid.proposal_text:
+                text_samples.append(bid.proposal_text)
+        
+        # Get user's projects (if client)
+        projects = db.query(Project).filter(Project.client_id == user_id).limit(10).all()
+        for project in projects:
+            if project.description:
+                text_samples.append(project.description)
+        
+        return text_samples
+    
+    async def _calculate_personality_match(
+        self, 
+        freelancer: Optional[PersonalityProfile], 
+        client: Optional[PersonalityProfile]
+    ) -> float:
+        """Calculate personality compatibility score"""
+        if not freelancer or not client:
+            return 50.0  # Neutral score
+        
+        # Complementary traits scoring
+        compatibility_factors = {
+            'openness': 100 - abs(freelancer.openness - client.openness),
+            'conscientiousness': min(freelancer.conscientiousness, client.conscientiousness),
+            'extraversion': 100 - abs(freelancer.extraversion - client.extraversion),
+            'agreeableness': (freelancer.agreeableness + client.agreeableness) / 2,
+            'neuroticism': 100 - max(freelancer.neuroticism, client.neuroticism)
+        }
+        
+        # Weighted average
+        personality_weights = {
+            'openness': 0.15,
+            'conscientiousness': 0.25,
+            'extraversion': 0.20,
+            'agreeableness': 0.20,
+            'neuroticism': 0.20
+        }
+        
+        total_score = sum(
+            score * personality_weights[trait] 
+            for trait, score in compatibility_factors.items()
+        )
+        
+        return min(100.0, max(0.0, total_score))
+    
+    async def _calculate_skill_match(
+        self, 
+        freelancer_id: str, 
+        project_id: str, 
+        db: Session
+    ) -> float:
+        """Calculate technical skill match"""
+        project = db.query(Project).filter(Project.id == project_id).first()
+        if not project:
+            return 70.0
+        
+        freelancer = db.query(User).filter(User.id == freelancer_id).first()
+        if not freelancer:
+            return 0.0
+        
+        # Simple keyword matching (in production, use semantic similarity)
+        project_skills = project.required_skills or []
+        freelancer_skills = freelancer.skills or []
+        
+        if not project_skills:
+            return 80.0
+        
+        matches = sum(1 for skill in project_skills if skill in freelancer_skills)
+        skill_match_ratio = matches / len(project_skills)
+        
+        return skill_match_ratio * 100
+    
+    async def _calculate_work_style_match(
+        self, 
+        freelancer_pattern: Optional[WorkPattern], 
+        project: Project, 
+        db: Session
+    ) -> float:
+        """Calculate work style compatibility"""
+        if not freelancer_pattern:
+            return 60.0  # Default score
+        
+        # Base score from freelancer's track record
+        base_score = (
+            (freelancer_pattern.quality_consistency_score or 70.0) * 0.4 +
+            (freelancer_pattern.deadline_adherence_rate or 80.0) * 0.3 +
+            (freelancer_pattern.project_success_rate or 70.0) * 0.3
+        )
+        
+        return min(100.0, max(0.0, base_score))
+    
+    async def _calculate_communication_match(
+        self, 
+        freelancer: Optional[PersonalityProfile], 
+        client: Optional[PersonalityProfile]
+    ) -> float:
+        """Calculate communication style compatibility"""
+        if not freelancer or not client:
+            return 70.0
+        
+        # Communication compatibility based on styles
+        f_style = freelancer.communication_style or 'neutral'
+        c_style = client.communication_style or 'neutral'
+        
+        compatibility_matrix = {
+            ('direct', 'direct'): 90,
+            ('direct', 'diplomatic'): 60,
+            ('diplomatic', 'diplomatic'): 85,
+            ('diplomatic', 'direct'): 60,
+            ('neutral', 'direct'): 75,
+            ('neutral', 'diplomatic'): 75,
+            ('direct', 'neutral'): 75,
+            ('diplomatic', 'neutral'): 75,
+            ('neutral', 'neutral'): 80
+        }
+        
+        return compatibility_matrix.get((f_style, c_style), 70.0)
+    
+    async def _calculate_schedule_compatibility(
+        self, 
+        freelancer: Optional[PersonalityProfile], 
+        client: Optional[PersonalityProfile]
+    ) -> float:
+        """Calculate schedule/timezone compatibility"""
+        if not freelancer or not client:
+            return 80.0
+        
+        # Simplified timezone compatibility
+        f_tz = freelancer.timezone_preference or 'UTC'
+        c_tz = client.timezone_preference or 'UTC'
+        
+        if f_tz == c_tz:
+            return 100.0
+        else:
+            return 70.0  # Different timezones but manageable
+    
+    def _predict_project_success(
+        self, 
+        compatibility: float, 
+        freelancer_pattern: Optional[WorkPattern]
+    ) -> float:
+        """Predict project success rate"""
+        if not freelancer_pattern:
+            return compatibility * 0.8  # Base on compatibility only
+        
+        # Combine compatibility with historical performance
+        historical_success = freelancer_pattern.project_success_rate or 70.0
+        
+        # Weighted average favoring recent compatibility
+        predicted_success = (compatibility * 0.6 + historical_success * 0.4)
+        
+        return min(100.0, max(0.0, predicted_success))
+    
+    def _predict_satisfaction(
+        self, 
+        compatibility: float, 
+        communication: float
+    ) -> float:
+        """Predict client satisfaction score (1-5 scale)"""
+        # Convert compatibility scores to satisfaction prediction
+        satisfaction_score = (compatibility * 0.7 + communication * 0.3) / 20
+        return min(5.0, max(1.0, satisfaction_score))
+    
+    def _assess_project_risk(
+        self, 
+        freelancer_pattern: Optional[WorkPattern], 
+        compatibility: float
+    ) -> float:
+        """Assess project risk (0=low risk, 100=high risk)"""
+        if not freelancer_pattern:
+            return 50.0  # Medium risk
+        
+        # Risk factors
+        deadline_risk = 100 - (freelancer_pattern.deadline_adherence_rate or 80)
+        quality_risk = 100 - (freelancer_pattern.quality_consistency_score or 70)
+        compatibility_risk = 100 - compatibility
+        
+        # Weighted risk score
+        total_risk = (deadline_risk * 0.4 + quality_risk * 0.3 + compatibility_risk * 0.3)
+        
+        return min(100.0, max(0.0, total_risk))
+    
+    def _generate_match_reasons(self, compatibility: CompatibilityScore) -> List[str]:
+        """Generate human-readable reasons for the match"""
+        reasons = []
+        
+        if compatibility.personality_match > 80:
+            reasons.append("Excellent personality compatibility")
+        elif compatibility.personality_match > 60:
+            reasons.append("Good personality match")
+        
+        if compatibility.skill_technical_match > 85:
+            reasons.append("Perfect skill alignment")
+        elif compatibility.skill_technical_match > 70:
+            reasons.append("Strong technical skills match")
+        
+        if compatibility.predicted_success_rate > 80:
+            reasons.append("High predicted success rate")
+        
+        if compatibility.communication_match > 75:
+            reasons.append("Compatible communication styles")
+        
+        if compatibility.risk_assessment_score < 30:
+            reasons.append("Low risk collaboration")
+        
+        return reasons or ["General compatibility match"]
+    
+    def _generate_ai_insights(self, compatibility: CompatibilityScore) -> List[str]:
+        """Generate AI insights for the match"""
+        insights = []
+        
+        if compatibility.predicted_success_rate > 85:
+            insights.append(f"🎯 {compatibility.predicted_success_rate:.0f}% predicted success rate")
+        
+        if compatibility.risk_assessment_score < 25:
+            insights.append("🛡️ Very low project risk")
+        elif compatibility.risk_assessment_score > 75:
+            insights.append("⚠️ Higher than average project risk")
+        
+        if compatibility.predicted_satisfaction_score > 4.5:
+            insights.append(f"⭐ Expected satisfaction: {compatibility.predicted_satisfaction_score:.1f}/5.0")
+        
+        if compatibility.confidence_score > 0.8:
+            insights.append(f"🎯 High confidence prediction ({compatibility.confidence_score:.0%})")
+        
+        return insights
+    
+    async def update_skill_demand_predictions(self, db: Session) -> List[SkillDemandPrediction]:
+        """Update skill demand predictions (simplified implementation)"""
+        # Get recent project data
+        from datetime import timedelta
+        recent_projects = db.query(Project).filter(
+            Project.created_at >= datetime.now(timezone.utc) - timedelta(days=30)
+        ).all()
+        
+        # Count skill occurrences
+        skill_counts = {}
+        total_projects = len(recent_projects)
+        
+        for project in recent_projects:
+            if project.required_skills:
+                for skill in project.required_skills:
+                    skill_counts[skill] = skill_counts.get(skill, 0) + 1
+        
+        # Create or update predictions
+        updated_predictions = []
+        
+        for skill, count in skill_counts.items():
+            demand_score = (count / total_projects) * 100 if total_projects > 0 else 0
+            
+            # Get existing prediction or create new one
+            prediction = db.query(SkillDemandPrediction).filter(
+                SkillDemandPrediction.skill_name == skill
+            ).first()
+            
+            if not prediction:
+                prediction = SkillDemandPrediction(skill_name=skill)
+                db.add(prediction)
+            
+            # Update with simple trend prediction
+            prediction.skill_category = self._categorize_skill(skill)
+            prediction.current_demand_score = demand_score
+            prediction.predicted_demand_1m = demand_score * 1.1
+            prediction.predicted_demand_3m = demand_score * 1.15
+            prediction.predicted_demand_6m = demand_score * 1.2
+            prediction.predicted_demand_1y = demand_score * 1.3
+            prediction.competition_level = self._assess_competition_level(skill, db)
+            prediction.learning_difficulty = self._assess_learning_difficulty(skill)
+            prediction.prediction_confidence = min(1.0, count / 10)
+            prediction.data_points_analyzed = count
+            prediction.model_version = '1.0'
+            prediction.last_updated = datetime.now(timezone.utc)
+            
+            updated_predictions.append(prediction)
+        
+        db.commit()
+        return updated_predictions
+    
+    def _categorize_skill(self, skill: str) -> str:
+        """Categorize skill into broad categories"""
+        skill_lower = skill.lower()
+        
+        if any(tech in skill_lower for tech in ['python', 'javascript', 'react', 'node', 'java']):
+            return 'programming'
+        elif any(design in skill_lower for design in ['design', 'ui', 'ux', 'photoshop']):
+            return 'design'
+        elif any(marketing in skill_lower for marketing in ['marketing', 'seo', 'social']):
+            return 'marketing'
+        elif any(writing in skill_lower for writing in ['writing', 'content', 'copywriting']):
+            return 'writing'
+        else:
+            return 'other'
+    
+    def _assess_competition_level(self, skill: str, db: Session) -> str:
+        """Assess competition level for a skill"""
+        # Count freelancers with this skill
+        freelancer_count = db.query(User).filter(
+            User.role == 'freelancer',
+            User.skills.contains([skill])
+        ).count()
+        
+        if freelancer_count > 100:
+            return 'high'
+        elif freelancer_count > 20:
+            return 'medium'
+        else:
+            return 'low'
+    
+    def _assess_learning_difficulty(self, skill: str) -> float:
+        """Assess how difficult it is to learn a skill (0-100 scale)"""
+        # Simplified difficulty assessment
+        difficulty_map = {
+            'python': 60, 'javascript': 50, 'react': 70, 'machine learning': 85,
+            'design': 40, 'writing': 30, 'marketing': 35, 'project management': 45
+        }
+        
+        skill_lower = skill.lower()
+        for known_skill, difficulty in difficulty_map.items():
+            if known_skill in skill_lower:
+                return difficulty
+        
+        return 50.0  # Default medium difficulty
         """Load the sentence transformer model."""
         try:
             if settings.AI_MATCHING_ENABLED:

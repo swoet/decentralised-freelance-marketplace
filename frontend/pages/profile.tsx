@@ -9,7 +9,9 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const [aiProfile, setAiProfile] = useState<any | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
@@ -30,6 +32,26 @@ export default function ProfilePage() {
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [token]);
+
+  useEffect(() => {
+    if (!token || !user?.id) return;
+    const fetchAI = async () => {
+      try {
+        setAiLoading(true);
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+        const res = await fetch(`${API_URL}/ai/personality/analyze/${user.id}`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        setAiProfile(data);
+      } finally {
+        setAiLoading(false);
+      }
+    };
+    fetchAI();
+  }, [token, user?.id]);
 
   const handleSave = (data: any) => {
     setSaving(true);
@@ -67,6 +89,44 @@ export default function ProfilePage() {
         onSave={handleSave}
         loading={saving}
       />
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold mb-2 text-gray-700">AI Profile Insights</h2>
+        <div className="bg-white rounded-lg shadow p-4">
+          {aiLoading ? (
+            <div className="text-sm text-gray-500">Analyzing your profile...</div>
+          ) : aiProfile ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+              <div className="p-3 bg-gray-50 rounded">
+                <div className="text-gray-500">Openness</div>
+                <div className="font-semibold">{Math.round(aiProfile.openness)}%</div>
+              </div>
+              <div className="p-3 bg-gray-50 rounded">
+                <div className="text-gray-500">Conscientiousness</div>
+                <div className="font-semibold">{Math.round(aiProfile.conscientiousness)}%</div>
+              </div>
+              <div className="p-3 bg-gray-50 rounded">
+                <div className="text-gray-500">Extraversion</div>
+                <div className="font-semibold">{Math.round(aiProfile.extraversion)}%</div>
+              </div>
+              <div className="p-3 bg-gray-50 rounded">
+                <div className="text-gray-500">Agreeableness</div>
+                <div className="font-semibold">{Math.round(aiProfile.agreeableness)}%</div>
+              </div>
+              <div className="p-3 bg-gray-50 rounded">
+                <div className="text-gray-500">Stability</div>
+                <div className="font-semibold">{Math.round(100 - aiProfile.neuroticism)}%</div>
+              </div>
+              <div className="p-3 bg-gray-50 rounded col-span-2">
+                <div className="text-gray-500 mb-1">Analysis Confidence</div>
+                <div className="font-semibold">{Math.round((aiProfile.analysis_confidence || 0) * 100)}%</div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-sm text-gray-500">AI insights not available yet.</div>
+          )}
+        </div>
+      </div>
+
       <div className="mt-8">
         <h2 className="text-lg font-semibold mb-2 text-gray-700">Portfolio</h2>
         <ul className="list-disc list-inside text-gray-600">

@@ -27,6 +27,7 @@ from .oauth import router as oauth_router
 from .sessions import router as sessions_router
 from .matching_v2 import router as matching_v2_router
 from .dashboard import router as dashboard_router
+from .ai import router as ai_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
@@ -55,3 +56,4 @@ api_router.include_router(oauth_router, prefix="/oauth", tags=["oauth"])
 api_router.include_router(sessions_router, prefix="/sessions", tags=["sessions"])
 api_router.include_router(matching_v2_router, prefix="/matching/v2", tags=["matching-v2"])
 api_router.include_router(dashboard_router)
+api_router.include_router(ai_router)

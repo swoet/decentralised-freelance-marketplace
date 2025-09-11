@@ -63,6 +63,66 @@ export default function IntegrationsIndex() {
     }
   }
 
+  const connectSlack = async () => {
+    try {
+      const headers: Record<string, string> = {}
+      if (token) headers['Authorization'] = `Bearer ${token}`
+      const res = await fetch(`${API_BASE}/integrations/slack/connect`, { headers })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const j = await res.json()
+      if (j.url) {
+        window.location.href = j.url
+      } else {
+        alert('No authorization URL returned')
+      }
+    } catch (e: any) {
+      alert(e?.message || 'Failed to start Slack OAuth')
+    }
+  }
+
+  const disconnectSlack = async () => {
+    if (!confirm('Disconnect Slack?')) return
+    try {
+      const headers: Record<string, string> = {}
+      if (token) headers['Authorization'] = `Bearer ${token}`
+      const res = await fetch(`${API_BASE}/integrations/slack`, { method: 'DELETE', headers })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      await load()
+    } catch (e: any) {
+      alert(e?.message || 'Failed to disconnect Slack')
+    }
+  }
+
+  const connectJira = async () => {
+    try {
+      const headers: Record<string, string> = {}
+      if (token) headers['Authorization'] = `Bearer ${token}`
+      const res = await fetch(`${API_BASE}/integrations/jira/connect`, { headers })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const j = await res.json()
+      if (j.url) {
+        window.location.href = j.url
+      } else {
+        alert('No authorization URL returned')
+      }
+    } catch (e: any) {
+      alert(e?.message || 'Failed to start Jira OAuth')
+    }
+  }
+
+  const disconnectJira = async () => {
+    if (!confirm('Disconnect Jira?')) return
+    try {
+      const headers: Record<string, string> = {}
+      if (token) headers['Authorization'] = `Bearer ${token}`
+      const res = await fetch(`${API_BASE}/integrations/jira`, { method: 'DELETE', headers })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      await load()
+    } catch (e: any) {
+      alert(e?.message || 'Failed to disconnect Jira')
+    }
+  }
+
   const isConnected = (provider: string) => data.connected?.some(c => c.provider === provider)
 
   return (
@@ -98,35 +158,43 @@ export default function IntegrationsIndex() {
               </div>
             </div>
 
-            {/* Slack (placeholder button for layout; backend OAuth to be added later) */}
+            {/* Slack */}
             <div className="rounded-lg border bg-white p-4 shadow-sm space-y-2">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-lg font-semibold">Slack</div>
-                  <div className="text-sm text-gray-600">Project notifications</div>
+                  <div className="text-sm text-gray-600">Team communication and project notifications</div>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded ${isConnected('slack') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
                   {isConnected('slack') ? 'Connected' : 'Not connected'}
                 </span>
               </div>
               <div className="flex gap-2">
-                <button className="px-3 py-1.5 rounded border" disabled>Coming soon</button>
+                {!isConnected('slack') ? (
+                  <button className="px-3 py-1.5 rounded bg-indigo-600 text-white" onClick={connectSlack}>Connect</button>
+                ) : (
+                  <button className="px-3 py-1.5 rounded border" onClick={disconnectSlack}>Disconnect</button>
+                )}
               </div>
             </div>
 
-            {/* Jira (placeholder) */}
+            {/* Jira */}
             <div className="rounded-lg border bg-white p-4 shadow-sm space-y-2">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-lg font-semibold">Jira</div>
-                  <div className="text-sm text-gray-600">Sync tasks and issues</div>
+                  <div className="text-sm text-gray-600">Issue tracking and project management</div>
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded ${isConnected('jira') ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
                   {isConnected('jira') ? 'Connected' : 'Not connected'}
                 </span>
               </div>
               <div className="flex gap-2">
-                <button className="px-3 py-1.5 rounded border" disabled>Coming soon</button>
+                {!isConnected('jira') ? (
+                  <button className="px-3 py-1.5 rounded bg-indigo-600 text-white" onClick={connectJira}>Connect</button>
+                ) : (
+                  <button className="px-3 py-1.5 rounded border" onClick={disconnectJira}>Disconnect</button>
+                )}
               </div>
             </div>
           </div>

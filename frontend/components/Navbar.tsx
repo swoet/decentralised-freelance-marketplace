@@ -8,7 +8,14 @@ export default function Navbar() {
     <nav className="bg-white border-b border-gray-200 px-4 py-2 flex items-center justify-between shadow-sm">
       <div className="flex items-center space-x-4">
         <Link href="/dashboard" className="font-bold text-xl text-blue-600">FreelanceX</Link>
+        
+        {/* Always show these links for all users */}
         <Link href="/projects" className="text-gray-700 hover:text-blue-600">Projects</Link>
+        <Link href="/community" className="text-gray-700 hover:text-blue-600">Community</Link>
+        <Link href="/integrations" className="text-gray-700 hover:text-blue-600">Integrations</Link>
+        <Link href="/about" className="text-gray-700 hover:text-blue-600">About</Link>
+        
+        {/* Role-specific authenticated user navigation */}
         {user?.role === 'client' && (
           <Link href="/orgs" className="text-gray-700 hover:text-blue-600">Organizations</Link>
         )}
@@ -16,16 +23,37 @@ export default function Navbar() {
           <Link href="/admin" className="text-gray-700 hover:text-blue-600">Admin</Link>
         )}
       </div>
+      
       <div className="flex items-center space-x-4">
         {user ? (
+          /* Authenticated user menu */
           <>
             <Link href="/profile" className="text-gray-700 hover:text-blue-600">Profile</Link>
-            <button onClick={logout} className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Logout</button>
+            <button 
+              onClick={logout} 
+              className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"
+            >
+              Logout
+            </button>
           </>
         ) : (
-          <Link href="/login" className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">Login</Link>
+          /* Unauthenticated user menu */
+          <>
+            <Link 
+              href="/login" 
+              className="text-gray-700 hover:text-blue-600 px-3 py-1 rounded transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link 
+              href="/signup" 
+              className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors"
+            >
+              Sign Up
+            </Link>
+          </>
         )}
       </div>
     </nav>
   );
-} 
+}

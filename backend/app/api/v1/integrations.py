@@ -89,10 +89,12 @@ async def receive_webhook(provider: str, request: Request, x_signature: str | No
     # TODO: enqueue or process event
     return {"ok": True}
 
-# --- GitHub OAuth ---
+# --- OAuth Integration URLs ---
 
-_DEF_REDIRECT = os.getenv("GITHUB_REDIRECT_URI", f"http://localhost:8000{settings.API_V1_STR}/integrations/github/callback")
 _FRONTEND_URL = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000")
+_GITHUB_REDIRECT = os.getenv("GITHUB_REDIRECT_URI", f"http://localhost:8000{settings.API_V1_STR}/integrations/github/callback")
+_SLACK_REDIRECT = os.getenv("SLACK_REDIRECT_URI", f"http://localhost:8000{settings.API_V1_STR}/integrations/slack/callback")
+_JIRA_REDIRECT = os.getenv("JIRA_REDIRECT_URI", f"http://localhost:8000{settings.API_V1_STR}/integrations/jira/callback")
 
 
 def _sign_state(user_id: str) -> str:
@@ -124,7 +126,7 @@ def github_connect(db: Session = Depends(get_db), user=Depends(get_current_activ
     state = _sign_state(str(user.id))
     params = {
         "client_id": client_id,
-        "redirect_uri": _DEF_REDIRECT,
+        "redirect_uri": _GITHUB_REDIRECT,
         "scope": "read:user",
         "state": state,
     }
@@ -150,7 +152,7 @@ def github_callback(code: str | None = None, state: str | None = None, db: Sessi
             "client_id": client_id,
             "client_secret": client_secret,
             "code": code,
-            "redirect_uri": _DEF_REDIRECT,
+            "redirect_uri": _GITHUB_REDIRECT,
         },
         timeout=10,
     )
@@ -182,6 +184,256 @@ def github_disconnect(db: Session = Depends(get_db), user=Depends(get_current_ac
     integ = db.query(Integration).filter(Integration.owner_id == user.id, Integration.provider == "github").first()
     if not integ:
         raise HTTPException(status_code=404, detail="Not connected")
+    db.delete(integ)
+    db.commit()
+    return {"ok": True}
+
+
+# --- Slack OAuth ---
+
+@router.get("/slack/connect")
+def slack_connect(db: Session = Depends(get_db), user=Depends(get_current_active_user)):
+    client_id = os.getenv("SLACK_CLIENT_ID")
+    if not client_id:
+        raise HTTPException(status_code=500, detail="SLACK_CLIENT_ID not set")
+    state = _sign_state(str(user.id))
+    params = {
+        "client_id": client_id,
+        "scope": "channels:read,chat:write,users:read,users:read.email",
+        "redirect_uri": _SLACK_REDIRECT,
+        "state": state,
+        "response_type": "code"
+    }
+    url = f"https://slack.com/oauth/v2/authorize?{urlencode(params)}"
+    return {"url": url}
+
+
+@router.get("/slack/callback")
+def slack_callback(code: str | None = None, state: str | None = None, error: str | None = None, db: Session = Depends(get_db)):
+    if error:
+        raise HTTPException(status_code=400, detail=f"Slack OAuth error: {error}")
+    if not code or not state:
+        raise HTTPException(status_code=400, detail="Missing code or state")
+    user_id = _verify_state(state)
+    if not user_id:
+        raise HTTPException(status_code=400, detail="Invalid state")
+    
+    client_id = os.getenv("SLACK_CLIENT_ID")
+    client_secret = os.getenv("SLACK_CLIENT_SECRET")
+    if not client_id or not client_secret:
+        raise HTTPException(status_code=500, detail="Slack OAuth not configured")
+    
+    # Exchange code for token
+    token_res = requests.post(
+        "https://slack.com/api/oauth.v2.access",
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        data={
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "code": code,
+            "redirect_uri": _SLACK_REDIRECT,
+        },
+        timeout=10,
+    )
+    
+    if token_res.status_code != 200:
+        raise HTTPException(status_code=400, detail="Token exchange failed")
+    
+    token_json = token_res.json()
+    if not token_json.get("ok"):
+        raise HTTPException(status_code=400, detail=f"Slack error: {token_json.get('error', 'Unknown error')}")
+    
+    access_token = token_json.get("access_token")
+    if not access_token:
+        raise HTTPException(status_code=400, detail="No access token returned")
+    
+    # Get user info
+    user_res = requests.get(
+        "https://slack.com/api/users.identity",
+        headers={"Authorization": f"Bearer {access_token}"},
+        timeout=10
+    )
+    
+    if user_res.status_code != 200:
+        raise HTTPException(status_code=400, detail="Failed to fetch user info")
+    
+    user_info = user_res.json()
+    if not user_info.get("ok"):
+        raise HTTPException(status_code=400, detail="Failed to get Slack user info")
+    
+    slack_user = user_info.get("user", {})
+    team_info = token_json.get("team", {})
+    
+    # Upsert integration
+    integ = db.query(Integration).filter(Integration.owner_id == user_id, Integration.provider == "slack").first()
+    if not integ:
+        integ = Integration(owner_id=user_id, provider="slack", status="connected", config_json={})
+    
+    integ.config_json = {
+        "access_token": access_token,
+        "scope": token_json.get("scope"),
+        "bot_user_id": token_json.get("bot_user_id"),
+        "team": {
+            "id": team_info.get("id"),
+            "name": team_info.get("name")
+        },
+        "user": {
+            "id": slack_user.get("id"),
+            "name": slack_user.get("name"),
+            "email": slack_user.get("email")
+        }
+    }
+    
+    db.add(integ)
+    db.commit()
+    
+    return RedirectResponse(url=f"{_FRONTEND_URL}/integrations")
+
+
+@router.delete("/slack")
+def slack_disconnect(db: Session = Depends(get_db), user=Depends(get_current_active_user)):
+    integ = db.query(Integration).filter(Integration.owner_id == user.id, Integration.provider == "slack").first()
+    if not integ:
+        raise HTTPException(status_code=404, detail="Not connected")
+    
+    # Revoke token with Slack
+    try:
+        config = integ.config_json or {}
+        access_token = config.get("access_token")
+        if access_token:
+            requests.post(
+                "https://slack.com/api/auth.revoke",
+                headers={"Authorization": f"Bearer {access_token}"},
+                timeout=5
+            )
+    except:
+        pass  # Continue even if revocation fails
+    
+    db.delete(integ)
+    db.commit()
+    return {"ok": True}
+
+
+# --- Jira OAuth ---
+
+@router.get("/jira/connect")
+def jira_connect(db: Session = Depends(get_db), user=Depends(get_current_active_user)):
+    client_id = os.getenv("JIRA_CLIENT_ID")
+    if not client_id:
+        raise HTTPException(status_code=500, detail="JIRA_CLIENT_ID not set")
+    state = _sign_state(str(user.id))
+    params = {
+        "audience": "api.atlassian.com",
+        "client_id": client_id,
+        "scope": "read:jira-work write:jira-work read:jira-user offline_access",
+        "redirect_uri": _JIRA_REDIRECT,
+        "state": state,
+        "response_type": "code",
+        "prompt": "consent"
+    }
+    url = f"https://auth.atlassian.com/authorize?{urlencode(params)}"
+    return {"url": url}
+
+
+@router.get("/jira/callback")
+def jira_callback(code: str | None = None, state: str | None = None, error: str | None = None, db: Session = Depends(get_db)):
+    if error:
+        raise HTTPException(status_code=400, detail=f"Jira OAuth error: {error}")
+    if not code or not state:
+        raise HTTPException(status_code=400, detail="Missing code or state")
+    user_id = _verify_state(state)
+    if not user_id:
+        raise HTTPException(status_code=400, detail="Invalid state")
+    
+    client_id = os.getenv("JIRA_CLIENT_ID")
+    client_secret = os.getenv("JIRA_CLIENT_SECRET")
+    if not client_id or not client_secret:
+        raise HTTPException(status_code=500, detail="Jira OAuth not configured")
+    
+    # Exchange code for token
+    token_res = requests.post(
+        "https://auth.atlassian.com/oauth/token",
+        headers={"Content-Type": "application/json"},
+        json={
+            "grant_type": "authorization_code",
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "code": code,
+            "redirect_uri": _JIRA_REDIRECT,
+        },
+        timeout=10,
+    )
+    
+    if token_res.status_code != 200:
+        raise HTTPException(status_code=400, detail=f"Token exchange failed: {token_res.text}")
+    
+    token_json = token_res.json()
+    access_token = token_json.get("access_token")
+    if not access_token:
+        raise HTTPException(status_code=400, detail="No access token returned")
+    
+    # Get user info and accessible resources
+    try:
+        # Get user profile
+        user_res = requests.get(
+            "https://api.atlassian.com/me",
+            headers={"Authorization": f"Bearer {access_token}"},
+            timeout=10
+        )
+        
+        if user_res.status_code != 200:
+            raise HTTPException(status_code=400, detail="Failed to fetch user info")
+        
+        user_info = user_res.json()
+        
+        # Get accessible resources (Jira sites)
+        resources_res = requests.get(
+            "https://api.atlassian.com/oauth/token/accessible-resources",
+            headers={"Authorization": f"Bearer {access_token}"},
+            timeout=10
+        )
+        
+        accessible_resources = []
+        if resources_res.status_code == 200:
+            accessible_resources = resources_res.json()
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to fetch Jira info: {str(e)}")
+    
+    # Upsert integration
+    integ = db.query(Integration).filter(Integration.owner_id == user_id, Integration.provider == "jira").first()
+    if not integ:
+        integ = Integration(owner_id=user_id, provider="jira", status="connected", config_json={})
+    
+    integ.config_json = {
+        "access_token": access_token,
+        "refresh_token": token_json.get("refresh_token"),
+        "expires_in": token_json.get("expires_in"),
+        "scope": token_json.get("scope"),
+        "user": {
+            "account_id": user_info.get("account_id"),
+            "name": user_info.get("name"),
+            "email": user_info.get("email"),
+            "picture": user_info.get("picture")
+        },
+        "accessible_resources": accessible_resources
+    }
+    
+    db.add(integ)
+    db.commit()
+    
+    return RedirectResponse(url=f"{_FRONTEND_URL}/integrations")
+
+
+@router.delete("/jira")
+def jira_disconnect(db: Session = Depends(get_db), user=Depends(get_current_active_user)):
+    integ = db.query(Integration).filter(Integration.owner_id == user.id, Integration.provider == "jira").first()
+    if not integ:
+        raise HTTPException(status_code=404, detail="Not connected")
+    
+    # Note: Atlassian doesn't provide a token revocation endpoint
+    # The token will expire naturally based on its TTL
+    
     db.delete(integ)
     db.commit()
     return {"ok": True}
