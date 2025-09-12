@@ -6,9 +6,13 @@ interface ChatBoxProps {
 }
 
 interface Message {
-  sender: string;
+  id: string;
+  sender_id: string;
+  recipient_id: string;
+  project_id: string;
   content: string;
-  timestamp: string;
+  created_at: string;
+  is_read: boolean;
 }
 
 export default function ChatBox({ projectId }: ChatBoxProps) {
@@ -77,7 +81,7 @@ export default function ChatBox({ projectId }: ChatBoxProps) {
         },
         body: JSON.stringify({
           sender_id: user.id,
-          receiver_id: user.id, // For now, using same user - this should be updated to support actual recipients
+          receiver_id: user.id, // For project chat, we'll use the same user as a placeholder
           project_id: projectId,
           content: input,
         }),
@@ -134,23 +138,17 @@ export default function ChatBox({ projectId }: ChatBoxProps) {
       </div>
       
       <div className="flex-1 overflow-y-auto mb-2">
-        {connectionStatus === 'error' ? (
-          <div className="flex items-center justify-center h-full text-gray-500 text-center">
-            <div>
-              <p className="mb-2">🚧 Project Chat Coming Soon!</p>
-              <p className="text-sm">Group chat functionality is being developed.</p>
-              <p className="text-sm">For now, use direct messages or comments on bids.</p>
-            </div>
-          </div>
-        ) : messages.length === 0 ? (
+        {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500">
-            <p>No messages yet. Start the conversation!</p>
+            <p>No messages in this project yet. Start the conversation!</p>
           </div>
         ) : (
           messages.map((msg, i) => (
-            <div key={i} className={`mb-1 ${msg.sender === user.id ? 'text-right' : 'text-left'}`}>
-              <span className="block text-xs text-gray-400">{msg.sender} • {new Date(msg.timestamp).toLocaleTimeString()}</span>
-              <span className="inline-block bg-blue-100 text-blue-900 rounded px-2 py-1 mt-1 max-w-xs break-words">{msg.content}</span>
+            <div key={msg.id || i} className={`mb-1 ${msg.sender_id === user.id ? 'text-right' : 'text-left'}`}>
+              <span className="block text-xs text-gray-400">{msg.sender_id === user.id ? 'You' : msg.sender_id} • {new Date(msg.created_at).toLocaleTimeString()}</span>
+              <span className={`inline-block rounded px-2 py-1 mt-1 max-w-xs break-words ${
+                msg.sender_id === user.id ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'
+              }`}>{msg.content}</span>
             </div>
           ))
         )}
@@ -162,13 +160,13 @@ export default function ChatBox({ projectId }: ChatBoxProps) {
           className="flex-1 border border-gray-300 rounded px-3 py-2"
           value={input}
           onChange={e => setInput(e.target.value)}
-          placeholder={connectionStatus === 'error' ? 'Chat not available yet' : 'Type a message...'}
-          disabled={connectionStatus !== 'connected'}
+          placeholder="Type a message..."
+          disabled={!user || !token}
         />
         <button 
           type="submit" 
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled={connectionStatus !== 'connected' || !input.trim()}
+          disabled={!user || !token || !input.trim()}
         >
           Send
         </button>

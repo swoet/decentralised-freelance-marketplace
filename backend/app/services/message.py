@@ -7,7 +7,7 @@ class MessageService(CRUDBase[Message, MessageCreate, MessageUpdate]):
     def send_message(self, db: Session, message_in: MessageCreate, user):
         db_obj = Message()
         setattr(db_obj, 'sender_id', message_in.sender_id)
-        setattr(db_obj, 'receiver_id', message_in.receiver_id)
+        setattr(db_obj, 'recipient_id', message_in.receiver_id)
         setattr(db_obj, 'project_id', message_in.project_id)
         setattr(db_obj, 'content', message_in.content)
         db.add(db_obj)
@@ -17,8 +17,14 @@ class MessageService(CRUDBase[Message, MessageCreate, MessageUpdate]):
 
     def get_messages(self, db: Session, user):
         return db.query(Message).filter(
-            (Message.sender_id == user.id) | (Message.receiver_id == user.id)
+            (Message.sender_id == user.id) | (Message.recipient_id == user.id)
         ).all()
+    
+    def get_project_messages(self, db: Session, project_id: str):
+        """Get all messages for a specific project"""
+        return db.query(Message).filter(
+            Message.project_id == project_id
+        ).order_by(Message.created_at.asc()).all()
 
     def mark_message_read(self, db: Session, message_id: str, user):
         message = db.query(Message).filter(Message.id == message_id).first()
@@ -33,4 +39,5 @@ message = MessageService(Message)
 # Export functions for backward compatibility
 send_message = message.send_message
 get_messages = message.get_messages
-mark_message_read = message.mark_message_read 
+get_project_messages = message.get_project_messages
+mark_message_read = message.mark_message_read

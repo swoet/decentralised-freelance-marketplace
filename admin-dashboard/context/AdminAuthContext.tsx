@@ -2,11 +2,10 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 interface AdminUser {
   id: string;
-  username: string;
   email: string;
+  full_name?: string;
   role: 'admin' | 'super_admin';
-  permissions: string[];
-  last_login: string;
+  two_fa_enabled?: boolean;
 }
 
 interface AdminAuthContextType {
@@ -48,7 +47,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         
         if (storedToken && storedAdmin) {
           // Verify token is still valid
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/auth/verify`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
             headers: {
               'Authorization': `Bearer ${storedToken}`
             }
@@ -79,7 +78,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     setError(null);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/auth/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -96,10 +95,10 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
         }
 
         setAdmin(data.user);
-        setToken(data.access_token);
+        setToken(data.token);
         
         // Store in localStorage
-        localStorage.setItem('adminToken', data.access_token);
+        localStorage.setItem('adminToken', data.token);
         localStorage.setItem('adminUser', JSON.stringify(data.user));
         
         return true;
@@ -124,7 +123,7 @@ export const AdminAuthProvider: React.FC<AdminAuthProviderProps> = ({ children }
     
     // Optional: Call backend logout endpoint
     if (token) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/auth/logout`, {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

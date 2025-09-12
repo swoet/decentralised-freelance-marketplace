@@ -105,7 +105,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
         </svg>
       ),
       current: router.pathname === '/support'
-    },
+    }
   ];
 
   const handleLogout = () => {
@@ -161,7 +161,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
             </div>
             <div className="ml-4 flex items-center md:ml-6">
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-700">Welcome, {admin?.username}</span>
+                <span className="text-sm text-gray-700">Welcome, {admin?.full_name}</span>
                 <button
                   onClick={handleLogout}
                   className="bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"

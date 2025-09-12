@@ -16,6 +16,7 @@ const Login = () => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [rememberMe, setRememberMe] = useState(false)
     const [account, setAccount] = useState<string | null>(null)
     const router = useRouter()
     const { login, connectWallet } = useAuth()
@@ -26,7 +27,7 @@ const Login = () => {
         setIsLoading(true)
         
         try {
-            await login(email, password)
+            await login(email, password, rememberMe)
             toast.success('Login successful!')
             // The AuthContext will handle the redirect to dashboard
         } catch (error) {
@@ -163,6 +164,8 @@ const Login = () => {
                                     id="remember-me"
                                     name="remember-me"
                                     type="checkbox"
+                                    checked={rememberMe}
+                                    onChange={(e) => setRememberMe(e.target.checked)}
                                     className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                                 />
                                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">

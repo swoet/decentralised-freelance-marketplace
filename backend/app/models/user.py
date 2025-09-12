@@ -9,6 +9,7 @@ class UserRole(str, enum.Enum):
     CLIENT = "client"
     FREELANCER = "freelancer"
     ADMIN = "admin"
+    SUPER_ADMIN = "super_admin"
 
 class User(Base):
     email = Column(String, nullable=False, unique=True)

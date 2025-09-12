@@ -174,7 +174,7 @@ export default function AdminDashboard() {
           {/* Welcome Section */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-6 text-white">
             <h1 className="text-3xl font-bold mb-2">
-              Welcome back, {admin.username}!
+              Welcome back, {admin.full_name}!
             </h1>
             <p className="text-blue-100">
               Here's what's happening with your FreelanceX platform today.

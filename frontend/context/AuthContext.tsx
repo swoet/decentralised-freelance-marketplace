@@ -41,7 +41,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   logout: () => void;
   register: (email: string, password: string, full_name: string, role: string) => Promise<void>;
   connectWallet: (walletAddress: string, fullName: string, email: string, role: string) => Promise<void>;
@@ -77,8 +77,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (storedToken && storedUser) {
         try {
           const parsedUser = JSON.parse(storedUser);
-          setToken(storedToken);
-          setUser(parsedUser);
+          
+          // Validate token with backend
+          const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+          fetch(`${API_URL}/auth/me`, {
+            headers: {
+              'Authorization': `Bearer ${storedToken}`,
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => {
+            if (response.ok) {
+              // Token is valid
+              setToken(storedToken);
+              setUser(parsedUser);
+            } else {
+              // Token is invalid, clear storage
+              console.log('Token expired or invalid, clearing auth state');
+              safeLocalStorage.removeItem('token');
+              safeLocalStorage.removeItem('user');
+              safeLocalStorage.removeItem('walletAddress');
+            }
+          })
+          .catch(error => {
+            // Network error, use stored data anyway
+            console.warn('Token validation failed due to network error, using stored auth state');
+            setToken(storedToken);
+            setUser(parsedUser);
+          });
+          
         } catch (parseError) {
           console.error('Error parsing stored user data:', parseError);
           safeLocalStorage.removeItem('token');
@@ -96,10 +123,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [mounted]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, rememberMe: boolean = false) => {
     setLoading(true);
     try {
-      const response = await fetch('/api/auth/login', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -121,6 +149,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (typeof window !== 'undefined') {
         safeLocalStorage.setItem('token', data.token);
         safeLocalStorage.setItem('user', JSON.stringify(userData));
+        safeLocalStorage.setItem('rememberMe', rememberMe.toString());
+        
+        // If remember me is checked, set a longer expiration marker
+        if (rememberMe) {
+          const expirationDate = new Date();
+          expirationDate.setDate(expirationDate.getDate() + 30); // 30 days
+          safeLocalStorage.setItem('tokenExpiration', expirationDate.toISOString());
+        }
       }
       setToken(data.token);
       setUser(userData);
@@ -137,6 +173,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     safeLocalStorage.removeItem('token');
     safeLocalStorage.removeItem('user');
     safeLocalStorage.removeItem('walletAddress');
+    safeLocalStorage.removeItem('rememberMe');
+    safeLocalStorage.removeItem('tokenExpiration');
     setToken(null);
     setUser(null);
     router.push('/login');
@@ -145,7 +183,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (email: string, password: string, full_name: string, role: string) => {
     setLoading(true);
     try {
-      const response = await fetch('/api/auth/register', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, full_name, role })

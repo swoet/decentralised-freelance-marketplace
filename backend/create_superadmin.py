@@ -13,8 +13,8 @@ from passlib.context import CryptContext
 # Add the backend directory to the path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from database import get_db
-from models import User, Profile
+from app.core.db import get_db
+from app.models.user import User
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -35,7 +35,7 @@ def create_super_admin():
     """Create the super admin account."""
     
     # Import database configuration
-    from database import engine, SessionLocal
+    from app.core.db import engine, SessionLocal
     
     # Create a database session
     db = SessionLocal()
@@ -43,13 +43,12 @@ def create_super_admin():
     try:
         # Check if super admin already exists
         existing_admin = db.query(User).filter(
-            (User.email == SUPER_ADMIN_EMAIL) | (User.username == SUPER_ADMIN_USERNAME)
+            User.email == SUPER_ADMIN_EMAIL
         ).first()
         
         if existing_admin:
             print(f"Super admin account already exists!")
             print(f"Email: {existing_admin.email}")
-            print(f"Username: {existing_admin.username}")
             print(f"Role: {existing_admin.role}")
             
             # Update existing user to super_admin if needed
@@ -68,9 +67,9 @@ def create_super_admin():
         hashed_password = hash_password(SUPER_ADMIN_PASSWORD)
         
         super_admin = User(
-            username=SUPER_ADMIN_USERNAME,
             email=SUPER_ADMIN_EMAIL,
             hashed_password=hashed_password,
+            full_name="Super Admin",
             role='super_admin',
             is_active=True,
             is_verified=True,
@@ -82,22 +81,13 @@ def create_super_admin():
         db.commit()
         db.refresh(super_admin)
         
-        # Create profile for super admin
-        super_admin_profile = Profile(
-            user_id=super_admin.id,
-            first_name="Super",
-            last_name="Admin",
-            bio="System Super Administrator with full platform control",
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
-        )
-        
-        db.add(super_admin_profile)
+        # Set full_name and bio for super admin
+        super_admin.full_name = "Super Admin"
+        super_admin.bio = "System Super Administrator with full platform control"
         db.commit()
         
         print("🎉 Super Admin Account Created Successfully!")
         print(f"📧 Email: {SUPER_ADMIN_EMAIL}")
-        print(f"👤 Username: {SUPER_ADMIN_USERNAME}")
         print(f"🔐 Password: {SUPER_ADMIN_PASSWORD}")
         print(f"🛡️ Role: super_admin")
         print(f"✅ Status: Active & Verified")
@@ -120,7 +110,7 @@ def create_super_admin():
 
 def verify_super_admin():
     """Verify the super admin account exists and is properly configured."""
-    from database import SessionLocal
+    from app.core.db import SessionLocal
     
     db = SessionLocal()
     try:
@@ -132,18 +122,14 @@ def verify_super_admin():
             
         print(f"✅ Super Admin Verification:")
         print(f"   Email: {admin.email}")
-        print(f"   Username: {admin.username}")
         print(f"   Role: {admin.role}")
         print(f"   Active: {admin.is_active}")
         print(f"   Verified: {admin.is_verified}")
         print(f"   Created: {admin.created_at}")
         
-        # Check if profile exists
-        profile = db.query(Profile).filter(Profile.user_id == admin.id).first()
-        if profile:
-            print(f"   Profile: {profile.first_name} {profile.last_name}")
-        else:
-            print("   Profile: Not created")
+        # Show full name if available
+        if admin.full_name:
+            print(f"   Full Name: {admin.full_name}")
         
         return admin.role == 'super_admin' and admin.is_active
         

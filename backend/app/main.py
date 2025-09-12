@@ -92,7 +92,12 @@ app = FastAPI(
 # CORS Configuration - Allow frontend localhost:3000
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Specific origins for development
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000", 
+        "http://localhost:3001", 
+        "http://127.0.0.1:3001"
+    ],  # Include both frontend and admin dashboard
     allow_credentials=True,  # Allow credentials with specific origins
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
@@ -110,7 +115,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             response.headers['X-Frame-Options'] = 'DENY'
             response.headers['X-Content-Type-Options'] = 'nosniff'
             response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-            response.headers['Permissions-Policy'] = 'geolocation=(), microphone=()'
+            response.headers['Permissions-Policy'] = 'geolocation=(self), microphone=()'
         return response
 
 class ApiKeyMiddleware(BaseHTTPMiddleware):

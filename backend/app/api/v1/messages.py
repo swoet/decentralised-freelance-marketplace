@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 from app.api import deps
 from app.schemas.message import Message, MessageCreate, MessageUpdate, MessageResponse
-from app.services.message import message as message_service, send_message, get_messages, mark_message_read
+from app.services.message import message as message_service, send_message, get_messages, get_project_messages, mark_message_read
 from typing import List
 
 router = APIRouter(prefix="/messages", tags=["messages"])
@@ -15,7 +15,8 @@ def list_messages(
     db: Session = Depends(deps.get_db),
     current_user=Depends(deps.get_current_user),
 ):
-    return get_messages(db, current_user)
+    # Get messages for a specific project
+    return get_project_messages(db, str(project_id))
 
 
 @router.post("/", response_model=MessageResponse)

@@ -61,7 +61,7 @@ export default function AIMatch() {
     if (!token) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/my-projects`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -69,9 +69,17 @@ export default function AIMatch() {
 
       if (response.ok) {
         const data = await response.json();
-        setProjects(data.projects || []);
-        if (data.projects?.length > 0) {
-          setSelectedProject(data.projects[0].id);
+        // Handle both array response and object response
+        const projectsData = Array.isArray(data) ? data : (data.projects || data.data || []);
+        
+        // Filter to only show user's own projects
+        const userProjects = projectsData.filter((project: any) => 
+          project.client_id === user?.id || project.client?.id === user?.id
+        );
+        
+        setProjects(userProjects);
+        if (userProjects.length > 0) {
+          setSelectedProject(userProjects[0].id);
         }
       }
     } catch (err) {
