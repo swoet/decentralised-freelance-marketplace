@@ -270,6 +270,138 @@ async def get_matching_stats(
         raise HTTPException(status_code=500, detail="Error retrieving matching statistics")
 
 
+@router.post("/find-matches")
+async def find_matches(
+    request_data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Find AI-powered matches for a project.
+    Frontend compatibility endpoint that matches the expected interface.
+    """
+    
+    try:
+        project_id = request_data.get('project_id')
+        match_criteria = request_data.get('match_criteria', {})
+        
+        if not project_id:
+            raise HTTPException(status_code=400, detail="project_id is required")
+        
+        # Get project and verify ownership
+        project = db.query(Project).filter(Project.id == project_id).first()
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        # Check if user has permission to view matches
+        if project.client_id != current_user.id and current_user.role != 'admin':
+            raise HTTPException(status_code=403, detail="Not authorized to view matches for this project")
+        
+        # Extract parameters from match_criteria
+        limit = min(match_criteria.get('max_results', 10), 50)
+        min_similarity = match_criteria.get('min_compatibility', 0.3)
+        
+        # Get AI-powered matches using the existing endpoint logic
+        matches = ai_matching_service.find_matching_freelancers(
+            db=db,
+            project_id=project_id,
+            limit=limit,
+            min_similarity=min_similarity
+        )
+        
+        # Transform to response format compatible with frontend expectations
+        response_matches = []
+        for match in matches:
+            freelancer = match.get('freelancer')
+            if freelancer:
+                response_matches.append({
+                    "freelancer_id": match['freelancer_id'],
+                    "freelancer": {
+                        "id": match['freelancer_id'],
+                        "username": freelancer.username or freelancer.email,
+                        "email": freelancer.email,
+                        "profile": {
+                            "first_name": freelancer.full_name.split()[0] if freelancer.full_name else freelancer.username,
+                            "last_name": " ".join(freelancer.full_name.split()[1:]) if freelancer.full_name and len(freelancer.full_name.split()) > 1 else "",
+                            "title": getattr(freelancer, 'title', 'Freelancer'),
+                            "bio": freelancer.bio,
+                            "hourly_rate": getattr(freelancer, 'hourly_rate', None),
+                            "availability": getattr(freelancer, 'availability', 'Available')
+                        },
+                        "skills": [{
+                            "id": str(i),
+                            "name": skill,
+                            "level": "intermediate"  # Default level
+                        } for i, skill in enumerate(freelancer.skills or [])]
+                    },
+                    "compatibility_score": match['compatibility_score'],
+                    "skill_match_percentage": match['skill_match_score'] * 100,
+                    "personality_compatibility": match.get('personality_score', 0.8),  # Default value
+                    "experience_match": match.get('experience_score', 0.7),  # Default value
+                    "match_reasons": match.get('matching_skills', []),
+                    "recommended_rate": match.get('recommended_rate', getattr(freelancer, 'hourly_rate', 50))
+                })
+        
+        logger.info(f"Returned {len(response_matches)} matches for project {project_id} via find-matches endpoint")
+        
+        return {
+            "matches": response_matches,
+            "total_found": len(response_matches),
+            "search_criteria": match_criteria
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in find-matches endpoint: {e}")
+        raise HTTPException(status_code=500, detail="Error retrieving matches")
+
+
+@router.get("/analyze/{project_id}")
+async def analyze_project(
+    project_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get AI analysis for a project.
+    Frontend compatibility endpoint.
+    """
+    
+    try:
+        # Get project and verify ownership
+        project = db.query(Project).filter(Project.id == project_id).first()
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        if project.client_id != current_user.id and current_user.role != 'admin':
+            raise HTTPException(status_code=403, detail="Not authorized to analyze this project")
+        
+        # Generate basic AI analysis
+        analysis = {
+            "complexity_assessment": "medium",  # Could be enhanced with ML
+            "duration_estimate": "2-4 weeks",  # Could be enhanced with ML
+            "recommended_experience": "intermediate",  # Could be enhanced with ML
+            "key_requirements": [
+                "Strong technical skills required",
+                "Experience with project requirements",
+                "Good communication skills",
+                "Proven track record"
+            ]
+        }
+        
+        # Enhance with actual project data
+        if project.description:
+            if len(project.description) > 500:
+                analysis["complexity_assessment"] = "high"
+                analysis["duration_estimate"] = "4-8 weeks"
+                analysis["recommended_experience"] = "advanced"
+        
+        return analysis
+        
+    except Exception as e:
+        logger.error(f"Error analyzing project {project_id}: {e}")
+        raise HTTPException(status_code=500, detail="Error analyzing project")
+
+
 @router.delete("/cache")
 async def clear_matching_cache(
     db: Session = Depends(get_db),

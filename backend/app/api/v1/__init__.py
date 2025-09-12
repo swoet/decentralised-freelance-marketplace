@@ -31,6 +31,7 @@ from .ai import router as ai_router
 from .ai_matching import router as ai_matching_router
 from .ai_content import router as ai_content_router
 from .blockchain import router as blockchain_router
+from .admin import router as admin_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
@@ -62,5 +63,8 @@ api_router.include_router(matching_v2_router, prefix="/matching/v2", tags=["matc
 api_router.include_router(dashboard_router)
 api_router.include_router(ai_router)
 api_router.include_router(ai_matching_router, prefix="/ai/matching", tags=["ai-matching"])
+# Additional route for frontend compatibility
+api_router.include_router(ai_matching_router, prefix="/ai-matching", tags=["ai-matching-compat"])
 api_router.include_router(ai_content_router, prefix="/ai/content", tags=["ai-content"])
 api_router.include_router(blockchain_router, prefix="/blockchain", tags=["blockchain"])
+api_router.include_router(admin_router)

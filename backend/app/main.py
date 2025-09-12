@@ -100,8 +100,18 @@ app.add_middleware(
     ],  # Include both frontend and admin dashboard
     allow_credentials=True,  # Allow credentials with specific origins
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=["*"],
+    allow_headers=[
+        "Accept",
+        "Accept-Language",
+        "Content-Language",
+        "Content-Type",
+        "Authorization",
+        "X-API-Key",
+        "X-Requested-With",
+        "Cache-Control"
+    ],
     expose_headers=["*"],
+    max_age=600,  # Cache preflight responses for 10 minutes
 )
 
 # Debug logging for CORS configuration

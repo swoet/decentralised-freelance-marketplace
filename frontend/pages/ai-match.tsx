@@ -61,9 +61,11 @@ export default function AIMatch() {
     if (!token) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+      const response = await fetch(`${API_URL}/projects`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
         }
       });
 
@@ -98,11 +100,13 @@ export default function AIMatch() {
 
     try {
       // Start AI matching process
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai-matching/find-matches`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+      const response = await fetch(`${API_URL}/ai-matching/find-matches`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({
           project_id: selectedProject,
@@ -120,9 +124,10 @@ export default function AIMatch() {
         setMatches(data.matches || []);
 
         // Get AI analysis for the matching
-        const analysisResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ai-matching/analyze/${selectedProject}`, {
+        const analysisResponse = await fetch(`${API_URL}/ai-matching/analyze/${selectedProject}`, {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
           }
         });
 

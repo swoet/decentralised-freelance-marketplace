@@ -5,11 +5,12 @@ from .base_service import CRUDBase
 
 class MessageService(CRUDBase[Message, MessageCreate, MessageUpdate]):
     def send_message(self, db: Session, message_in: MessageCreate, user):
-        db_obj = Message()
-        setattr(db_obj, 'sender_id', message_in.sender_id)
-        setattr(db_obj, 'recipient_id', message_in.receiver_id)
-        setattr(db_obj, 'project_id', message_in.project_id)
-        setattr(db_obj, 'content', message_in.content)
+        db_obj = Message(
+            sender_id=message_in.sender_id,
+            recipient_id=message_in.receiver_id,
+            project_id=message_in.project_id,
+            content=message_in.content
+        )
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)

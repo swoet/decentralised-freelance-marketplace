@@ -35,6 +35,7 @@ export default function ChatBox({ projectId }: ChatBoxProps) {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
           },
         });
         
@@ -42,11 +43,16 @@ export default function ChatBox({ projectId }: ChatBoxProps) {
           const data = await response.json();
           setMessages(Array.isArray(data) ? data : []);
           setConnectionStatus('connected');
-        } else if (response.status === 404) {
-          // No messages endpoint or project chat not implemented
-          setMessages([]);
+        } else if (response.status === 401) {
+          // Authentication failed
+          console.error('Authentication failed');
           setConnectionStatus('error');
+        } else if (response.status === 404) {
+          // No messages found or endpoint not found
+          setMessages([]);
+          setConnectionStatus('connected'); // Still consider it connected
         } else {
+          console.error('Failed to load messages:', response.status, response.statusText);
           setConnectionStatus('error');
         }
       } catch (error) {
@@ -78,6 +84,7 @@ export default function ChatBox({ projectId }: ChatBoxProps) {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: JSON.stringify({
           sender_id: user.id,
@@ -94,6 +101,7 @@ export default function ChatBox({ projectId }: ChatBoxProps) {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
           },
         });
         
@@ -102,7 +110,8 @@ export default function ChatBox({ projectId }: ChatBoxProps) {
           setMessages(Array.isArray(data) ? data : []);
         }
       } else {
-        console.error('Failed to send message');
+        const errorText = await response.text();
+        console.error('Failed to send message:', response.status, response.statusText, errorText);
       }
     } catch (error) {
       console.error('Error sending message:', error);
