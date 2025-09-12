@@ -17,22 +17,45 @@ interface WidgetDef {
   render: () => JSX.Element;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api/v1";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
 // Match feed widget using the new /api/v1/matching/feed endpoint
 const MatchFeed: React.FC = () => {
   const [items, setItems] = useState<{ project_id: number; title: string; score: number; reasons?: string[]; }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { token } = useAuth();
+  const { token, user, loading: authLoading } = useAuth();
 
   useEffect(() => {
     const run = async () => {
+      console.log('MatchFeed debug - authLoading:', authLoading, 'token:', token, 'user:', user);
+      
+      // Wait for auth to finish loading
+      if (authLoading) {
+        console.log('MatchFeed: Auth still loading, waiting...');
+        return;
+      }
+      
+      // If no valid token or user, don't try to fetch personalized data
+      if (!token || !user || token.trim() === '') {
+        console.log('MatchFeed: No valid token or user, skipping API call');
+        setLoading(false);
+        return;
+      }
+      
+      console.log('MatchFeed: Making API call with token');
+      setLoading(true);
+
       try {
         const headers: Record<string, string> = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+        headers['Authorization'] = `Bearer ${token}`;
         const res = await fetch(`${API_BASE}/matching/feed`, { headers });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          if (res.status === 401) {
+            throw new Error('Please log in to see personalized matches');
+          }
+          throw new Error(`HTTP ${res.status}`);
+        }
         const data = await res.json();
         setItems(Array.isArray(data.items) ? data.items : []);
       } catch (e: any) {
@@ -42,9 +65,23 @@ const MatchFeed: React.FC = () => {
       }
     };
     run();
-  }, [token]);
+  }, [token, user, authLoading]);
 
-  if (loading) return <div>Loading...</div>;
+  // Show loading while auth is loading or while data is loading
+  if (authLoading || loading) return <div>Loading...</div>;
+  
+  // Show sign-in prompt if no valid authentication
+  if (!token || !user || token.trim() === '') {
+    return (
+      <div className="text-center p-4">
+        <p className="text-gray-600 mb-3">Sign in to see personalized project matches</p>
+        <a href="/login" className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Sign In
+        </a>
+      </div>
+    );
+  }
+  
   if (error) return <div className="text-red-600">Failed to load: {error}</div>;
   if (!items.length) return <div>No matches yet. Verify your skills to improve recommendations.</div>;
 
@@ -65,10 +102,22 @@ const MatchFeed: React.FC = () => {
 
 // AI Projects widget wrapper
 const AIProjectsWidget: React.FC = () => {
-  const { user } = useAuth();
+  const { user, token, loading: authLoading } = useAuth();
   
-  if (!user?.id) {
-    return <div>Please log in to see AI recommendations</div>;
+  // Don't render anything while auth is loading
+  if (authLoading) {
+    return <div>Loading...</div>;
+  }
+  
+  if (!user?.id || !token || token.trim() === '') {
+    return (
+      <div className="text-center p-4">
+        <p className="text-gray-600 mb-3">Sign in to see AI-powered project recommendations</p>
+        <a href="/login" className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          Sign In
+        </a>
+      </div>
+    );
   }
   
   return <ProjectMatches freelancerId={user.id} limit={5} className="" />;
@@ -93,6 +142,7 @@ const LAYOUT_KEY = "freelancerDashboardLayout";
 const VISIBILITY_KEY = "freelancerDashboardVisibility";
 
 const FreelancerDashboard: NextPage = () => {
+  const { user } = useAuth();
   const [order, setOrder] = useState<string[]>([]);
   const [visibility, setVisibility] = useState<Record<string, boolean>>({});
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -185,10 +235,24 @@ const FreelancerDashboard: NextPage = () => {
   return (
     <div className="page">
       <header className="topbar">
-        <h1>Freelancer Dashboard</h1>
+        <div>
+          <h1>{user ? 'Freelancer Dashboard' : 'Freelancer Dashboard Preview'}</h1>
+          {!user && (
+            <p className="subtitle">Experience what our freelancers see. <a href="/signup" className="signup-link">Join now</a> to get started!</p>
+          )}
+        </div>
         <div className="actions">
-          <button className="btn" onClick={() => setSettingsOpen(true)}>Customize</button>
-          <button className="btn" onClick={resetLayout}>Reset</button>
+          {user ? (
+            <>
+              <button className="btn" onClick={() => setSettingsOpen(true)}>Customize</button>
+              <button className="btn" onClick={resetLayout}>Reset</button>
+            </>
+          ) : (
+            <>
+              <a href="/login" className="btn">Sign In</a>
+              <a href="/signup" className="btn primary">Sign Up</a>
+            </>
+          )}
         </div>
       </header>
 
@@ -258,6 +322,9 @@ const FreelancerDashboard: NextPage = () => {
           margin-bottom: 16px;
         }
         .topbar h1 { margin: 0; font-size: 22px; }
+        .subtitle { margin: 4px 0 0 0; font-size: 14px; color: #6b7280; }
+        .signup-link { color: #2563eb; text-decoration: none; font-weight: 500; }
+        .signup-link:hover { text-decoration: underline; }
         .actions { display: flex; gap: 8px; }
         .btn {
           padding: 8px 12px;
