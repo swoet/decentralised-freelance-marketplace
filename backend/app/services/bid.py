@@ -9,7 +9,7 @@ class BidService(CRUDBase[Bid, BidCreate, BidUpdate]):
         setattr(db_obj, 'project_id', bid_in.project_id)
         setattr(db_obj, 'freelancer_id', bid_in.freelancer_id)
         setattr(db_obj, 'amount', bid_in.amount)
-        setattr(db_obj, 'cover_letter', bid_in.cover_letter)
+        setattr(db_obj, 'proposal', bid_in.proposal)
         setattr(db_obj, 'status', bid_in.status)
         db.add(db_obj)
         db.commit()

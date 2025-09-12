@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Loader2, Star, MapPin, Clock, Zap } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 
 interface FreelancerMatch {
   freelancer_id: string;
@@ -35,6 +36,7 @@ export const FreelancerMatches: React.FC<FreelancerMatchesProps> = ({
   minSimilarity = 0.3,
   className = ''
 }) => {
+  const { token } = useAuth();
   const [matches, setMatches] = useState<FreelancerMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,11 +47,18 @@ export const FreelancerMatches: React.FC<FreelancerMatchesProps> = ({
       setLoading(true);
       setError(null);
 
+      if (!token) {
+        setError('Authentication required to view AI matches');
+        setLoading(false);
+        return;
+      }
+
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
       const response = await fetch(
-        `/api/v1/ai/matching/projects/${projectId}/freelancers?limit=${limit}&min_similarity=${minSimilarity}`,
+        `${API_BASE_URL}/ai/matching/projects/${projectId}/freelancers?limit=${limit}&min_similarity=${minSimilarity}`,
         {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         }
@@ -75,10 +84,10 @@ export const FreelancerMatches: React.FC<FreelancerMatchesProps> = ({
   };
 
   useEffect(() => {
-    if (projectId) {
+    if (projectId && token) {
       fetchMatches();
     }
-  }, [projectId, limit, minSimilarity]);
+  }, [projectId, limit, minSimilarity, token]);
 
   const getScoreColor = (score: number) => {
     if (score >= 0.8) return 'text-green-600';

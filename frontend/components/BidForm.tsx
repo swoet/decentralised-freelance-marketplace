@@ -9,7 +9,7 @@ interface BidFormProps {
 }
 
 export default function BidForm({ projectId, onBidSubmitted, onCancel }: BidFormProps) {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [amount, setAmount] = useState('');
   const [proposal, setProposal] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,6 +20,16 @@ export default function BidForm({ projectId, onBidSubmitted, onCancel }: BidForm
     
     if (!amount || !proposal) {
       setError('Please fill in all fields');
+      return;
+    }
+
+    if (!user?.id) {
+      setError('User not authenticated');
+      return;
+    }
+
+    if (!projectId) {
+      setError('Project ID is missing');
       return;
     }
 
@@ -40,13 +50,22 @@ export default function BidForm({ projectId, onBidSubmitted, onCancel }: BidForm
         },
         body: JSON.stringify({
           project_id: projectId,
+          freelancer_id: user?.id,
           amount: parseFloat(amount),
-          proposal,
+          proposal: proposal,
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Bid submission error:', errorData);
+        console.error('Validation error details:', JSON.stringify(errorData, null, 2));
+        console.error('Request payload:', {
+          project_id: projectId,
+          freelancer_id: user?.id,
+          amount: parseFloat(amount),
+          proposal: proposal,
+        });
         throw new Error(errorData.detail || 'Failed to submit bid');
       }
 

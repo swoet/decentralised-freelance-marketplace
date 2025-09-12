@@ -16,6 +16,7 @@ export default function ProjectDetailPage() {
   const [bids, setBids] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showBidForm, setShowBidForm] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -42,20 +43,6 @@ export default function ProjectDetailPage() {
     load();
   }, [id]);
 
-  const handleBidSubmit = async (data: any) => {
-    try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
-      const res = await fetch(`${API_URL}/bids/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, project_id: id }),
-      });
-      const created = res.ok ? await res.json() : null;
-      setBids([...bids, created || { ...data, id: Date.now().toString() }]);
-    } catch (_) {
-      setBids([...bids, { ...data, id: Date.now().toString(), status: 'pending' }]);
-    }
-  };
 
   if (loading) return <Loader />;
   if (error) return <Toast message={error} type="error" onClose={() => setError(null)} />;
@@ -77,7 +64,7 @@ export default function ProjectDetailPage() {
             <li key={bid.id} className="px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between">
               <div>
                 <div className="font-medium text-gray-800">${bid.amount}</div>
-                <div className="text-sm text-gray-500">{bid.cover_letter}</div>
+                <div className="text-sm text-gray-500">{bid.proposal}</div>
               </div>
               <div className="mt-2 sm:mt-0">
                 <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">{bid.status}</span>
@@ -92,11 +79,41 @@ export default function ProjectDetailPage() {
 
       <div className="mb-6">
         <h2 className="text-lg font-semibold mb-2 text-gray-700">Submit a Bid</h2>
-        <BidForm onSubmit={handleBidSubmit} />
+        {showBidForm && (
+          <BidForm 
+            projectId={id as string} 
+            onBidSubmitted={() => {
+              setShowBidForm(false);
+              // Reload bids
+              const loadBids = async () => {
+                try {
+                  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+                  const response = await fetch(`${API_URL}/bids/?project_id=${id}`);
+                  if (response.ok) {
+                    const newBids = await response.json();
+                    setBids(Array.isArray(newBids) ? newBids : []);
+                  }
+                } catch (err) {
+                  console.error('Failed to reload bids:', err);
+                }
+              };
+              loadBids();
+            }}
+            onCancel={() => setShowBidForm(false)}
+          />
+        )}
+        {!showBidForm && (
+          <button
+            onClick={() => setShowBidForm(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Submit a Bid
+          </button>
+        )}
       </div>
       <div className="mb-6">
         <h2 className="text-lg font-semibold mb-2 text-gray-700">Project Chat</h2>
-        <ChatBox projectId={project.id} userId="me" />
+        <ChatBox projectId={project.id} />
       </div>
     </div>
   );
