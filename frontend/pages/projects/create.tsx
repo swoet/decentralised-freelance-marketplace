@@ -155,7 +155,8 @@ export default function CreateProject() {
       }
     } catch (err) {
       console.error('AI assistance error:', err);
-      setError('AI assistance temporarily unavailable');
+      const errorMessage = err instanceof Error ? err.message : 'AI assistance temporarily unavailable';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -187,6 +188,7 @@ export default function CreateProject() {
         },
         body: JSON.stringify({
           ...form,
+          client_id: user?.id,
           required_skills: form.skills_required,
           project_metadata: {
             project_type: form.project_type,
@@ -206,10 +208,21 @@ export default function CreateProject() {
         }, 2000);
       } else {
         const errorData = await response.json();
-        setError(errorData.detail || 'Failed to create project');
+        // Ensure error message is always a string
+        let errorMessage = 'Failed to create project';
+        if (errorData.detail) {
+          if (typeof errorData.detail === 'string') {
+            errorMessage = errorData.detail;
+          } else if (typeof errorData.detail === 'object') {
+            // Handle validation errors or other object-type errors
+            errorMessage = errorData.detail.msg || errorData.detail.message || JSON.stringify(errorData.detail);
+          }
+        }
+        setError(errorMessage);
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      const errorMessage = err instanceof Error ? err.message : 'Network error. Please try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

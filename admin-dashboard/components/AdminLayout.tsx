@@ -218,19 +218,20 @@ const SidebarContent = ({ navigation }: { navigation: any[] }) => {
           </Link>
         ))}
       </nav>
-    
-    <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-      <div className="flex items-center">
-        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-          <span className="text-sm font-medium text-white">A</span>
-        </div>
-        <div className="ml-3">
-          <p className="text-sm font-medium text-gray-700">Admin Panel</p>
-          <p className="text-xs text-gray-500">System Control</p>
+      
+      <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <span className="text-sm font-medium text-white">A</span>
+          </div>
+          <div className="ml-3">
+            <p className="text-sm font-medium text-gray-700">Admin Panel</p>
+            <p className="text-xs text-gray-500">System Control</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default AdminLayout;
