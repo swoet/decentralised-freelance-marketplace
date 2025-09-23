@@ -139,7 +139,7 @@ export interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
   divided?: boolean;
 }
 
-export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
+const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
   ({ className, children, divided = false, ...props }, ref) => {
     return (
       <div
@@ -165,7 +165,7 @@ export interface CardTitleProps extends HTMLAttributes<HTMLHeadingElement> {
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 }
 
-export const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
+const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
   ({ className, children, as: Component = 'h3', ...props }, ref) => {
     return (
       <Component
@@ -189,7 +189,7 @@ export interface CardDescriptionProps extends HTMLAttributes<HTMLParagraphElemen
   children: ReactNode;
 }
 
-export const CardDescription = forwardRef<HTMLParagraphElement, CardDescriptionProps>(
+const CardDescription = forwardRef<HTMLParagraphElement, CardDescriptionProps>(
   ({ className, children, ...props }, ref) => {
     return (
       <p
@@ -213,7 +213,7 @@ export interface CardContentProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
 }
 
-export const CardContent = forwardRef<HTMLDivElement, CardContentProps>(
+const CardContent = forwardRef<HTMLDivElement, CardContentProps>(
   ({ className, children, ...props }, ref) => {
     return (
       <div
@@ -236,7 +236,7 @@ export interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {
   justify?: 'start' | 'center' | 'end' | 'between' | 'around';
 }
 
-export const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(
+const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(
   ({ className, children, divided = false, justify = 'start', ...props }, ref) => {
     const justifyClasses = {
       start: 'justify-start',
@@ -272,7 +272,7 @@ export interface CardBadgeProps extends HTMLAttributes<HTMLDivElement> {
   position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 }
 
-export const CardBadge = forwardRef<HTMLDivElement, CardBadgeProps>(
+const CardBadge = forwardRef<HTMLDivElement, CardBadgeProps>(
   ({ className, children, variant = 'default', position = 'top-right', ...props }, ref) => {
     const variantClasses = {
       default: 'bg-gradient-to-br from-mahogany-500 to-copper-600 text-neutral-50',
@@ -316,7 +316,7 @@ export interface CardImageProps extends HTMLAttributes<HTMLDivElement> {
   objectFit?: 'cover' | 'contain' | 'fill';
 }
 
-export const CardImage = forwardRef<HTMLDivElement, CardImageProps>(
+const CardImage = forwardRef<HTMLDivElement, CardImageProps>(
   ({ className, src, alt, aspectRatio = 'card', objectFit = 'cover', ...props }, ref) => {
     const aspectClasses = {
       square: 'aspect-square',

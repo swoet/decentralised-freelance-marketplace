@@ -65,7 +65,7 @@ export type {
 } from './Motion';
 
 // Design Tokens
-export { default as tokens } from '../../../styles/design-systems/artisan-craft/tokens';
+export { default as tokens } from '../../../styles/design-systems/artisan-craft/tokens.js';
 
 // Utility functions for the design system
 export const craftUtils = {
