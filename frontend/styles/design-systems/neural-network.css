@@ -1,0 +1,141 @@
+/* Neural Network Design System */
+:root {
+  /* Colors */
+  --nn-primary: #0A0E27;
+  --nn-secondary: #6366F1;
+  --nn-accent: #00D9FF;
+  --nn-success: #10B981;
+  --nn-warning: #F59E0B;
+  --nn-background: #F8FAFC;
+  --nn-surface: #1E293B;
+  --nn-text-primary: #0F172A;
+  --nn-text-secondary: #64748B;
+  --nn-text-inverse: #F8FAFC;
+
+  /* Typography */
+  --nn-font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --nn-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  
+  --nn-text-xs: 0.75rem;    /* 12px */
+  --nn-text-sm: 0.875rem;   /* 14px */
+  --nn-text-base: 1rem;     /* 16px */
+  --nn-text-lg: 1.125rem;   /* 18px */
+  --nn-text-xl: 1.5rem;     /* 24px */
+  --nn-text-2xl: 2.25rem;   /* 36px */
+  --nn-text-3xl: 3rem;      /* 48px */
+
+  /* Spacing */
+  --nn-space-1: 0.25rem;    /* 4px */
+  --nn-space-2: 0.5rem;     /* 8px */
+  --nn-space-3: 0.75rem;    /* 12px */
+  --nn-space-4: 1rem;       /* 16px */
+  --nn-space-6: 1.5rem;     /* 24px */
+  --nn-space-8: 2rem;       /* 32px */
+  --nn-space-12: 3rem;      /* 48px */
+  --nn-space-16: 4rem;      /* 64px */
+  --nn-space-24: 6rem;      /* 96px */
+
+  /* Shadows */
+  --nn-shadow-sm: 0 1px 2px 0 rgba(10, 14, 39, 0.05);
+  --nn-shadow-md: 0 4px 6px -1px rgba(10, 14, 39, 0.1);
+  --nn-shadow-lg: 0 10px 15px -3px rgba(10, 14, 39, 0.1);
+  --nn-shadow-neural: 0 0 20px rgba(0, 217, 255, 0.3);
+
+  /* Border Radius */
+  --nn-radius-sm: 0.375rem;  /* 6px */
+  --nn-radius-md: 0.5rem;    /* 8px */
+  --nn-radius-lg: 0.75rem;   /* 12px */
+  --nn-radius-xl: 1rem;      /* 16px */
+  --nn-radius-hex: 1.5rem;   /* 24px - hexagonal feel */
+
+  /* Animations */
+  --nn-duration-fast: 150ms;
+  --nn-duration-normal: 300ms;
+  --nn-duration-slow: 500ms;
+  --nn-ease-neural: cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Neural Network Components */
+.nn-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--nn-space-3) var(--nn-space-6);
+  font-family: var(--nn-font-primary);
+  font-weight: 600;
+  font-size: var(--nn-text-base);
+  border: 2px solid transparent;
+  border-radius: var(--nn-radius-hex);
+  background: linear-gradient(135deg, var(--nn-secondary), var(--nn-accent));
+  color: var(--nn-text-inverse);
+  cursor: pointer;
+  transition: all var(--nn-duration-normal) var(--nn-ease-neural);
+  overflow: hidden;
+}
+
+.nn-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left var(--nn-duration-slow) var(--nn-ease-neural);
+}
+
+.nn-button:hover::before {
+  left: 100%;
+}
+
+.nn-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--nn-shadow-neural);
+}
+
+.nn-card {
+  background: var(--nn-background);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: var(--nn-radius-lg);
+  padding: var(--nn-space-6);
+  box-shadow: var(--nn-shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.nn-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--nn-secondary), var(--nn-accent));
+}
+
+.nn-connection-line {
+  position: absolute;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--nn-accent), transparent);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.nn-node {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--nn-accent);
+  box-shadow: 0 0 10px var(--nn-accent);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 5px var(--nn-accent); }
+  to { box-shadow: 0 0 20px var(--nn-accent); }
+}

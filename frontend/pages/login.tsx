@@ -2,8 +2,22 @@ import { useState } from 'react'
 import { ethers } from 'ethers'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { useAuth } from '@/context/AuthContext'
+import {
+  Button,
+  ButtonGroup,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  Input,
+  Badge,
+  Motion
+} from '@/components/artisan-craft'
 
 declare global {
     interface Window {
@@ -86,146 +100,183 @@ const Login = () => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full space-y-8">
-                <div>
-                    <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                        Sign in to your account
-                    </h2>
-                    <p className="mt-2 text-center text-sm text-gray-600">
-                        Or{' '}
-                        <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
-                            create a new account
-                        </Link>
-                    </p>
-                </div>
-
-                {/* Authentication Mode Toggle */}
-                <div className="flex rounded-md shadow-sm">
-                    <button
-                        onClick={() => setIsWalletMode(false)}
-                        className={`flex-1 py-2 px-4 text-sm font-medium rounded-l-md border ${
-                            !isWalletMode 
-                                ? 'bg-indigo-600 text-white border-indigo-600' 
-                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                    >
-                        Email & Password
-                    </button>
-                    <button
-                        onClick={() => setIsWalletMode(true)}
-                        className={`flex-1 py-2 px-4 text-sm font-medium rounded-r-md border ${
-                            isWalletMode 
-                                ? 'bg-indigo-600 text-white border-indigo-600' 
-                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                        }`}
-                    >
-                        Web3 Wallet
-                    </button>
-                </div>
-
-                {!isWalletMode ? (
-                    /* Email/Password Form */
-                    <form className="mt-8 space-y-6" onSubmit={handleEmailLogin}>
-                        <div className="rounded-md shadow-sm -space-y-px">
-                            <div>
-                                <label htmlFor="email" className="sr-only">Email address</label>
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                    placeholder="Email address"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="password" className="sr-only">Password</label>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autoComplete="current-password"
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                                    placeholder="Password"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                                <input
-                                    id="remember-me"
-                                    name="remember-me"
-                                    type="checkbox"
-                                    checked={rememberMe}
-                                    onChange={(e) => setRememberMe(e.target.checked)}
-                                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                                />
-                                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                                    Remember me
-                                </label>
-                            </div>
-
-                            <div className="text-sm">
-                                <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                                    Forgot your password?
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                            >
-                                {isLoading ? 'Signing in...' : 'Sign in'}
-                            </button>
-                        </div>
-                    </form>
-                ) : (
-                    /* Wallet Connection */
-                    <div className="mt-8 space-y-6">
-                        <div className="text-center">
-                            <p className="text-sm text-gray-600 mb-4">
-                                Connect your Web3 wallet to access the decentralized marketplace
-                            </p>
-                            <button
-                                onClick={handleWalletConnection}
-                                disabled={isLoading}
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                            >
-                                {isLoading ? 'Connecting...' : 'Connect MetaMask'}
-                            </button>
-                        </div>
-                        
-                        {account && (
-                            <div className="text-center">
-                                <div className="inline-flex items-center px-4 py-2 text-sm font-medium text-green-800 bg-green-100 rounded-md">
-                                    Connected: {`${account.substring(0, 6)}...${account.substring(account.length - 4)}`}
+        <>
+            <Head>
+                <title>Sign In - Artisan Marketplace</title>
+                <meta name="description" content="Sign in to your artisan account and access the decentralized freelance marketplace" />
+                
+                {/* Artisan Craft Fonts */}
+                <link 
+                    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;500&family=Crimson+Text:wght@400;600&display=swap" 
+                    rel="stylesheet"
+                />
+            </Head>
+            
+            <div className="min-h-screen bg-neutral-50 bg-craft-texture flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+                <Motion preset="scaleIn" className="max-w-md w-full">
+                    <Card variant="parchment" className="shadow-craft-deep">
+                        <CardHeader className="text-center">
+                            <div className="mb-4">
+                                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-mahogany-600 to-copper-500 rounded-organic-craft flex items-center justify-center shadow-craft-soft">
+                                    <svg className="w-8 h-8 text-neutral-50" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+                                    </svg>
                                 </div>
                             </div>
-                        )}
-                    </div>
-                )}
+                            <CardTitle className="text-3xl">Welcome Back, Artisan</CardTitle>
+                            <CardDescription>
+                                Sign in to continue your creative journey.{' '}
+                                <Link href="/signup" className="text-copper-600 hover:text-mahogany-600 font-medium underline">
+                                    Create a new account
+                                </Link>
+                            </CardDescription>
+                        </CardHeader>
 
-                <div className="text-center">
-                    <p className="text-xs text-gray-500">
-                        By signing in, you agree to our{' '}
-                        <a href="#" className="text-indigo-600 hover:text-indigo-500">Terms of Service</a>
-                        {' '}and{' '}
-                        <a href="#" className="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
-                    </p>
-                </div>
+                        <CardContent>
+                            {/* Authentication Mode Toggle */}
+                            <ButtonGroup spacing="none" className="mb-6">
+                                <Button
+                                    variant={!isWalletMode ? "primary" : "ghost"}
+                                    onClick={() => setIsWalletMode(false)}
+                                    shape="square"
+                                    className="flex-1 rounded-r-none"
+                                >
+                                    Email & Password
+                                </Button>
+                                <Button
+                                    variant={isWalletMode ? "primary" : "ghost"}
+                                    onClick={() => setIsWalletMode(true)}
+                                    shape="square"
+                                    className="flex-1 rounded-l-none"
+                                >
+                                    Web3 Wallet
+                                </Button>
+                            </ButtonGroup>
+
+                            {!isWalletMode ? (
+                                /* Email/Password Form */
+                                <form className="space-y-6" onSubmit={handleEmailLogin}>
+                                    <div className="space-y-4">
+                                        <Input
+                                            variant="craft"
+                                            type="email"
+                                            placeholder="Enter your email address"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            label="Email Address"
+                                            required
+                                            leftIcon={
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                                                </svg>
+                                            }
+                                        />
+                                        <Input
+                                            variant="craft"
+                                            type="password"
+                                            placeholder="Enter your password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            label="Password"
+                                            required
+                                            leftIcon={
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                </svg>
+                                            }
+                                        />
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center">
+                                            <input
+                                                id="remember-me"
+                                                name="remember-me"
+                                                type="checkbox"
+                                                checked={rememberMe}
+                                                onChange={(e) => setRememberMe(e.target.checked)}
+                                                className="h-4 w-4 text-mahogany-600 focus:ring-gold-500 border-mahogany-300 rounded"
+                                            />
+                                            <label htmlFor="remember-me" className="ml-2 block body-craft text-sm text-copper-700">
+                                                Remember me
+                                            </label>
+                                        </div>
+
+                                        <div className="text-sm">
+                                            <a href="#" className="body-craft font-medium text-copper-600 hover:text-mahogany-600">
+                                                Forgot your password?
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <Button
+                                        type="submit"
+                                        variant="primary"
+                                        size="lg"
+                                        shape="leaf"
+                                        fullWidth
+                                        disabled={isLoading}
+                                        loading={isLoading}
+                                    >
+                                        {isLoading ? 'Signing in...' : 'Sign In'}
+                                    </Button>
+                                </form>
+                            ) : (
+                                /* Wallet Connection */
+                                <div className="space-y-6">
+                                    <div className="text-center space-y-4">
+                                        <div className="w-20 h-20 mx-auto bg-gradient-to-br from-gold-400 to-gold-600 rounded-organic-wax flex items-center justify-center shadow-craft-soft">
+                                            <svg className="w-10 h-10 text-neutral-50" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 className="heading-craft text-xl text-mahogany-800 mb-2">Connect Your Wallet</h3>
+                                            <p className="body-craft text-copper-600">
+                                                Connect your Web3 wallet to access the decentralized artisan marketplace
+                                            </p>
+                                        </div>
+                                        <Button
+                                            variant="accent"
+                                            size="lg"
+                                            shape="wax"
+                                            fullWidth
+                                            onClick={handleWalletConnection}
+                                            disabled={isLoading}
+                                            loading={isLoading}
+                                            leftIcon={
+                                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                                </svg>
+                                            }
+                                        >
+                                            {isLoading ? 'Connecting...' : 'Connect MetaMask'}
+                                        </Button>
+                                        
+                                        {account && (
+                                            <Motion preset="fadeIn">
+                                                <Badge variant="success" size="lg" shape="pill" className="mx-auto">
+                                                    Connected: {`${account.substring(0, 6)}...${account.substring(account.length - 4)}`}
+                                                </Badge>
+                                            </Motion>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </CardContent>
+
+                        <CardFooter className="text-center">
+                            <p className="body-craft text-xs text-bronze-600">
+                                By signing in, you agree to our{' '}
+                                <a href="#" className="text-copper-600 hover:text-mahogany-600 underline">Terms of Service</a>
+                                {' '}and{' '}
+                                <a href="#" className="text-copper-600 hover:text-mahogany-600 underline">Privacy Policy</a>
+                            </p>
+                        </CardFooter>
+                    </Card>
+                </Motion>
             </div>
-        </div>
+        </>
     )
 }
 

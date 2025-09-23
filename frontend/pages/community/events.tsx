@@ -4,6 +4,24 @@ import AppShell from '../../components/layout/AppShell'
 import { useAuth } from '../../context/AuthContext'
 import { useLocation } from '../../hooks/useLocation'
 import LocationPermission from '../../components/LocationPermission'
+import {
+  Button,
+  ButtonGroup,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  CardBadge,
+  Input,
+  Badge,
+  StatusBadge,
+  SkillBadge,
+  BadgeGroup,
+  Motion,
+  Stagger
+} from '../../components/artisan-craft'
 
 interface Event {
   id: string;
@@ -152,162 +170,250 @@ export default function EventsPage() {
 
   return (
     <AppShell>
-      <Head><title>Community Events</title></Head>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">IT & Business Events</h1>
-          <div className="flex items-center gap-4">
-            {location && (
-              <span className="text-sm text-gray-600">
-                📍 {location.city}, {location.country}
-              </span>
-            )}
-            {refreshing && (
-              <span className="text-sm text-blue-600">🔄 Updating...</span>
-            )}
-            <button
-              onClick={handleRefresh}
-              disabled={!token || refreshing}
-              className="text-sm px-3 py-1 rounded bg-blue-100 text-blue-700 hover:bg-blue-200 disabled:opacity-50"
-            >
-              Refresh Events
-            </button>
-          </div>
-        </div>
+      <Head>
+        <title>Community Events - Artisan Marketplace</title>
+        <meta name="description" content="Discover IT and business events tailored to your interests and location" />
+        
+        {/* Artisan Craft Fonts */}
+        <link 
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;500&family=Crimson+Text:wght@400;600&display=swap" 
+          rel="stylesheet"
+        />
+      </Head>
+      
+      <div className="min-h-screen bg-neutral-50 bg-craft-texture">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Motion preset="slideInDown" className="mb-8">
+            <div className="text-center space-y-4">
+              <h1 className="heading-craft text-4xl text-mahogany-800">
+                Community Events
+              </h1>
+              <p className="body-craft text-lg text-copper-700 max-w-2xl mx-auto">
+                Discover IT and business events tailored to your interests and location. Connect, learn, and grow with fellow artisans.
+              </p>
+              <div className="flex items-center justify-center gap-6 text-sm">
+                {location && (
+                  <Badge variant="success" size="md" shape="pill">
+                    📍 {location.city}, {location.country}
+                  </Badge>
+                )}
+                {refreshing && (
+                  <Badge variant="warning" size="md" shape="pill">
+                    🔄 Updating...
+                  </Badge>
+                )}
+                <Button
+                  variant="accent"
+                  size="sm"
+                  shape="rounded"
+                  onClick={handleRefresh}
+                  disabled={!token || refreshing}
+                  loading={refreshing}
+                >
+                  Refresh Events
+                </Button>
+              </div>
+            </div>
+          </Motion>
 
-        <LocationPermission onLocationGranted={() => load()} />
+          <LocationPermission onLocationGranted={() => load()} />
 
-        {error && <div className="text-red-600 bg-red-50 p-3 rounded">{error}</div>}
+          {error && (
+            <Motion preset="fadeIn" className="mb-6">
+              <Card variant="outlined" className="p-4 border-red-300 bg-red-50">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">⚠️</span>
+                  <p className="body-craft text-red-700">{error}</p>
+                </div>
+              </Card>
+            </Motion>
+          )}
 
-        {/* Auto-refresh toggle */}
-        <div className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            id="autoRefresh"
-            checked={autoRefresh}
-            onChange={(e) => setAutoRefresh(e.target.checked)}
-            className="rounded"
-          />
-          <label htmlFor="autoRefresh" className="text-gray-700">
-            Auto-refresh events when online (every 5 minutes)
-          </label>
-        </div>
+          {/* Auto-refresh toggle */}
+          <Motion preset="scaleIn" className="mb-6">
+            <Card variant="parchment" className="p-4">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="autoRefresh"
+                  checked={autoRefresh}
+                  onChange={(e) => setAutoRefresh(e.target.checked)}
+                  className="h-4 w-4 text-mahogany-600 focus:ring-gold-500 border-mahogany-300 rounded"
+                />
+                <label htmlFor="autoRefresh" className="body-craft text-copper-700">
+                  Auto-refresh events when online (every 5 minutes)
+                </label>
+              </div>
+            </Card>
+          </Motion>
 
-        {/* Create event form */}
-        <div className="rounded-lg border bg-white p-4 shadow-sm space-y-3">
-          <h3 className="font-medium">Create Community Event</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input
-              className="border rounded px-3 py-2"
-              placeholder="Event title"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-            />
-            <input
-              className="border rounded px-3 py-2"
-              placeholder="Event link/URL"
-              value={link}
-              onChange={e => setLink(e.target.value)}
-            />
-          </div>
-          <textarea
-            className="w-full border rounded px-3 py-2"
-            placeholder="Event description (optional)"
-            rows={2}
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-          />
-          <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={isOnline}
-                onChange={(e) => setIsOnline(e.target.checked)}
-              />
-              <span className="text-sm">Online event</span>
-            </label>
-            <button
-              className="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
-              onClick={createEvent}
-              disabled={!title}
-            >
-              Create Event
-            </button>
-          </div>
-        </div>
-
-        {/* Events list */}
-        {loading ? (
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-            <p className="mt-2 text-gray-600">Loading events...</p>
-          </div>
-        ) : items.length === 0 ? (
-          <div className="rounded-lg border bg-white p-8 text-center text-gray-600">
-            <div className="text-4xl mb-4">📅</div>
-            <h3 className="font-medium mb-2">No events found</h3>
-            <p className="text-sm">
-              {location 
-                ? "No IT/business events found in your area. Try enabling auto-refresh or check back later."
-                : "Enable location access to see events near you, or create your own community event."
-              }
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {items.map(event => (
-              <div key={event.id} className="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold text-lg">{event.title}</h3>
-                      {event.is_free && (
-                        <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">FREE</span>
-                      )}
-                      {event.is_online && (
-                        <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">ONLINE</span>
-                      )}
-                      {event.category && (
-                        <span className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded capitalize">
-                          {event.category}
-                        </span>
-                      )}
-                    </div>
-                    
-                    {event.description && (
-                      <p className="text-gray-700 mb-2 text-sm">{event.description}</p>
-                    )}
-                    
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                      <span>📅 {formatEventDate(event.starts_at)}</span>
-                      {event.location_name && (
-                        <span>📍 {event.location_name}</span>
-                      )}
-                      {event.source && event.source !== 'user_created' && (
-                        <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                          via {event.source}
-                        </span>
-                      )}
-                    </div>
+          {/* Create event form */}
+          <Motion preset="scaleIn" className="mb-8">
+            <Card variant="leather" className="p-6">
+              <CardHeader>
+                <CardTitle>Create Community Event</CardTitle>
+                <CardDescription>Share an event with the artisan community</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Input
+                      variant="craft"
+                      placeholder="Event title"
+                      value={title}
+                      onChange={e => setTitle(e.target.value)}
+                      label="Event Title"
+                      required
+                    />
+                    <Input
+                      variant="craft"
+                      placeholder="Event link/URL"
+                      value={link}
+                      onChange={e => setLink(e.target.value)}
+                      label="Event Link"
+                    />
                   </div>
-                  
-                  <div className="flex flex-col gap-2">
-                    {getEventUrl(event) !== '#' && (
-                      <a
-                        href={getEventUrl(event)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-4 py-2 text-sm rounded bg-indigo-600 text-white hover:bg-indigo-700 text-center"
-                      >
-                        {event.is_online ? 'Join Online' : 'View Details'}
-                      </a>
-                    )}
+                  <Input
+                    variant="craft"
+                    placeholder="Event description (optional)"
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                    label="Description"
+                    multiline
+                    rows={3}
+                  />
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="isOnline"
+                      checked={isOnline}
+                      onChange={(e) => setIsOnline(e.target.checked)}
+                      className="h-4 w-4 text-mahogany-600 focus:ring-gold-500 border-mahogany-300 rounded"
+                    />
+                    <label htmlFor="isOnline" className="body-craft text-sm text-copper-700">
+                      Online event
+                    </label>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              </CardContent>
+              <CardFooter>
+                <Button
+                  variant="primary"
+                  shape="leaf"
+                  onClick={createEvent}
+                  disabled={!title}
+                  leftIcon={
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  }
+                >
+                  Create Event
+                </Button>
+              </CardFooter>
+            </Card>
+          </Motion>
+
+          {/* Events list */}
+          {loading ? (
+            <Motion preset="scaleIn" className="flex justify-center items-center py-16">
+              <Card variant="parchment" className="p-8 text-center">
+                <div className="animate-spin w-12 h-12 border-4 border-mahogany-200 border-t-mahogany-600 rounded-full mx-auto mb-4"></div>
+                <p className="body-craft text-copper-700">Loading events...</p>
+              </Card>
+            </Motion>
+          ) : items.length === 0 ? (
+            <Motion preset="fadeIn" className="flex justify-center items-center py-16">
+              <Card variant="outlined" className="p-12 text-center max-w-md mx-auto">
+                <div className="text-6xl opacity-30 mb-6">📅</div>
+                <h3 className="heading-craft text-xl text-mahogany-800 mb-2">No Events Found</h3>
+                <p className="body-craft text-copper-600 mb-6">
+                  {location 
+                    ? "No IT/business events found in your area. Try enabling auto-refresh or check back later."
+                    : "Enable location access to see events near you, or create your own community event."
+                  }
+                </p>
+                <Button variant="accent" shape="wax" onClick={() => {
+                  const titleInput = document.querySelector('input[placeholder*="Event title"]') as HTMLInputElement;
+                  titleInput?.focus();
+                }}>
+                  Create First Event
+                </Button>
+              </Card>
+            </Motion>
+          ) : (
+            <Stagger staggerDelay={100} className="grid gap-6">
+              {items.map((event, index) => (
+                <Motion key={event.id} preset="slideInUp" transition={{ delay: index * 50 }}>
+                  <Card variant="default" interactive="hover" className="group">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-start gap-3 mb-3">
+                            <h3 className="heading-craft text-xl font-semibold text-mahogany-800 group-hover:text-copper-600 transition-colors flex-1">
+                              {event.title}
+                            </h3>
+                            <BadgeGroup>
+                              {event.is_free && (
+                                <Badge variant="success" size="sm" shape="pill">FREE</Badge>
+                              )}
+                              {event.is_online && (
+                                <Badge variant="primary" size="sm" shape="pill">ONLINE</Badge>
+                              )}
+                              {event.category && (
+                                <SkillBadge size="sm">{event.category}</SkillBadge>
+                              )}
+                            </BadgeGroup>
+                          </div>
+                          
+                          {event.description && (
+                            <p className="body-craft text-copper-700 mb-3 text-sm line-clamp-2">
+                              {event.description}
+                            </p>
+                          )}
+                          
+                          <div className="flex items-center gap-4 text-sm text-bronze-600">
+                            <span className="flex items-center gap-1">
+                              📅 {formatEventDate(event.starts_at)}
+                            </span>
+                            {event.location_name && (
+                              <span className="flex items-center gap-1">
+                                📍 {event.location_name}
+                              </span>
+                            )}
+                            {event.source && event.source !== 'user_created' && (
+                              <Badge variant="neutral" size="xs">
+                                via {event.source}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="ml-6">
+                          {getEventUrl(event) !== '#' && (
+                            <Button
+                              variant="accent"
+                              size="sm"
+                              shape="wax"
+                              onClick={() => window.open(getEventUrl(event), '_blank')}
+                              rightIcon={
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                              }
+                            >
+                              {event.is_online ? 'Join Online' : 'View Details'}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Motion>
+              ))}
+            </Stagger>
+          )}
+        </div>
       </div>
     </AppShell>
   )

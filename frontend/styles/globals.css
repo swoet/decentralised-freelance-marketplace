@@ -2,58 +2,159 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import Artisan Craft Design System */
+@import './design-systems/artisan-craft/accessibility.css';
+@import './design-systems/artisan-craft/performance.css';
+@import './design-systems/artisan-craft/utilities.css';
+
 @layer base {
+  /* Artisan Craft Design System - Root Variables */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    /* Artisan Craft Color Palette */
+    --ac-primary: #8B4513;
+    --ac-secondary: #D2691E;
+    --ac-accent: #DAA520;
+    --ac-success: #228B22;
+    --ac-warning: #CD853F;
+    --ac-background: #FFF8DC;
+    --ac-surface: #F5F5DC;
+    
+    /* Text Colors */
+    --ac-text-primary: #3E2723;
+    --ac-text-secondary: #5D4037;
+    --ac-text-tertiary: #8D6E63;
+    --ac-text-inverse: #FFF8DC;
+    --ac-text-accent: #8B4513;
+    --ac-text-muted: #A0927A;
+    
+    /* Typography */
+    --ac-font-display: 'Playfair Display', Georgia, serif;
+    --ac-font-body: 'Source Sans Pro', -apple-system, sans-serif;
+    --ac-font-accent: 'Crimson Text', Georgia, serif;
+    
+    /* Spacing (Fibonacci-inspired organic growth) */
+    --ac-space-1: 0.3125rem;  /* 5px */
+    --ac-space-2: 0.625rem;   /* 10px */
+    --ac-space-3: 0.9375rem;  /* 15px */
+    --ac-space-4: 1.5625rem;  /* 25px */
+    --ac-space-6: 2.5rem;     /* 40px */
+    --ac-space-8: 4.0625rem;  /* 65px */
+    
+    /* Animation */
+    --ac-duration-fast: 150ms;
+    --ac-duration-gentle: 400ms;
+    --ac-duration-normal: 600ms;
+    --ac-duration-slow: 800ms;
+    
+    --ac-ease-organic: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --ac-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --ac-ease-craft: cubic-bezier(0.4, 0.0, 0.2, 1);
+    
+    /* Shadows */
+    --ac-shadow-soft: 0 2px 8px rgba(139, 69, 19, 0.15);
+    --ac-shadow-warm: 0 4px 12px rgba(210, 105, 30, 0.2);
+    --ac-shadow-deep: 0 8px 24px rgba(139, 69, 19, 0.25);
+    
+    /* Border Radius */
+    --ac-radius-sm: 0.25rem;
+    --ac-radius-md: 0.5rem;
+    --ac-radius-lg: 1rem;
+    --ac-radius-organic-gentle: 0.5rem 1rem 0.5rem 1rem;
+    --ac-radius-organic-leaf: 1rem 0.5rem 1rem 0.5rem;
+    --ac-radius-organic-craft: 0.8rem 1.2rem 0.6rem 1.4rem;
   }
 
+  /* Dark mode support */
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
+    --ac-background: #1A1A2E;
+    --ac-surface: #16213E;
+    --ac-text-primary: #F1F8E9;
+    --ac-text-secondary: #B8C5A6;
+    --ac-text-tertiary: #8FA68A;
   }
 }
 
 @layer base {
+  /* Global Artisan Craft Styles */
   * {
-    @apply border-border;
+    @apply border-mahogany-200;
   }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+  
   body {
-    @apply bg-background text-foreground;
+    font-family: var(--ac-font-body);
+    background-color: var(--ac-background);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-opacity='0.02'%3E%3Cpolygon fill='%23000' points='50 0 60 40 100 50 60 60 50 100 40 60 0 50 40 40'/%3E%3C/g%3E%3C/svg%3E");
+    color: var(--ac-text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Default heading styles */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--ac-font-display);
+    font-weight: 700;
+    color: var(--ac-text-primary);
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+  }
+  
+  /* Default button styles */
+  button {
+    font-family: var(--ac-font-body);
+    cursor: pointer;
+    transition: all var(--ac-duration-gentle) var(--ac-ease-organic);
+  }
+  
+  /* Default input styles */
+  input, textarea, select {
+    font-family: var(--ac-font-body);
+    transition: all var(--ac-duration-gentle) var(--ac-ease-organic);
+  }
+  
+  /* Focus styles */
+  :focus-visible {
+    outline: 2px solid var(--ac-accent);
+    outline-offset: 2px;
+    border-radius: var(--ac-radius-sm);
+  }
+}
+
+@layer components {
+  /* Default Artisan Craft component styles */
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 font-semibold text-base;
+    @apply bg-gradient-to-br from-mahogany-600 to-copper-500 text-neutral-50;
+    @apply border-none rounded-organic-craft cursor-pointer;
+    @apply transition-all duration-gentle ease-organic;
+    @apply shadow-craft-soft hover:shadow-craft-warm;
+    @apply transform hover:-translate-y-0.5 active:translate-y-0;
+  }
+  
+  .card {
+    @apply bg-neutral-100 bg-craft-texture;
+    @apply border-2 border-mahogany-200 rounded-lg p-6;
+    @apply shadow-craft-soft relative overflow-hidden;
+    @apply transition-all duration-gentle ease-organic;
+    @apply hover:-translate-y-1 hover:shadow-craft-warm hover:border-copper-300;
+  }
+  
+  .input {
+    @apply w-full px-4 py-3 font-body text-base;
+    @apply bg-neutral-50 bg-paper-texture;
+    @apply border-2 border-mahogany-300 rounded-md;
+    @apply text-neutral-800 placeholder:text-neutral-500;
+    @apply transition-all duration-gentle ease-organic;
+    @apply focus:outline-none focus:border-gold-500 focus:ring-3 focus:ring-gold-500/20;
   }
 }

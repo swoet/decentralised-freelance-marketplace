@@ -2,7 +2,22 @@ import { useEffect, useState } from 'react';
 import Loader from '../components/Loader';
 import Toast from '../components/Toast';
 import Modal from '../components/Modal';
+import Head from 'next/head';
 import { useAuth } from '@/context/AuthContext';
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  Input,
+  Badge,
+  StatusBadge,
+  Motion,
+  Stagger
+} from '../components/artisan-craft';
 
 export default function OrgsPage() {
   const [orgs, setOrgs] = useState<any[]>([]);
@@ -119,72 +134,197 @@ export default function OrgsPage() {
     }).catch((e) => setError(e.message));
   };
 
-  if (loading) return <Loader />;
+  if (loading) return (
+    <div className="min-h-screen bg-neutral-50 bg-craft-texture flex items-center justify-center">
+      <Loader />
+    </div>
+  );
   if (error) return <Toast message={error} type="error" onClose={() => setError(null)} />;
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4">
-      <h1 className="text-2xl font-bold mb-4 text-gray-800">Organizations</h1>
-      <button onClick={() => setShowModal(true)} disabled={!token || authLoading} className="mb-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">+ New Organization</button>
+    <>
+      <Head>
+        <title>Organizations - Artisan Marketplace</title>
+        <meta name="description" content="Manage your organizations and collaborate with teams" />
+        
+        {/* Artisan Craft Fonts */}
+        <link 
+          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;500&family=Crimson+Text:wght@400;600&display=swap" 
+          rel="stylesheet"
+        />
+      </Head>
+      
+      <div className="min-h-screen bg-neutral-50 bg-craft-texture">
+        <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+          <Motion preset="slideInDown" className="mb-8">
+            <div className="text-center space-y-4">
+              <h1 className="heading-craft text-4xl text-mahogany-800">Organizations</h1>
+              <p className="body-craft text-lg text-copper-700">
+                Build teams and collaborate on amazing projects together
+              </p>
+            </div>
+          </Motion>
+          
+          <Motion preset="scaleIn" className="mb-8 text-center">
+            <Button 
+              onClick={() => setShowModal(true)} 
+              disabled={!token || authLoading} 
+              variant="primary" 
+              size="lg" 
+              shape="wax"
+              leftIcon={
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              }
+            >
+              Create New Organization
+            </Button>
+          </Motion>
 
-      <ul className="divide-y divide-gray-200 bg-white rounded-lg shadow">
-        {orgs.map(org => (
-          <li key={org.id} className="px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between">
-            <div>
-              <div className="font-medium text-gray-800">{org.name}</div>
-              <div className="text-xs text-gray-400">Created: {new Date(org.created_at).toLocaleDateString()}</div>
-            </div>
-            <div className="mt-2 sm:mt-0 flex gap-2">
-              <button
-                onClick={() => openEdit(org)}
-                disabled={!token || authLoading}
-                className="px-3 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          {orgs.length > 0 ? (
+            <Stagger staggerDelay={100} className="space-y-6">
+              {orgs.map((org, index) => (
+                <Motion key={org.id} preset="slideInUp" transition={{ delay: index * 100 }}>
+                  <Card variant="leather" interactive="hover" className="group">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="p-2 bg-forest-100 rounded-organic-craft">
+                              <svg className="w-5 h-5 text-forest-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+                              </svg>
+                            </div>
+                            <h3 className="heading-craft text-xl font-semibold text-mahogany-800 group-hover:text-copper-600 transition-colors">
+                              {org.name}
+                            </h3>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 text-sm text-bronze-600">
+                            <span className="flex items-center gap-1">
+                              📅 Created: {new Date(org.created_at).toLocaleDateString()}
+                            </span>
+                            <Badge variant="neutral" size="xs">
+                              {org.id}
+                            </Badge>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2 ml-6">
+                          <Button
+                            onClick={() => openEdit(org)}
+                            disabled={!token || authLoading}
+                            variant="ghost"
+                            size="sm"
+                            shape="rounded"
+                            leftIcon={
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                            }
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            onClick={() => handleDeleteOrg(org.id)}
+                            disabled={!token || authLoading}
+                            variant="danger"
+                            size="sm"
+                            shape="rounded"
+                            leftIcon={
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            }
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Motion>
+              ))}
+            </Stagger>
+          ) : (
+            <Motion preset="fadeIn" className="text-center py-16">
+              <Card variant="parchment" className="max-w-md mx-auto">
+                <CardContent className="p-8">
+                  <div className="text-6xl opacity-30 mb-4">🏢</div>
+                  <h3 className="heading-craft text-xl text-mahogany-800 mb-2">No Organizations Yet</h3>
+                  <p className="body-craft text-copper-700 mb-6">
+                    Create your first organization to start collaborating with teams and managing projects together.
+                  </p>
+                  <Button 
+                    onClick={() => setShowModal(true)} 
+                    disabled={!token || authLoading} 
+                    variant="accent" 
+                    size="md" 
+                    shape="wax"
+                  >
+                    Get Started
+                  </Button>
+                </CardContent>
+              </Card>
+            </Motion>
+          )}
+          <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Organization">
+            <form onSubmit={handleCreateOrg} className="space-y-6">
+              <div>
+                <label className="block body-craft text-sm font-medium text-mahogany-800 mb-2">
+                  Organization Name
+                </label>
+                <Input
+                  type="text"
+                  variant="default"
+                  placeholder="Enter organization name..."
+                  value={newOrgName}
+                  onChange={e => setNewOrgName(e.target.value)}
+                  required
+                />
+              </div>
+              <Button 
+                type="submit" 
+                variant="primary" 
+                size="lg" 
+                shape="wax" 
+                className="w-full"
               >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDeleteOrg(org.id)}
-                disabled={!token || authLoading}
-                className="px-3 py-1 text-sm rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                Create Organization
+              </Button>
+            </form>
+          </Modal>
+          
+          <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Organization">
+            <form onSubmit={handleUpdateOrg} className="space-y-6">
+              <div>
+                <label className="block body-craft text-sm font-medium text-mahogany-800 mb-2">
+                  Organization Name
+                </label>
+                <Input
+                  type="text"
+                  variant="default"
+                  placeholder="Enter organization name..."
+                  value={editOrgName}
+                  onChange={e => setEditOrgName(e.target.value)}
+                  required
+                />
+              </div>
+              <Button 
+                type="submit" 
+                variant="accent" 
+                size="lg" 
+                shape="wax" 
+                className="w-full"
               >
-                Delete
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-      {!orgs.length && <div className="text-gray-500 text-center py-8">No organizations found.</div>}
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Create Organization">
-        <form onSubmit={handleCreateOrg} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Organization Name</label>
-            <input
-              type="text"
-              className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-              value={newOrgName}
-              onChange={e => setNewOrgName(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Create</button>
-        </form>
-      </Modal>
-      <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title="Edit Organization">
-        <form onSubmit={handleUpdateOrg} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Organization Name</label>
-            <input
-              type="text"
-              className="mt-1 block w-full border border-gray-300 rounded px-3 py-2"
-              value={editOrgName}
-              onChange={e => setEditOrgName(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Save</button>
-        </form>
-      </Modal>
-    </div>
+                Save Changes
+              </Button>
+            </form>
+          </Modal>
+        </div>
+      </div>
+    </>
   );
 }
  

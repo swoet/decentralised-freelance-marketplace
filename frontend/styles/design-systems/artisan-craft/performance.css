@@ -1,0 +1,316 @@
+/* Artisan Craft Design System - Performance Optimizations */
+
+/* GPU Acceleration for Animations */
+.btn-craft,
+.card-craft,
+.badge-craft,
+.ac-animated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
+}
+
+/* Optimize for Common Animations */
+.ac-hover-lift {
+  will-change: transform;
+}
+
+.ac-hover-lift:hover {
+  transform: translateY(-4px) translateZ(0);
+}
+
+.ac-fade-in {
+  will-change: opacity;
+}
+
+.ac-scale-in {
+  will-change: transform, opacity;
+}
+
+/* Contain Layout Shifts */
+.card-craft,
+.btn-craft,
+.badge-craft {
+  contain: layout style paint;
+}
+
+/* Optimize Repaints */
+.ac-shimmer-effect {
+  contain: strict;
+  will-change: transform;
+}
+
+.ac-shimmer-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.ac-shimmer-effect:hover::before {
+  animation: ac-shimmer 1s ease-out;
+}
+
+@keyframes ac-shimmer {
+  0% {
+    transform: translateX(-100%) translateZ(0);
+  }
+  100% {
+    transform: translateX(100%) translateZ(0);
+  }
+}
+
+/* Efficient Shadows */
+.shadow-craft-optimized {
+  box-shadow: 
+    0 1px 3px rgba(139, 69, 19, 0.12),
+    0 1px 2px rgba(139, 69, 19, 0.24);
+  transition: box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.shadow-craft-optimized:hover {
+  box-shadow: 
+    0 4px 6px rgba(139, 69, 19, 0.15),
+    0 2px 4px rgba(139, 69, 19, 0.12);
+}
+
+/* Optimized Gradients */
+.gradient-craft-optimized {
+  background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+  background-attachment: fixed;
+  background-size: 100% 100%;
+}
+
+/* Lazy Loading Placeholders */
+.ac-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--ac-surface) 25%,
+    var(--ac-border-muted) 50%,
+    var(--ac-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: ac-skeleton-loading 1.5s infinite;
+  border-radius: var(--ac-radius-sm);
+}
+
+@keyframes ac-skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Image Optimization */
+.ac-image-optimized {
+  object-fit: cover;
+  object-position: center;
+  loading: lazy;
+  decoding: async;
+}
+
+.ac-image-container {
+  position: relative;
+  overflow: hidden;
+  background: var(--ac-surface);
+}
+
+.ac-image-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--ac-skeleton);
+  z-index: -1;
+}
+
+/* Font Loading Optimization */
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 600 700;
+  font-display: swap;
+  src: url('/fonts/playfair-display-variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 400 500;
+  font-display: swap;
+  src: url('/fonts/source-sans-pro-variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Crimson Text';
+  font-style: normal italic;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('/fonts/crimson-text-variable.woff2') format('woff2');
+}
+
+/* Critical CSS Inlining */
+.ac-critical {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #3E2723;
+  background: #FFF8DC;
+}
+
+/* Reduce Layout Thrashing */
+.ac-grid-optimized {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  contain: layout;
+}
+
+/* Efficient Transforms */
+.ac-transform-optimized {
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.ac-transform-optimized:hover {
+  transform: translate3d(0, -4px, 0);
+}
+
+/* Memory Efficient Animations */
+@keyframes ac-fade-in-optimized {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.ac-fade-in-optimized {
+  animation: ac-fade-in-optimized 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+/* Intersection Observer Optimizations */
+.ac-lazy-animate {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.ac-lazy-animate.ac-in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scroll Performance */
+.ac-scroll-container {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ac-scroll-container {
+    scroll-behavior: auto;
+  }
+}
+
+/* Touch Optimization */
+@media (pointer: coarse) {
+  .btn-craft,
+  .badge-craft {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Preload Critical Resources */
+.ac-preload-fonts {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Source Sans Pro', -apple-system, sans-serif;
+  font-family: 'Crimson Text', Georgia, serif;
+  visibility: hidden;
+  position: absolute;
+  left: -9999px;
+}
+
+/* Efficient Background Patterns */
+.bg-craft-texture-optimized {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cg fill-opacity='0.03'%3E%3Cpolygon fill='%23000' points='10 0 12 8 20 10 12 12 10 20 8 12 0 10 8 8'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 20px 20px;
+}
+
+/* Reduce Paint Complexity */
+.ac-simple-shadow {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ac-simple-shadow:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Optimize for 60fps */
+.ac-smooth-animation {
+  animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation-fill-mode: both;
+}
+
+/* Content Visibility for Large Lists */
+.ac-virtual-list-item {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 200px;
+}
+
+/* Efficient Hover States */
+.ac-hover-efficient {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.ac-hover-efficient:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.15);
+}
+
+/* Resource Hints */
+.ac-prefetch {
+  /* Use with link rel="prefetch" for non-critical resources */
+}
+
+.ac-preload {
+  /* Use with link rel="preload" for critical resources */
+}
+
+/* Minimize Reflows */
+.ac-fixed-dimensions {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16/9;
+}
+
+/* Efficient Text Rendering */
+.ac-text-optimized {
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (min-resolution: 192dpi) {
+  .ac-text-optimized {
+    text-rendering: optimizeLegibility;
+  }
+}

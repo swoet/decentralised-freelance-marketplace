@@ -1,0 +1,348 @@
+/* Artisan Craft Design System - Accessibility Enhancements */
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --ac-primary: #5D2F0C;
+    --ac-secondary: #B8591A;
+    --ac-accent: #B8860B;
+    --ac-text-primary: #000000;
+    --ac-text-secondary: #2E1A16;
+    --ac-border-primary: #000000;
+  }
+  
+  .btn-craft,
+  .card-craft,
+  .input-craft,
+  .badge-craft {
+    border-width: 2px;
+    border-style: solid;
+    border-color: currentColor;
+  }
+  
+  .btn-craft:focus,
+  .input-craft:focus,
+  .card-craft:focus-within {
+    outline: 3px solid #000000;
+    outline-offset: 2px;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-handwrite,
+  .animate-grow,
+  .animate-sway,
+  .animate-shimmer {
+    animation: none !important;
+  }
+  
+  .btn-craft:hover,
+  .card-craft:hover,
+  .badge-craft:hover {
+    transform: none !important;
+  }
+}
+
+/* Focus Management */
+.ac-focus-visible {
+  outline: 2px solid var(--ac-accent);
+  outline-offset: 2px;
+  border-radius: var(--ac-radius-sm);
+}
+
+.ac-focus-visible:focus-visible {
+  outline: 2px solid var(--ac-accent);
+  outline-offset: 2px;
+}
+
+/* Skip Links */
+.ac-skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--ac-primary);
+  color: var(--ac-text-inverse);
+  padding: 8px;
+  text-decoration: none;
+  border-radius: var(--ac-radius-sm);
+  z-index: 1000;
+  font-family: var(--ac-font-body);
+  font-weight: 600;
+  font-size: var(--ac-text-sm);
+}
+
+.ac-skip-link:focus {
+  top: 6px;
+}
+
+/* Screen Reader Only Content */
+.ac-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Live Regions for Dynamic Content */
+.ac-live-region {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Color Blind Friendly Patterns */
+.ac-pattern-success {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    var(--ac-success) 2px,
+    var(--ac-success) 4px
+  );
+}
+
+.ac-pattern-warning {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 2px,
+    var(--ac-warning) 2px,
+    var(--ac-warning) 4px
+  );
+}
+
+.ac-pattern-error {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 2px,
+    #dc2626 2px,
+    #dc2626 4px
+  );
+}
+
+/* Enhanced Focus Indicators */
+.btn-craft:focus-visible,
+.input-craft:focus-visible,
+.badge-craft:focus-visible {
+  outline: 3px solid var(--ac-accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(218, 165, 32, 0.2);
+}
+
+/* Keyboard Navigation Helpers */
+.ac-keyboard-nav {
+  outline: none;
+}
+
+.ac-keyboard-nav:focus-visible {
+  outline: 2px solid var(--ac-accent);
+  outline-offset: 2px;
+}
+
+/* Touch Target Sizing */
+@media (pointer: coarse) {
+  .btn-craft,
+  .badge-craft[role="button"],
+  .input-craft,
+  [role="button"],
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ac-background: #1A1A2E;
+    --ac-surface: #16213E;
+    --ac-text-primary: #F1F8E9;
+    --ac-text-secondary: #B8C5A6;
+    --ac-border-primary: #4A5D3A;
+  }
+  
+  .bg-craft-texture {
+    opacity: 0.3;
+  }
+  
+  .shadow-craft-soft {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .shadow-craft-warm {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  
+  .shadow-craft-deep {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Text Scaling Support */
+@media (min-resolution: 192dpi) {
+  .heading-craft,
+  .body-craft,
+  .accent-craft {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Error States with Better Contrast */
+.ac-error {
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
+.ac-error:focus {
+  outline-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+.ac-success {
+  color: var(--ac-success);
+  border-color: var(--ac-success);
+}
+
+.ac-success:focus {
+  outline-color: var(--ac-success);
+  box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.2);
+}
+
+.ac-warning {
+  color: var(--ac-warning);
+  border-color: var(--ac-warning);
+}
+
+.ac-warning:focus {
+  outline-color: var(--ac-warning);
+  box-shadow: 0 0 0 3px rgba(205, 133, 63, 0.2);
+}
+
+/* Loading States */
+.ac-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.ac-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--ac-primary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: ac-spin 1s linear infinite;
+}
+
+@keyframes ac-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tooltip Accessibility */
+.ac-tooltip {
+  position: relative;
+}
+
+.ac-tooltip[aria-describedby]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ac-primary);
+  color: var(--ac-text-inverse);
+  padding: var(--ac-space-2) var(--ac-space-3);
+  border-radius: var(--ac-radius-sm);
+  font-size: var(--ac-text-xs);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ac-duration-gentle) var(--ac-ease-organic);
+  z-index: 1000;
+}
+
+.ac-tooltip:hover::after,
+.ac-tooltip:focus::after {
+  opacity: 1;
+}
+
+/* Form Validation Messages */
+.ac-field-error {
+  color: #dc2626;
+  font-size: var(--ac-text-sm);
+  margin-top: var(--ac-space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--ac-space-1);
+}
+
+.ac-field-success {
+  color: var(--ac-success);
+  font-size: var(--ac-text-sm);
+  margin-top: var(--ac-space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--ac-space-1);
+}
+
+/* Required Field Indicators */
+.ac-required::after {
+  content: ' *';
+  color: #dc2626;
+  font-weight: bold;
+}
+
+/* Disabled States */
+.ac-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Print Styles */
+@media print {
+  .btn-craft,
+  .badge-craft {
+    background: transparent !important;
+    border: 1px solid #000 !important;
+    color: #000 !important;
+    box-shadow: none !important;
+  }
+  
+  .card-craft {
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+  
+  .ac-no-print {
+    display: none !important;
+  }
+}

@@ -1,0 +1,260 @@
+/* Quantum Finance Design System */
+:root {
+  /* Colors */
+  --qf-primary: #000000;
+  --qf-secondary: #FF6B35;
+  --qf-accent: #00FF88;
+  --qf-success: #39FF14;
+  --qf-warning: #FFFF00;
+  --qf-background: #FAFAFA;
+  --qf-surface: #111111;
+  --qf-text-primary: #000000;
+  --qf-text-secondary: #666666;
+  --qf-text-inverse: #FFFFFF;
+  --qf-neon-glow: rgba(0, 255, 136, 0.5);
+
+  /* Typography */
+  --qf-font-primary: 'Space Grotesk', -apple-system, sans-serif;
+  --qf-font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+  --qf-font-mono: 'IBM Plex Mono', 'Fira Code', monospace;
+  
+  --qf-text-xs: 0.75rem;    /* 12px */
+  --qf-text-sm: 0.875rem;   /* 14px */
+  --qf-text-base: 1rem;     /* 16px */
+  --qf-text-lg: 1.25rem;    /* 20px */
+  --qf-text-xl: 1.75rem;    /* 28px */
+  --qf-text-2xl: 2.5rem;    /* 40px */
+  --qf-text-3xl: 3.5rem;    /* 56px */
+
+  /* Spacing - Mathematical 8px base */
+  --qf-space-1: 0.5rem;     /* 8px */
+  --qf-space-2: 1rem;       /* 16px */
+  --qf-space-3: 1.5rem;     /* 24px */
+  --qf-space-4: 2rem;       /* 32px */
+  --qf-space-6: 3rem;       /* 48px */
+  --qf-space-8: 4rem;       /* 64px */
+  --qf-space-12: 6rem;      /* 96px */
+  --qf-space-16: 8rem;      /* 128px */
+
+  /* Gradients */
+  --qf-gradient-primary: linear-gradient(135deg, var(--qf-primary) 0%, var(--qf-secondary) 100%);
+  --qf-gradient-accent: linear-gradient(135deg, var(--qf-accent) 0%, var(--qf-success) 100%);
+  --qf-gradient-holographic: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #ff0080);
+
+  /* Shadows */
+  --qf-shadow-sharp: 0 4px 0 var(--qf-primary);
+  --qf-shadow-neon: 0 0 20px var(--qf-neon-glow);
+  --qf-shadow-deep: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  /* Border Radius */
+  --qf-radius-none: 0;
+  --qf-radius-sm: 0.125rem;  /* 2px */
+  --qf-radius-md: 0.25rem;   /* 4px */
+  --qf-radius-lg: 0.5rem;    /* 8px */
+
+  /* Animations */
+  --qf-duration-instant: 100ms;
+  --qf-duration-fast: 200ms;
+  --qf-duration-normal: 300ms;
+  --qf-ease-sharp: ease-out;
+}
+
+/* Quantum Finance Components */
+.qf-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--qf-space-2) var(--qf-space-4);
+  font-family: var(--qf-font-primary);
+  font-weight: 700;
+  font-size: var(--qf-text-base);
+  background: var(--qf-primary);
+  color: var(--qf-text-inverse);
+  border: 2px solid var(--qf-accent);
+  border-radius: var(--qf-radius-md);
+  cursor: pointer;
+  transition: all var(--qf-duration-fast) var(--qf-ease-sharp);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  overflow: hidden;
+}
+
+.qf-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--qf-gradient-accent);
+  transition: left var(--qf-duration-normal) var(--qf-ease-sharp);
+  z-index: -1;
+}
+
+.qf-button:hover::before {
+  left: 0;
+}
+
+.qf-button:hover {
+  color: var(--qf-primary);
+  box-shadow: var(--qf-shadow-neon);
+  transform: translateY(-2px);
+}
+
+.qf-card {
+  background: var(--qf-background);
+  border: 1px solid var(--qf-primary);
+  border-radius: var(--qf-radius-lg);
+  padding: var(--qf-space-4);
+  box-shadow: var(--qf-shadow-sharp);
+  position: relative;
+  overflow: hidden;
+}
+
+.qf-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--qf-gradient-holographic);
+  background-size: 200% 100%;
+  animation: holographic 3s linear infinite;
+}
+
+@keyframes holographic {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.qf-price-ticker {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--qf-space-1) var(--qf-space-2);
+  font-family: var(--qf-font-mono);
+  font-weight: 600;
+  font-size: var(--qf-text-sm);
+  background: var(--qf-surface);
+  color: var(--qf-accent);
+  border: 1px solid var(--qf-accent);
+  border-radius: var(--qf-radius-sm);
+  animation: pulse-neon 2s ease-in-out infinite;
+}
+
+@keyframes pulse-neon {
+  0%, 100% { 
+    box-shadow: 0 0 5px var(--qf-neon-glow);
+  }
+  50% { 
+    box-shadow: 0 0 20px var(--qf-neon-glow);
+  }
+}
+
+.qf-data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--qf-space-2);
+  font-family: var(--qf-font-mono);
+}
+
+.qf-data-cell {
+  padding: var(--qf-space-2);
+  background: var(--qf-surface);
+  color: var(--qf-text-inverse);
+  border: 1px solid var(--qf-secondary);
+  border-radius: var(--qf-radius-sm);
+  text-align: center;
+  font-weight: 500;
+}
+
+.qf-progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--qf-surface);
+  border-radius: var(--qf-radius-sm);
+  overflow: hidden;
+  position: relative;
+}
+
+.qf-progress-fill {
+  height: 100%;
+  background: var(--qf-gradient-accent);
+  border-radius: var(--qf-radius-sm);
+  transition: width var(--qf-duration-normal) var(--qf-ease-sharp);
+  position: relative;
+}
+
+.qf-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: scan 1.5s linear infinite;
+}
+
+@keyframes scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Matrix-style digital rain effect */
+.qf-matrix-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.1;
+}
+
+.qf-glitch {
+  position: relative;
+  display: inline-block;
+}
+
+.qf-glitch::before,
+.qf-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.qf-glitch::before {
+  animation: glitch-1 0.5s infinite;
+  color: var(--qf-secondary);
+  z-index: -1;
+}
+
+.qf-glitch::after {
+  animation: glitch-2 0.5s infinite;
+  color: var(--qf-accent);
+  z-index: -2;
+}
+
+@keyframes glitch-1 {
+  0%, 14%, 15%, 49%, 50%, 99%, 100% { 
+    transform: translate(0); 
+  }
+  15%, 49% { 
+    transform: translate(-2px, -1px); 
+  }
+}
+
+@keyframes glitch-2 {
+  0%, 20%, 21%, 62%, 63%, 99%, 100% { 
+    transform: translate(0); 
+  }
+  21%, 62% { 
+    transform: translate(2px, 1px); 
+  }
+}

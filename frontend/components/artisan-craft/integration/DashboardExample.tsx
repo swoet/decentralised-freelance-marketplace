@@ -1,11 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/router';
-import Link from 'next/link';
-import Navbar from '@/components/Navbar';
-import Loader from '@/components/Loader';
-import Toast from '@/components/Toast';
-import Head from 'next/head';
 import {
   Button,
   ButtonGroup,
@@ -21,13 +15,18 @@ import {
   SkillBadge,
   BadgeGroup,
   Motion,
-  Stagger
-} from '@/components/artisan-craft';
+  Stagger,
+  Handwriting
+} from '../index';
 
+// Integration example showing how to apply Artisan Craft to existing dashboard
 interface DashboardData {
   user: {
     authenticated: boolean;
     preview_mode: boolean;
+    full_name?: string;
+    email?: string;
+    wallet_address?: string;
   };
   projects: {
     featured_projects?: Array<{
@@ -36,6 +35,7 @@ interface DashboardData {
       description: string;
       budget_range: string;
       created_at: string;
+      status?: string;
     }>;
     user_projects?: Array<{
       id: string;
@@ -43,13 +43,6 @@ interface DashboardData {
       description: string;
       budget_range: string;
       status: string;
-      created_at: string;
-    }>;
-    recommended_projects?: Array<{
-      id: string;
-      title: string;
-      description: string;
-      budget_range: string;
       created_at: string;
     }>;
   };
@@ -69,14 +62,6 @@ interface DashboardData {
       category: string;
     }>;
   };
-  integrations: {
-    connected_count?: number;
-    available_providers: Array<{
-      name: string;
-      description: string;
-      category: string;
-    }> | string[];
-  };
   stats: {
     total_projects: number;
     active_threads: number;
@@ -85,119 +70,126 @@ interface DashboardData {
   };
 }
 
-export default function Dashboard() {
+export const ArtisanDashboard: React.FC = () => {
   const { user, token, loading } = useAuth();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  
   const isPublicMode = !user || !token;
 
-  const fetchDashboardData = useCallback(async () => {
-    try {
-      setDataLoading(true);
-      setError(null);
-      
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1';
-      const headers: Record<string, string> = {};
-      
-      // Add auth header if user is logged in
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+  // Fetch dashboard data with Artisan Craft loading states
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setDataLoading(true);
+        setError(null);
+        
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1';
+        const headers: Record<string, string> = {};
+        
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const response = await fetch(`${API_URL}/dashboard?preview=${isPublicMode}`, {
+          headers,
+          method: 'GET',
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data: DashboardData = await response.json();
+        setDashboardData(data);
+        
+      } catch (err: any) {
+        console.error('Dashboard fetch error:', err);
+        setError(err?.message || 'Failed to load dashboard data');
+      } finally {
+        setDataLoading(false);
       }
-      
-      // Call the new dashboard API with preview mode for anonymous users
-      const response = await fetch(`${API_URL}/dashboard?preview=${isPublicMode}`, {
-        headers,
-        method: 'GET',
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const data: DashboardData = await response.json();
-      setDashboardData(data);
-      
-    } catch (err: any) {
-      console.error('Dashboard fetch error:', err);
-      setError(err?.message || 'Failed to load dashboard data');
-    } finally {
-      setDataLoading(false);
-    }
+    };
+
+    fetchDashboardData();
   }, [isPublicMode, token]);
 
-  useEffect(() => {
-    // Always load dashboard data (public or authenticated)
-    fetchDashboardData();
-  }, [fetchDashboardData]);
-
-  // Show loading while auth is being checked
-  if (loading) {
+  // Loading state with Artisan Craft styling
+  if (loading || dataLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader />
-      </div>
-    );
-  }
-
-  // Show loading while fetching dashboard data
-  if (dataLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
+      <div className="min-h-screen bg-surface-background bg-craft-texture">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-center h-64">
-            <Loader />
-          </div>
+          <Motion preset="fadeIn" className="space-y-8">
+            {/* Loading skeleton with craft styling */}
+            <div className="space-y-4">
+              <div className="ac-skeleton h-12 w-64 rounded-organic-craft"></div>
+              <div className="ac-skeleton h-6 w-96 rounded-organic-gentle"></div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <Card key={i} variant="default" className="p-6">
+                  <div className="space-y-4">
+                    <div className="ac-skeleton h-8 w-8 rounded-full"></div>
+                    <div className="ac-skeleton h-4 w-24 rounded-organic-gentle"></div>
+                    <div className="ac-skeleton h-8 w-16 rounded-organic-craft"></div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </Motion>
         </div>
       </div>
     );
   }
 
-  // Allow public mode (preview) to continue rendering
-  // Only redirect if we're not in public mode and there's no user/token
-
   return (
-    <div className="min-h-screen bg-neutral-50 bg-craft-texture">
-      <Head>
-        <title>{isPublicMode ? 'Marketplace Dashboard' : 'My Dashboard'} - Decentralized Freelance Marketplace</title>
-        <meta name="description" content={isPublicMode ? 'Explore the freelance marketplace with real-time projects, community activity, and integrations' : 'Your personalized freelance dashboard'} />
-        
-        {/* Artisan Craft Fonts */}
-        <link 
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;500&family=Crimson+Text:wght@400;600&display=swap" 
-          rel="stylesheet"
-        />
-      </Head>
-      <Navbar />
+    <div className="min-h-screen bg-surface-background bg-craft-texture">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Header Section with Artisan Craft styling */}
         <Motion preset="slideInDown" className="mb-8">
           <div className="space-y-4">
-            <h1 className="heading-craft text-4xl text-mahogany-800">
-              {isPublicMode ? 'Marketplace Overview' : `Welcome back, ${user?.full_name || user?.email || 'Artisan'}!`}
+            <h1 className="heading-craft text-4xl text-text-primary">
+              {isPublicMode ? 'Marketplace Overview' : `Welcome back, ${user?.full_name || 'Artisan'}!`}
             </h1>
-            <p className="body-craft text-lg text-copper-700">
-              {isPublicMode ? (
-                <>Discover the craft of freelancing with real-time projects and community discussions. <Button variant="link" onClick={() => router.push('/login')}>Sign in</Button> for personalized content.</>
-              ) : (
-                <>Ready to craft something amazing today?</>
-              )}
-            </p>
-            {user?.wallet_address && (
-              <p className="body-craft text-sm text-bronze-600">
-                Wallet: {`${user.wallet_address.substring(0, 6)}...${user.wallet_address.substring(user.wallet_address.length - 4)}`}
-              </p>
+            
+            {isPublicMode ? (
+              <div className="space-y-2">
+                <Handwriting 
+                  text="Discover the craft of freelancing"
+                  className="text-xl text-text-accent"
+                  speed={60}
+                />
+                <p className="body-craft text-text-secondary">
+                  Explore projects, community discussions, and integrations. 
+                  <Button variant="link" className="ml-2">Sign in</Button> 
+                  for personalized content.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Handwriting 
+                  text="Ready to craft something amazing today?"
+                  className="text-xl text-text-accent"
+                  speed={60}
+                />
+                {user?.wallet_address && (
+                  <p className="body-craft text-text-muted text-sm">
+                    Wallet: {`${user.wallet_address.substring(0, 6)}...${user.wallet_address.substring(user.wallet_address.length - 4)}`}
+                  </p>
+                )}
+              </div>
             )}
+            
             {isPublicMode && (
               <Card variant="parchment" className="p-4 border-2 border-gold-300">
                 <div className="flex items-center gap-3">
                   <Badge variant="accent" size="sm" shape="wax">Preview</Badge>
-                  <p className="body-craft text-sm text-mahogany-700">
+                  <p className="body-craft text-sm text-text-secondary">
                     You're viewing public data. 
-                    <Button variant="link" onClick={() => router.push('/signup')} className="ml-1">
-                      Create an account
-                    </Button> 
+                    <Button variant="link" className="ml-1">Create an account</Button> 
                     to access personalized features.
                   </p>
                 </div>
@@ -206,17 +198,31 @@ export default function Dashboard() {
           </div>
         </Motion>
 
-        {error && <Toast message={error} type="error" onClose={() => setError(null)} />}
+        {/* Error handling with Artisan Craft styling */}
+        {error && (
+          <Motion preset="slideInUp">
+            <Card variant="outlined" className="mb-8 border-red-300 bg-red-50">
+              <CardContent>
+                <div className="flex items-center gap-3 text-red-700">
+                  <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span className="body-craft font-medium">{error}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </Motion>
+        )}
 
-        {/* Stats Grid */}
+        {/* Stats Grid with Artisan Craft cards */}
         <Stagger staggerDelay={100} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card variant="leather" interactive="hover" className="p-6">
+          <Card variant="leather" interactive="lift" className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
-                <p className="body-craft text-sm font-medium text-copper-700">
+                <p className="body-craft text-sm font-medium text-text-secondary">
                   {isPublicMode ? 'Platform Projects' : 'My Projects'}
                 </p>
-                <p className="heading-craft text-3xl text-mahogany-800">
+                <p className="heading-craft text-3xl text-text-primary">
                   {dashboardData?.stats?.total_projects || 0}
                 </p>
               </div>
@@ -228,13 +234,13 @@ export default function Dashboard() {
             </div>
           </Card>
 
-          <Card variant="filled" interactive="hover" className="p-6">
+          <Card variant="filled" interactive="lift" className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
-                <p className="body-craft text-sm font-medium text-copper-700">
+                <p className="body-craft text-sm font-medium text-text-secondary">
                   Community Threads
                 </p>
-                <p className="heading-craft text-3xl text-mahogany-800">
+                <p className="heading-craft text-3xl text-text-primary">
                   {dashboardData?.stats?.active_threads || 0}
                 </p>
               </div>
@@ -246,13 +252,13 @@ export default function Dashboard() {
             </div>
           </Card>
 
-          <Card variant="parchment" interactive="hover" className="p-6">
+          <Card variant="parchment" interactive="lift" className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
-                <p className="body-craft text-sm font-medium text-copper-700">
+                <p className="body-craft text-sm font-medium text-text-secondary">
                   Upcoming Events
                 </p>
-                <p className="heading-craft text-3xl text-mahogany-800">
+                <p className="heading-craft text-3xl text-text-primary">
                   {dashboardData?.stats?.upcoming_events || 0}
                 </p>
               </div>
@@ -264,13 +270,13 @@ export default function Dashboard() {
             </div>
           </Card>
 
-          <Card variant="elevated" interactive="hover" className="p-6">
+          <Card variant="elevated" interactive="lift" className="p-6">
             <div className="flex items-center justify-between">
               <div className="space-y-2">
-                <p className="body-craft text-sm font-medium text-copper-700">
+                <p className="body-craft text-sm font-medium text-text-secondary">
                   Platform Activity
                 </p>
-                <p className="heading-craft text-2xl text-mahogany-800">
+                <p className="heading-craft text-2xl text-text-primary">
                   {dashboardData?.stats?.platform_activity || 'Active'}
                 </p>
               </div>
@@ -283,7 +289,7 @@ export default function Dashboard() {
           </Card>
         </Stagger>
 
-        {/* Quick Actions */}
+        {/* Quick Actions with Artisan Craft styling */}
         <Motion preset="scaleIn" className="mb-8">
           <Card variant="default" className="p-6">
             <CardHeader>
@@ -292,43 +298,22 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <ButtonGroup spacing="lg">
-                <Button 
-                  variant="primary" 
-                  size="lg" 
-                  shape="rounded"
-                  onClick={() => router.push('/projects')}
-                  leftIcon={
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  }
-                >
+                <Button variant="primary" size="lg" shape="organic">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
                   Browse Projects
                 </Button>
-                <Button 
-                  variant="accent" 
-                  size="lg" 
-                  shape="leaf"
-                  onClick={() => router.push('/profile')}
-                  leftIcon={
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  }
-                >
+                <Button variant="accent" size="lg" shape="leaf">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
                   Edit Profile
                 </Button>
-                <Button 
-                  variant="secondary" 
-                  size="lg" 
-                  shape="wax"
-                  onClick={() => router.push('/messages')}
-                  leftIcon={
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                  }
-                >
+                <Button variant="secondary" size="lg" shape="wax">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                  </svg>
                   View Messages
                 </Button>
               </ButtonGroup>
@@ -336,7 +321,7 @@ export default function Dashboard() {
           </Card>
         </Motion>
 
-        {/* Recent Activity / Community Content */}
+        {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Recent Projects */}
           <Motion preset="slideInUp">
@@ -355,17 +340,17 @@ export default function Dashboard() {
                     {(dashboardData.projects.featured_projects || dashboardData.projects.user_projects || []).slice(0, 3).map((project, index) => (
                       <Motion key={project.id} preset="fadeIn" transition={{ delay: index * 100 }}>
                         <div className="border-l-4 border-gold-500 pl-4 py-2 hover:bg-mahogany-50 rounded-r-organic-gentle transition-colors duration-gentle">
-                          <h4 className="heading-craft text-lg font-semibold text-mahogany-800 truncate">
+                          <h4 className="heading-craft text-lg font-semibold text-text-primary truncate">
                             {project.title}
                           </h4>
-                          <p className="body-craft text-sm text-copper-700 mt-1 line-clamp-2">
+                          <p className="body-craft text-sm text-text-secondary mt-1 line-clamp-2">
                             {project.description}
                           </p>
                           <div className="flex items-center justify-between mt-3">
-                            <Badge variant="success" size="sm" shape="rounded">
+                            <Badge variant="success" size="sm" shape="organic">
                               {project.budget_range}
                             </Badge>
-                            <span className="body-craft text-xs text-bronze-600">
+                            <span className="body-craft text-xs text-text-muted">
                               {new Date(project.created_at).toLocaleDateString()}
                             </span>
                           </div>
@@ -376,12 +361,12 @@ export default function Dashboard() {
                 ) : (
                   <div className="text-center py-8">
                     <div className="text-6xl opacity-20 mb-4">📋</div>
-                    <p className="body-craft text-bronze-600">No projects available yet.</p>
+                    <p className="body-craft text-text-muted">No projects available yet.</p>
                   </div>
                 )}
               </CardContent>
               <CardFooter>
-                <Button variant="ghost" fullWidth onClick={() => router.push('/projects')}>
+                <Button variant="ghost" fullWidth>
                   View All Projects →
                 </Button>
               </CardFooter>
@@ -393,25 +378,25 @@ export default function Dashboard() {
             <Card variant="parchment" interactive="float" className="h-full">
               <CardHeader divided>
                 <CardTitle>Community Activity</CardTitle>
-                <CardDescription>Latest discussions and conversations</CardDescription>
+                <CardDescription>Latest discussions and upcoming events</CardDescription>
               </CardHeader>
               <CardContent>
                 {dashboardData?.community?.recent_threads?.length ? (
                   <div className="space-y-4">
                     {dashboardData.community.recent_threads.slice(0, 4).map((thread, index) => (
-                      <Motion key={thread.id} preset="fadeIn" transition={{ delay: (index + 3) * 100 }}>
-                        <div className="border-l-4 border-forest-500 pl-4 py-2 hover:bg-neutral-50 rounded-r-organic-gentle transition-colors duration-gentle">
-                          <h4 className="heading-craft text-base font-semibold text-mahogany-800">
+                      <Motion key={thread.id} preset="fadeIn" transition={{ delay: index * 100 }}>
+                        <div className="border-l-4 border-copper-500 pl-4 py-2 hover:bg-copper-50 rounded-r-organic-gentle transition-colors duration-gentle">
+                          <h4 className="heading-craft text-base font-medium text-text-primary">
                             {thread.title}
                           </h4>
-                          <BadgeGroup className="mt-2">
-                            {thread.tags?.slice(0, 3).map((tag) => (
-                              <SkillBadge key={tag} size="sm">
+                          <BadgeGroup spacing="sm" className="mt-2">
+                            {thread.tags.slice(0, 3).map((tag, tagIndex) => (
+                              <Badge key={tagIndex} variant="subtle" size="xs" shape="organic">
                                 {tag}
-                              </SkillBadge>
+                              </Badge>
                             ))}
                           </BadgeGroup>
-                          <span className="body-craft text-xs text-bronze-600 mt-2 block">
+                          <span className="body-craft text-xs text-text-muted mt-2 block">
                             {new Date(thread.created_at).toLocaleDateString()}
                           </span>
                         </div>
@@ -421,12 +406,12 @@ export default function Dashboard() {
                 ) : (
                   <div className="text-center py-8">
                     <div className="text-6xl opacity-20 mb-4">💬</div>
-                    <p className="body-craft text-bronze-600">No community activity yet.</p>
+                    <p className="body-craft text-text-muted">No community activity yet.</p>
                   </div>
                 )}
               </CardContent>
               <CardFooter>
-                <Button variant="ghost" fullWidth onClick={() => router.push('/community')}>
+                <Button variant="ghost" fullWidth>
                   Join Community →
                 </Button>
               </CardFooter>
@@ -436,4 +421,6 @@ export default function Dashboard() {
       </div>
     </div>
   );
-}
+};
+
+export default ArtisanDashboard;

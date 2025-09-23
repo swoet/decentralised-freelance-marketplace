@@ -1,0 +1,308 @@
+/* Organic Ecosystem Design System */
+:root {
+  /* Colors */
+  --oe-primary: #2D5016;
+  --oe-secondary: #7CB342;
+  --oe-accent: #FFC107;
+  --oe-success: #4CAF50;
+  --oe-warning: #FF9800;
+  --oe-background: #F1F8E9;
+  --oe-surface: #E8F5E8;
+  --oe-text-primary: #1B5E20;
+  --oe-text-secondary: #388E3C;
+  --oe-text-inverse: #F1F8E9;
+
+  /* Typography */
+  --oe-font-primary: 'Nunito', -apple-system, sans-serif;
+  --oe-font-body: 'Open Sans', -apple-system, sans-serif;
+  --oe-font-accent: 'Merriweather', Georgia, serif;
+  
+  --oe-text-xs: 0.75rem;    /* 12px */
+  --oe-text-sm: 0.875rem;   /* 14px */
+  --oe-text-base: 1rem;     /* 16px */
+  --oe-text-lg: 1.125rem;   /* 18px */
+  --oe-text-xl: 1.375rem;   /* 22px */
+  --oe-text-2xl: 1.875rem;  /* 30px */
+  --oe-text-3xl: 2.5rem;    /* 40px */
+
+  /* Spacing - Fibonacci-inspired organic growth */
+  --oe-space-1: 0.3125rem;  /* 5px */
+  --oe-space-2: 0.625rem;   /* 10px */
+  --oe-space-3: 0.9375rem;  /* 15px */
+  --oe-space-4: 1.5625rem;  /* 25px */
+  --oe-space-6: 2.5rem;     /* 40px */
+  --oe-space-8: 4.0625rem;  /* 65px */
+  --oe-space-12: 6.5625rem; /* 105px */
+
+  /* Natural curves and organic shapes */
+  --oe-curve-gentle: 0.5rem 1rem 0.5rem 1rem;
+  --oe-curve-leaf: 1rem 0.5rem 1rem 0.5rem;
+  --oe-curve-organic: 0.8rem 1.2rem 0.6rem 1.4rem;
+
+  /* Shadows - Soft and natural */
+  --oe-shadow-soft: 0 2px 8px rgba(45, 80, 22, 0.1);
+  --oe-shadow-natural: 0 4px 16px rgba(45, 80, 22, 0.15);
+  --oe-shadow-deep: 0 8px 32px rgba(45, 80, 22, 0.2);
+
+  /* Gradients */
+  --oe-gradient-growth: linear-gradient(135deg, var(--oe-secondary), var(--oe-success));
+  --oe-gradient-sunrise: linear-gradient(135deg, var(--oe-accent), var(--oe-warning));
+  --oe-gradient-forest: linear-gradient(135deg, var(--oe-primary), var(--oe-secondary));
+
+  /* Animations */
+  --oe-duration-gentle: 600ms;
+  --oe-duration-natural: 800ms;
+  --oe-duration-slow: 1200ms;
+  --oe-ease-organic: ease-out;
+  --oe-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Organic Ecosystem Components */
+.oe-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--oe-space-3) var(--oe-space-6);
+  font-family: var(--oe-font-primary);
+  font-weight: 600;
+  font-size: var(--oe-text-base);
+  background: var(--oe-gradient-growth);
+  color: var(--oe-text-inverse);
+  border: none;
+  border-radius: var(--oe-curve-organic);
+  cursor: pointer;
+  transition: all var(--oe-duration-gentle) var(--oe-ease-bounce);
+  box-shadow: var(--oe-shadow-soft);
+  overflow: hidden;
+}
+
+.oe-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all var(--oe-duration-natural) var(--oe-ease-organic);
+}
+
+.oe-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.oe-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--oe-shadow-natural);
+}
+
+.oe-card {
+  background: var(--oe-surface);
+  border: 2px solid rgba(124, 179, 66, 0.3);
+  border-radius: var(--oe-curve-gentle);
+  padding: var(--oe-space-6);
+  box-shadow: var(--oe-shadow-soft);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--oe-duration-gentle) var(--oe-ease-organic);
+}
+
+.oe-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(124, 179, 66, 0.1) 0%, transparent 70%);
+  transform: scale(0);
+  transition: transform var(--oe-duration-slow) var(--oe-ease-organic);
+}
+
+.oe-card:hover::before {
+  transform: scale(1);
+}
+
+.oe-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--oe-shadow-deep);
+  border-color: var(--oe-secondary);
+}
+
+.oe-growth-indicator {
+  width: 100%;
+  height: 12px;
+  background: rgba(45, 80, 22, 0.2);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.oe-growth-fill {
+  height: 100%;
+  background: var(--oe-gradient-growth);
+  border-radius: 6px;
+  transition: width var(--oe-duration-natural) var(--oe-ease-bounce);
+  position: relative;
+}
+
+.oe-growth-fill::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  height: 4px;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.5), transparent);
+  border-radius: 2px;
+}
+
+.oe-leaf-icon {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background: var(--oe-secondary);
+  clip-path: path('M12 2C8 2 4 6 4 12C4 18 8 22 12 22C16 22 20 18 20 12C20 6 16 2 12 2Z');
+  animation: sway var(--oe-duration-slow) ease-in-out infinite alternate;
+}
+
+@keyframes sway {
+  0% { transform: rotate(-5deg); }
+  100% { transform: rotate(5deg); }
+}
+
+.oe-branch-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--oe-space-4);
+}
+
+.oe-branch-nav::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--oe-secondary);
+  z-index: -1;
+}
+
+.oe-nav-node {
+  width: 16px;
+  height: 16px;
+  background: var(--oe-accent);
+  border-radius: 50%;
+  border: 3px solid var(--oe-surface);
+  box-shadow: var(--oe-shadow-soft);
+  transition: all var(--oe-duration-gentle) var(--oe-ease-bounce);
+}
+
+.oe-nav-node:hover {
+  transform: scale(1.3);
+  background: var(--oe-success);
+}
+
+.oe-seasonal-theme {
+  transition: all var(--oe-duration-slow) var(--oe-ease-organic);
+}
+
+/* Seasonal variations */
+.oe-spring {
+  --oe-accent: #8BC34A; /* Fresh green */
+  --oe-secondary: #4CAF50; /* Vibrant green */
+}
+
+.oe-summer {
+  --oe-accent: #FFC107; /* Bright yellow */
+  --oe-secondary: #FF9800; /* Warm orange */
+}
+
+.oe-autumn {
+  --oe-accent: #FF5722; /* Warm red */
+  --oe-secondary: #FF9800; /* Orange */
+}
+
+.oe-winter {
+  --oe-accent: #607D8B; /* Cool blue-gray */
+  --oe-secondary: #9E9E9E; /* Neutral gray */
+}
+
+/* Growing animation for new elements */
+@keyframes grow {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.oe-grow-in {
+  animation: grow var(--oe-duration-natural) var(--oe-ease-bounce);
+}
+
+/* Blooming effect for interactions */
+@keyframes bloom {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(180deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+.oe-bloom {
+  animation: bloom var(--oe-duration-natural) var(--oe-ease-organic);
+}
+
+/* Community tree visualization */
+.oe-community-tree {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--oe-space-4);
+}
+
+.oe-tree-branch {
+  width: 2px;
+  height: var(--oe-space-6);
+  background: linear-gradient(to bottom, var(--oe-primary), var(--oe-secondary));
+  position: relative;
+}
+
+.oe-tree-branch::before,
+.oe-tree-branch::after {
+  content: '';
+  position: absolute;
+  width: var(--oe-space-4);
+  height: 2px;
+  background: var(--oe-secondary);
+  top: 50%;
+}
+
+.oe-tree-branch::before {
+  left: -var(--oe-space-4);
+  transform: rotate(-30deg);
+  transform-origin: right center;
+}
+
+.oe-tree-branch::after {
+  right: -var(--oe-space-4);
+  transform: rotate(30deg);
+  transform-origin: left center;
+}
