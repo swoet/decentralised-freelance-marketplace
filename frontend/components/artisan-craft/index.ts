@@ -64,8 +64,8 @@ export type {
   HandwritingProps 
 } from './Motion';
 
-// Design Tokens
-export { default as tokens } from '../../../styles/design-systems/artisan-craft/tokens.js';
+// Design Tokens (available in CSS variables and Tailwind config)
+// Tokens are integrated via tailwind.config.js and CSS custom properties
 
 // Utility functions for the design system
 export const craftUtils = {
@@ -223,6 +223,5 @@ export default {
   craftUtils,
   craftTheme,
   a11y,
-  performance,
-  tokens
+  performance
 };
