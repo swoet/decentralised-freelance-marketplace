@@ -114,11 +114,11 @@ export const Motion: React.FC<MotionProps> = ({
 
   // Get motion configuration
   const config = preset ? motionPresets[preset] : {};
-  const finalInitial = initial || config.initial || {};
-  const finalAnimate = animate || config.animate || {};
-  const finalExit = exit || config.exit || {};
-  const finalHover = hover || config.hover || {};
-  const finalTransition = { ...config.transition, ...transition };
+  const finalInitial = initial || config?.initial || {};
+  const finalAnimate = animate || config?.animate || {};
+  const finalExit = exit || config?.exit || {};
+  const finalHover = hover || config?.hover || {};
+  const finalTransition = { ...(config?.transition || {}), ...transition };
 
   // Intersection Observer for viewport trigger
   useEffect(() => {
