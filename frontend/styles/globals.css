@@ -142,7 +142,10 @@
   }
   
   .card {
-    @apply bg-neutral-100 bg-craft-texture;
+    @apply bg-neutral-100;
+    .bg-craft-texture {
+      opacity: 0.1;
+    }
     @apply border-2 border-mahogany-200 rounded-lg p-6;
     @apply shadow-craft-soft relative overflow-hidden;
     @apply transition-all duration-gentle ease-organic;

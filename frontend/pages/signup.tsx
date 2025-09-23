@@ -146,7 +146,7 @@ const Signup = () => {
                 />
             </Head>
             
-            <div className="min-h-screen bg-neutral-50 bg-craft-texture flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+            <div className="min-h-screen bg-neutral-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
                 <Motion preset="scaleIn" className="max-w-lg w-full">
                     <Card variant="leather" className="shadow-craft-deep">
                         <CardHeader className="text-center">

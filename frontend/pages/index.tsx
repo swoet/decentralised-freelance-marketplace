@@ -29,7 +29,7 @@ const Home: NextPage = () => {
         />
       </Head>
 
-      <div className="min-h-screen bg-neutral-50 bg-craft-texture">
+      <div className="min-h-screen bg-neutral-50">
         {/* Hero Section */}
         <Motion preset="slideInDown" className="text-center py-16 px-4">
           <div className="max-w-4xl mx-auto">
@@ -136,7 +136,7 @@ const Home: NextPage = () => {
           </Motion>
 
           <Stagger staggerDelay={200} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Motion preset="slideInLeft">
+            <Motion preset="scaleIn" transition={{ delay: 100 }}>
               <Card variant="filled" interactive="hover" className="text-center">
                 <CardHeader>
                   <div className="p-4 bg-mahogany-100 rounded-organic-craft mx-auto mb-4 w-fit">
@@ -157,7 +157,7 @@ const Home: NextPage = () => {
               </Card>
             </Motion>
 
-            <Motion preset="slideInRight">
+            <Motion preset="scaleIn" transition={{ delay: 200 }}>
               <Card variant="filled" interactive="hover" className="text-center">
                 <CardHeader>
                   <div className="p-4 bg-gold-100 rounded-organic-leaf mx-auto mb-4 w-fit">
