@@ -29,7 +29,7 @@ const Home: NextPage = () => {
         />
       </Head>
 
-      <div className="min-h-screen bg-neutral-50">
+      <div className="min-h-screen bg-white">
         {/* Hero Section */}
         <Motion preset="slideInDown" className="text-center py-16 px-4">
           <div className="max-w-4xl mx-auto">

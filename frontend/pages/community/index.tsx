@@ -62,7 +62,7 @@ export default function CommunityIndex() {
         />
       </Head>
       
-      <div className="min-h-screen bg-neutral-50 bg-craft-texture">
+      <div className="min-h-screen bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Motion preset="slideInDown" className="mb-8">
             <div className="text-center space-y-4">

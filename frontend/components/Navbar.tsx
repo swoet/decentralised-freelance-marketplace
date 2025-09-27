@@ -6,7 +6,7 @@ export default function Navbar() {
   const { user, logout } = useAuth();
 
   return (
-    <nav className="bg-neutral-50 border-b-2 border-mahogany-200 px-4 py-3 shadow-craft-soft">
+    <nav className="bg-white border-b-2 border-mahogany-200 px-4 py-3 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-6">
           <Link href={user ? "/dashboard" : "/"} className="heading-craft text-2xl font-display font-bold text-mahogany-800 hover:text-copper-600 transition-colors">
