@@ -79,7 +79,7 @@ const Login = () => {
             setAccount(address)
             
             // Connect wallet in AuthContext
-            await connectWallet(address)
+            await connectWallet(address, 'Wallet User', '', 'freelancer')
             
             toast.success('Wallet connected!')
             router.push('/dashboard')
@@ -255,7 +255,7 @@ const Login = () => {
                                         
                                         {account && (
                                             <Motion preset="fadeIn">
-                                                <Badge variant="success" size="lg" shape="pill" className="mx-auto">
+                                                <Badge variant="success" size="lg" shape="organic" className="mx-auto">
                                                     Connected: {`${account.substring(0, 6)}...${account.substring(account.length - 4)}`}
                                                 </Badge>
                                             </Motion>

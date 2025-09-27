@@ -336,7 +336,7 @@ const Signup = () => {
                                         
                                         {account && (
                                             <Motion preset="fadeIn">
-                                                <Badge variant="success" size="lg" shape="pill" className="mx-auto">
+                                                <Badge variant="success" size="lg" shape="organic" className="mx-auto">
                                                     Connected: {`${account.substring(0, 6)}...${account.substring(account.length - 4)}`}
                                                 </Badge>
                                             </Motion>
