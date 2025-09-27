@@ -1,16 +1,21 @@
-/* Artisan Craft Design System */
+/* Artisan Craft Design System - Enhanced Production Version */
 :root {
-  /* Colors */
+  /* Enhanced Color Palette with better contrast */
   --ac-primary: #8B4513;
   --ac-secondary: #D2691E;
   --ac-accent: #DAA520;
   --ac-success: #228B22;
   --ac-warning: #CD853F;
+  --ac-error: #DC2626;
+  --ac-info: #2563EB;
   --ac-background: #FFF8DC;
   --ac-surface: #F5F5DC;
+  --ac-surface-elevated: #FFFFFF;
   --ac-text-primary: #3E2723;
   --ac-text-secondary: #5D4037;
+  --ac-text-tertiary: #8D6E63;
   --ac-text-inverse: #FFF8DC;
+  --ac-text-muted: #A0927A;
 
   /* Typography */
   --ac-font-primary: 'Playfair Display', Georgia, serif;
@@ -35,15 +40,19 @@
   --ac-space-12: 4.5rem;    /* 72px */
   --ac-space-16: 6rem;      /* 96px */
 
-  /* Textures & Patterns */
-  --ac-texture-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-opacity='0.03'%3E%3Cpolygon fill='%23000' points='50 0 60 40 100 50 60 60 50 100 40 60 0 50 40 40'/%3E%3C/g%3E%3C/svg%3E");
-  --ac-texture-leather: linear-gradient(45deg, rgba(139, 69, 19, 0.1) 25%, transparent 25%), 
-                        linear-gradient(-45deg, rgba(139, 69, 19, 0.1) 25%, transparent 25%);
+  /* Enhanced Textures & Patterns */
+  --ac-texture-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill-opacity='0.02'%3E%3Crect fill='%23000' width='1' height='1'/%3E%3C/g%3E%3C/svg%3E");
+  --ac-texture-craft: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-opacity='0.03'%3E%3Cpolygon fill='%23000' points='50 0 60 40 100 50 60 60 50 100 40 60 0 50 40 40'/%3E%3C/g%3E%3C/svg%3E");
+  --ac-texture-leather: linear-gradient(45deg, rgba(139, 69, 19, 0.08) 25%, transparent 25%), 
+                        linear-gradient(-45deg, rgba(139, 69, 19, 0.08) 25%, transparent 25%);
+  --ac-texture-linen: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139, 69, 19, 0.03) 2px, rgba(139, 69, 19, 0.03) 4px);
 
-  /* Shadows */
-  --ac-shadow-soft: 0 2px 8px rgba(139, 69, 19, 0.15);
-  --ac-shadow-warm: 0 4px 12px rgba(210, 105, 30, 0.2);
-  --ac-shadow-deep: 0 8px 24px rgba(139, 69, 19, 0.25);
+  /* Enhanced Shadows with better depth */
+  --ac-shadow-soft: 0 2px 8px rgba(139, 69, 19, 0.12), 0 1px 3px rgba(139, 69, 19, 0.08);
+  --ac-shadow-warm: 0 4px 12px rgba(210, 105, 30, 0.16), 0 2px 6px rgba(210, 105, 30, 0.12);
+  --ac-shadow-deep: 0 8px 24px rgba(139, 69, 19, 0.2), 0 4px 12px rgba(139, 69, 19, 0.15);
+  --ac-shadow-glow: 0 0 20px rgba(218, 165, 32, 0.3);
+  --ac-shadow-inset: inset 0 2px 4px rgba(139, 69, 19, 0.1);
 
   /* Border Radius */
   --ac-radius-sm: 0.25rem;   /* 4px */
@@ -52,14 +61,20 @@
   --ac-radius-xl: 1.5rem;    /* 24px */
   --ac-radius-organic: 1rem 1.5rem 1rem 1.5rem; /* Organic feel */
 
-  /* Animations */
+  /* Enhanced Animations with organic feel */
+  --ac-duration-instant: 0ms;
+  --ac-duration-fast: 150ms;
   --ac-duration-gentle: 400ms;
   --ac-duration-normal: 600ms;
   --ac-duration-slow: 800ms;
-  --ac-ease-organic: ease-in-out;
+  --ac-duration-slower: 1200ms;
+  --ac-ease-organic: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ac-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ac-ease-craft: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --ac-ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Artisan Craft Components */
+/* Enhanced Artisan Craft Components */
 .ac-button {
   position: relative;
   display: inline-flex;
@@ -76,6 +91,11 @@
   cursor: pointer;
   transition: all var(--ac-duration-gentle) var(--ac-ease-organic);
   box-shadow: var(--ac-shadow-soft);
+  /* Fix blur and rendering issues */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, box-shadow;
 }
 
 .ac-button::before {
@@ -102,12 +122,18 @@
 .ac-card {
   background: var(--ac-surface);
   background-image: var(--ac-texture-paper);
-  border: 2px solid rgba(139, 69, 19, 0.2);
+  border: 2px solid rgba(139, 69, 19, 0.15);
   border-radius: var(--ac-radius-lg);
   padding: var(--ac-space-6);
   box-shadow: var(--ac-shadow-soft);
   position: relative;
   overflow: hidden;
+  /* Enhanced performance and clarity */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, box-shadow;
+  transition: all var(--ac-duration-gentle) var(--ac-ease-organic);
 }
 
 .ac-card::before {
@@ -158,12 +184,16 @@
   padding: var(--ac-space-3) var(--ac-space-4);
   font-family: var(--ac-font-body);
   font-size: var(--ac-text-base);
-  background: var(--ac-background);
+  background: var(--ac-surface-elevated);
   background-image: var(--ac-texture-paper);
-  border: 2px solid rgba(139, 69, 19, 0.3);
+  border: 2px solid rgba(139, 69, 19, 0.2);
   border-radius: var(--ac-radius-md);
   color: var(--ac-text-primary);
   transition: all var(--ac-duration-gentle) var(--ac-ease-organic);
+  /* Enhanced clarity and performance */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .ac-input:focus {

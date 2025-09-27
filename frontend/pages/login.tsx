@@ -102,19 +102,15 @@ const Login = () => {
     return (
         <>
             <Head>
-                <title>Sign In - Artisan Marketplace</title>
-                <meta name="description" content="Sign in to your artisan account and access the decentralized freelance marketplace" />
+                <title>Sign In - CraftNexus</title>
+                <meta name="description" content="Sign in to your CraftNexus account and connect with the premier artisan marketplace" />
                 
-                {/* Artisan Craft Fonts */}
-                <link 
-                    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;500&family=Crimson+Text:wght@400;600&display=swap" 
-                    rel="stylesheet"
-                />
+                {/* Fonts are now loaded globally in globals.css */}
             </Head>
             
-            <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-                <Motion preset="scaleIn" className="max-w-md w-full">
-                    <Card variant="parchment" className="shadow-craft-deep">
+            <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 ac-animate-crisp">
+                <Motion preset="scaleIn" className="max-w-md w-full ac-text-optimized">
+                    <Card variant="parchment" className="shadow-craft-deep ac-hover-efficient ac-animate-crisp">
                         <CardHeader className="text-center">
                             <div className="mb-4">
                                 <div className="w-16 h-16 mx-auto bg-gradient-to-br from-mahogany-600 to-copper-500 rounded-organic-craft flex items-center justify-center shadow-craft-soft">
@@ -123,7 +119,7 @@ const Login = () => {
                                     </svg>
                                 </div>
                             </div>
-                            <CardTitle className="text-3xl">Welcome Back, Artisan</CardTitle>
+                            <CardTitle className="text-3xl ac-crisp">Welcome Back to CraftNexus</CardTitle>
                             <CardDescription>
                                 Sign in to continue your creative journey.{' '}
                                 <Link href="/signup" className="text-copper-600 hover:text-mahogany-600 font-medium underline">
@@ -165,6 +161,7 @@ const Login = () => {
                                             onChange={(e) => setEmail(e.target.value)}
                                             label="Email Address"
                                             required
+                                            className="ac-animate-crisp"
                                             leftIcon={
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
@@ -179,6 +176,7 @@ const Login = () => {
                                             onChange={(e) => setPassword(e.target.value)}
                                             label="Password"
                                             required
+                                            className="ac-animate-crisp"
                                             leftIcon={
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />

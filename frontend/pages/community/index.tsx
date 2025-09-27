@@ -52,25 +52,21 @@ export default function CommunityIndex() {
   return (
     <AppShell>
       <Head>
-        <title>Community - Artisan Marketplace</title>
-        <meta name="description" content="Connect with fellow artisans, share knowledge, and grow together in our vibrant community" />
+        <title>Community - CraftNexus</title>
+        <meta name="description" content="Connect with fellow artisans at CraftNexus, share knowledge, and grow together in our vibrant creative community" />
         
-        {/* Artisan Craft Fonts */}
-        <link 
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;500&family=Crimson+Text:wght@400;600&display=swap" 
-          rel="stylesheet"
-        />
+        {/* Fonts are now loaded globally in globals.css */}
       </Head>
       
-      <div className="min-h-screen bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Motion preset="slideInDown" className="mb-8">
+      <div className="min-h-screen bg-white ac-animate-crisp">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ac-text-optimized">
+          <Motion preset="slideInDown" className="mb-8 ac-crisp">
             <div className="text-center space-y-4">
-              <h1 className="heading-craft text-5xl text-mahogany-800">
-                Artisan Community
+              <h1 className="heading-craft text-5xl text-mahogany-800 ac-crisp">
+                CraftNexus Community
               </h1>
               <p className="body-craft text-xl text-copper-700 max-w-2xl mx-auto">
-                Connect with fellow artisans, share knowledge, and grow together in our vibrant community of creators and innovators.
+                Where Artisans Connect. Join our vibrant community of creators, share knowledge, and build lasting partnerships with fellow artisans and innovators.
               </p>
             </div>
           </Motion>
@@ -93,8 +89,8 @@ export default function CommunityIndex() {
               </Card>
             </Motion>
           ) : (
-            <Stagger staggerDelay={200} className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              <Card variant="leather" interactive="float" className="group">
+            <Stagger staggerDelay={200} className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto ac-grid-optimized">
+              <Card variant="leather" interactive="float" className="group ac-hover-efficient ac-animate-crisp">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="space-y-2">
@@ -143,7 +139,7 @@ export default function CommunityIndex() {
                 </CardFooter>
               </Card>
 
-              <Card variant="parchment" interactive="float" className="group">
+              <Card variant="parchment" interactive="float" className="group ac-hover-efficient ac-animate-crisp">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div className="space-y-2">

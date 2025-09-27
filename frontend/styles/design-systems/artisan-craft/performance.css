@@ -1,14 +1,25 @@
 /* Artisan Craft Design System - Performance Optimizations */
 
-/* GPU Acceleration for Animations */
+/* Enhanced GPU Acceleration for Blur Prevention */
 .btn-craft,
 .card-craft,
 .badge-craft,
-.ac-animated {
+.ac-animated,
+.ac-button,
+.ac-card,
+.ac-input,
+.ac-badge {
+  /* Force hardware acceleration to prevent blur */
+  -webkit-transform: translateZ(0);
   transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  -webkit-perspective: 1000px;
   perspective: 1000px;
   will-change: transform, opacity;
+  /* Additional blur prevention */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Optimize for Common Animations */
@@ -302,15 +313,48 @@
   aspect-ratio: 16/9;
 }
 
-/* Efficient Text Rendering */
-.ac-text-optimized {
-  text-rendering: optimizeSpeed;
+/* Enhanced Text Rendering for Clarity */
+.ac-text-optimized,
+body,
+.heading-craft,
+.body-craft,
+.accent-craft {
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent text blur on transforms */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 @media (min-resolution: 192dpi) {
   .ac-text-optimized {
-    text-rendering: optimizeLegibility;
+    text-rendering: geometricPrecision;
+  }
+}
+
+/* Fix for blurry elements on different browsers */
+.ac-crisp {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  -ms-interpolation-mode: nearest-neighbor;
+}
+
+/* Prevent blur during animations */
+.ac-animate-crisp {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+}
+
+/* Fix for Safari blur issues */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .ac-safari-fix {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
 }

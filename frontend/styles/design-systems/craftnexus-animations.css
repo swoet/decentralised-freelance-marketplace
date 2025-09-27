@@ -1,0 +1,347 @@
+/* CraftNexus - Advanced Micro-Interactions & Animations */
+
+/* Enhanced Keyframes */
+@keyframes craft-float {
+  0%, 100% { transform: translateY(0px) translateZ(0); }
+  50% { transform: translateY(-8px) translateZ(0); }
+}
+
+@keyframes craft-pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(218, 165, 32, 0.4);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 0 10px rgba(218, 165, 32, 0);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes craft-shimmer {
+  0% { transform: translateX(-100%) translateZ(0); }
+  100% { transform: translateX(100%) translateZ(0); }
+}
+
+@keyframes craft-bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateZ(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateZ(0);
+  }
+  70% { transform: scale(0.9) translateZ(0); }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+@keyframes craft-slide-in-elegant {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) translateZ(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+@keyframes craft-typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes craft-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes craft-magnetic-pull {
+  0% { transform: translateY(0) scale(1) translateZ(0); }
+  50% { transform: translateY(-2px) scale(1.02) translateZ(0); }
+  100% { transform: translateY(-4px) scale(1.05) translateZ(0); }
+}
+
+/* Advanced Micro-Interaction Classes */
+.craft-float {
+  animation: craft-float 3s ease-in-out infinite;
+}
+
+.craft-pulse-glow {
+  animation: craft-pulse-glow 2s infinite;
+}
+
+.craft-shimmer-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.craft-shimmer-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.craft-shimmer-effect:hover::before {
+  animation: craft-shimmer 1s ease-out;
+}
+
+.craft-bounce-in {
+  animation: craft-bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.craft-slide-in-elegant {
+  animation: craft-slide-in-elegant 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.craft-typewriter {
+  overflow: hidden;
+  border-right: 2px solid var(--craft-gold-500);
+  white-space: nowrap;
+  animation: craft-typewriter 3s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: var(--craft-gold-500); }
+}
+
+.craft-gradient-shift {
+  background: linear-gradient(-45deg, 
+    var(--craft-mahogany-600), 
+    var(--craft-copper-500), 
+    var(--craft-gold-500), 
+    var(--craft-mahogany-700)
+  );
+  background-size: 400% 400%;
+  animation: craft-gradient-shift 4s ease infinite;
+}
+
+.craft-magnetic {
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  cursor: pointer;
+}
+
+.craft-magnetic:hover {
+  animation: craft-magnetic-pull 0.3s ease-out forwards;
+  box-shadow: var(--craft-shadow-glow);
+}
+
+/* Interactive Button States */
+.craft-btn-interactive {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.craft-btn-interactive::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.craft-btn-interactive:hover::before {
+  left: 100%;
+}
+
+.craft-btn-interactive:active {
+  transform: scale(0.98);
+}
+
+/* Card Hover Effects */
+.craft-card-hover {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: pointer;
+}
+
+.craft-card-hover:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--craft-shadow-strong);
+}
+
+.craft-card-hover:hover .craft-card-glow {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.craft-card-glow {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    var(--craft-gold-500), 
+    var(--craft-copper-500), 
+    var(--craft-mahogany-600)
+  );
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: all 0.4s ease;
+  filter: blur(8px);
+}
+
+/* Loading States */
+.craft-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--craft-mahogany-100) 25%,
+    var(--craft-copper-100) 50%,
+    var(--craft-mahogany-100) 75%
+  );
+  background-size: 200% 100%;
+  animation: craft-shimmer 1.5s infinite;
+  border-radius: var(--craft-radius-md);
+}
+
+.craft-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--craft-mahogany-200);
+  border-top: 4px solid var(--craft-gold-500);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Focus States */
+.craft-focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 
+    0 0 0 2px var(--craft-gold-500),
+    0 0 0 4px rgba(218, 165, 32, 0.2);
+  border-radius: var(--craft-radius-md);
+}
+
+/* Scroll Animations */
+.craft-scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.craft-scroll-reveal.craft-in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger Animation */
+.craft-stagger-container > * {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: craft-slide-in-elegant 0.6s ease-out forwards;
+}
+
+.craft-stagger-container > *:nth-child(1) { animation-delay: 0.1s; }
+.craft-stagger-container > *:nth-child(2) { animation-delay: 0.2s; }
+.craft-stagger-container > *:nth-child(3) { animation-delay: 0.3s; }
+.craft-stagger-container > *:nth-child(4) { animation-delay: 0.4s; }
+.craft-stagger-container > *:nth-child(5) { animation-delay: 0.5s; }
+.craft-stagger-container > *:nth-child(6) { animation-delay: 0.6s; }
+
+/* Organic Shapes */
+.craft-blob {
+  border-radius: var(--craft-radius-organic-blob);
+  background: linear-gradient(45deg, 
+    var(--craft-mahogany-500), 
+    var(--craft-copper-400)
+  );
+  position: relative;
+}
+
+.craft-blob::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, 
+    var(--craft-gold-400), 
+    var(--craft-copper-300), 
+    var(--craft-mahogany-400)
+  );
+  border-radius: inherit;
+  z-index: -1;
+  filter: blur(4px);
+  opacity: 0.7;
+}
+
+/* Performance Optimizations */
+.craft-gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.craft-will-change-transform {
+  will-change: transform;
+}
+
+.craft-will-change-opacity {
+  will-change: opacity;
+}
+
+/* Responsive Animations */
+@media (prefers-reduced-motion: reduce) {
+  .craft-float,
+  .craft-pulse-glow,
+  .craft-bounce-in,
+  .craft-slide-in-elegant,
+  .craft-typewriter,
+  .craft-gradient-shift,
+  .craft-magnetic,
+  .craft-shimmer-effect::before {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .craft-card-hover:hover {
+    transform: none !important;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (pointer: coarse) {
+  .craft-magnetic,
+  .craft-card-hover,
+  .craft-btn-interactive {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* High Performance Mode */
+.craft-performance-mode * {
+  animation-duration: 0.1s !important;
+  transition-duration: 0.1s !important;
+}

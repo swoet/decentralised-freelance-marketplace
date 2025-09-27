@@ -136,19 +136,15 @@ const Signup = () => {
     return (
         <>
             <Head>
-                <title>Join the Artisan Community - Artisan Marketplace</title>
-                <meta name="description" content="Create your artisan account and join the decentralized freelance marketplace community" />
+                <title>Join CraftNexus - Where Artisans Connect</title>
+                <meta name="description" content="Create your CraftNexus account and join the premier community where artisans connect with clients" />
                 
-                {/* Artisan Craft Fonts */}
-                <link 
-                    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;500&family=Crimson+Text:wght@400;600&display=swap" 
-                    rel="stylesheet"
-                />
+                {/* Fonts are now loaded globally in globals.css */}
             </Head>
             
-            <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-                <Motion preset="scaleIn" className="max-w-lg w-full">
-                    <Card variant="leather" className="shadow-craft-deep">
+            <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 ac-animate-crisp">
+                <Motion preset="scaleIn" className="max-w-lg w-full ac-text-optimized">
+                    <Card variant="leather" className="shadow-craft-deep ac-hover-efficient ac-animate-crisp">
                         <CardHeader className="text-center">
                             <div className="mb-4">
                                 <div className="w-16 h-16 mx-auto bg-gradient-to-br from-gold-500 to-copper-600 rounded-organic-craft flex items-center justify-center shadow-craft-soft">
@@ -157,9 +153,9 @@ const Signup = () => {
                                     </svg>
                                 </div>
                             </div>
-                            <CardTitle className="text-3xl">Join the Artisan Community</CardTitle>
+                            <CardTitle className="text-3xl ac-crisp">Join CraftNexus</CardTitle>
                             <CardDescription>
-                                Create your account and start your creative journey.{' '}
+                                Where Artisans Connect. Create your account and start building meaningful partnerships.{' '}
                                 <Link href="/login" className="text-copper-600 hover:text-mahogany-600 font-medium underline">
                                     Already have an account?
                                 </Link>
@@ -200,6 +196,7 @@ const Signup = () => {
                                             name="fullName"
                                             label="Full Name"
                                             required
+                                            className="ac-animate-crisp"
                                             leftIcon={
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -216,6 +213,7 @@ const Signup = () => {
                                             name="email"
                                             label="Email Address"
                                             required
+                                            className="ac-animate-crisp"
                                             leftIcon={
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />

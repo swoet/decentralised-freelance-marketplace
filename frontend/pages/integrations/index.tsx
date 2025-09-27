@@ -141,23 +141,19 @@ export default function IntegrationsIndex() {
   return (
     <AppShell>
       <Head>
-        <title>Integrations - Artisan Marketplace</title>
-        <meta name="description" content="Connect your favorite tools and streamline your workflow" />
+        <title>Integrations - CraftNexus</title>
+        <meta name="description" content="Connect your favorite tools to CraftNexus and streamline your creative workflow" />
         
-        {/* Artisan Craft Fonts */}
-        <link 
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;500&family=Crimson+Text:wght@400;600&display=swap" 
-          rel="stylesheet"
-        />
+        {/* Fonts are now loaded globally in globals.css */}
       </Head>
       
-      <div className="min-h-screen bg-white">
-        <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <Motion preset="slideInDown" className="mb-8">
+      <div className="min-h-screen bg-white ac-animate-crisp">
+        <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8 ac-text-optimized">
+          <Motion preset="slideInDown" className="mb-8 ac-crisp">
             <div className="text-center space-y-4">
-              <h1 className="heading-craft text-4xl text-mahogany-800">Tool Integrations</h1>
+              <h1 className="heading-craft text-4xl text-mahogany-800 ac-crisp">CraftNexus Integrations</h1>
               <p className="body-craft text-lg text-copper-700">
-                Connect your favorite tools and streamline your creative workflow
+                Connect your favorite tools to CraftNexus and streamline your creative workflow for seamless artisan collaboration
               </p>
             </div>
           </Motion>
@@ -183,7 +179,7 @@ export default function IntegrationsIndex() {
               </Card>
             </Motion>
           ) : (
-            <Stagger staggerDelay={150} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <Stagger staggerDelay={150} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ac-grid-optimized">
               {/* GitHub */}
               <Motion preset="scaleIn">
                 <Card variant="elevated" interactive="hover" className="group h-full">
@@ -245,7 +241,7 @@ export default function IntegrationsIndex() {
 
               {/* Slack */}
               <Motion preset="scaleIn" transition={{ delay: 100 }}>
-                <Card variant="elevated" interactive="hover" className="group h-full">
+                <Card variant="elevated" interactive="hover" className="group h-full ac-hover-efficient ac-animate-crisp">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-3 bg-purple-600 rounded-organic-craft">
@@ -304,7 +300,7 @@ export default function IntegrationsIndex() {
 
               {/* Jira */}
               <Motion preset="scaleIn" transition={{ delay: 200 }}>
-                <Card variant="elevated" interactive="hover" className="group h-full">
+                <Card variant="elevated" interactive="hover" className="group h-full ac-hover-efficient ac-animate-crisp">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-3 bg-blue-600 rounded-organic-craft">
