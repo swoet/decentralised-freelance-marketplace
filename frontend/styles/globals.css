@@ -304,7 +304,34 @@
     @apply transition-all duration-gentle ease-organic;
     @apply shadow-craft-soft hover:shadow-craft-warm;
     @apply transform hover:-translate-y-0.5 active:translate-y-0;
-    @apply ac-animate-crisp;
+  }
+  
+  /* Performance and Animation Classes */
+  .ac-animate-crisp,
+  .craft-animate-crisp {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform;
+  }
+  
+  .ac-text-optimized {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .ac-hover-efficient {
+    transition: all 0.3s ease;
+  }
+  
+  .ac-grid-optimized {
+    contain: layout style;
+  }
+  
+  .ac-crisp {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
   }
   
   /* Enhanced Button Variants */
