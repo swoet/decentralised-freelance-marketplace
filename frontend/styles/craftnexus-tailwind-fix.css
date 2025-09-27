@@ -1,0 +1,280 @@
+/* CraftNexus - Tailwind CSS Variable Mapping Fix */
+/* This file maps all custom craft-* variables to standard Tailwind classes */
+
+@layer utilities {
+  /* Text Colors */
+  .text-craft-mahogany-50 { @apply text-amber-50; }
+  .text-craft-mahogany-100 { @apply text-amber-100; }
+  .text-craft-mahogany-200 { @apply text-amber-200; }
+  .text-craft-mahogany-300 { @apply text-amber-300; }
+  .text-craft-mahogany-400 { @apply text-amber-400; }
+  .text-craft-mahogany-500 { @apply text-amber-500; }
+  .text-craft-mahogany-600 { @apply text-amber-600; }
+  .text-craft-mahogany-700 { @apply text-amber-700; }
+  .text-craft-mahogany-800 { @apply text-amber-800; }
+  .text-craft-mahogany-900 { @apply text-amber-900; }
+  
+  .text-craft-copper-50 { @apply text-orange-50; }
+  .text-craft-copper-100 { @apply text-orange-100; }
+  .text-craft-copper-200 { @apply text-orange-200; }
+  .text-craft-copper-300 { @apply text-orange-300; }
+  .text-craft-copper-400 { @apply text-orange-400; }
+  .text-craft-copper-500 { @apply text-orange-500; }
+  .text-craft-copper-600 { @apply text-orange-600; }
+  .text-craft-copper-700 { @apply text-orange-700; }
+  .text-craft-copper-800 { @apply text-orange-800; }
+  .text-craft-copper-900 { @apply text-orange-900; }
+  
+  .text-craft-gold-50 { @apply text-yellow-50; }
+  .text-craft-gold-100 { @apply text-yellow-100; }
+  .text-craft-gold-200 { @apply text-yellow-200; }
+  .text-craft-gold-300 { @apply text-yellow-300; }
+  .text-craft-gold-400 { @apply text-yellow-400; }
+  .text-craft-gold-500 { @apply text-yellow-500; }
+  .text-craft-gold-600 { @apply text-yellow-600; }
+  .text-craft-gold-700 { @apply text-yellow-700; }
+  .text-craft-gold-800 { @apply text-yellow-800; }
+  .text-craft-gold-900 { @apply text-yellow-900; }
+
+  /* Background Colors */
+  .bg-craft-mahogany-50 { @apply bg-amber-50; }
+  .bg-craft-mahogany-100 { @apply bg-amber-100; }
+  .bg-craft-mahogany-200 { @apply bg-amber-200; }
+  .bg-craft-mahogany-300 { @apply bg-amber-300; }
+  .bg-craft-mahogany-400 { @apply bg-amber-400; }
+  .bg-craft-mahogany-500 { @apply bg-amber-500; }
+  .bg-craft-mahogany-600 { @apply bg-amber-600; }
+  .bg-craft-mahogany-700 { @apply bg-amber-700; }
+  .bg-craft-mahogany-800 { @apply bg-amber-800; }
+  .bg-craft-mahogany-900 { @apply bg-amber-900; }
+  
+  .bg-craft-copper-50 { @apply bg-orange-50; }
+  .bg-craft-copper-100 { @apply bg-orange-100; }
+  .bg-craft-copper-200 { @apply bg-orange-200; }
+  .bg-craft-copper-300 { @apply bg-orange-300; }
+  .bg-craft-copper-400 { @apply bg-orange-400; }
+  .bg-craft-copper-500 { @apply bg-orange-500; }
+  .bg-craft-copper-600 { @apply bg-orange-600; }
+  .bg-craft-copper-700 { @apply bg-orange-700; }
+  .bg-craft-copper-800 { @apply bg-orange-800; }
+  .bg-craft-copper-900 { @apply bg-orange-900; }
+  
+  .bg-craft-gold-50 { @apply bg-yellow-50; }
+  .bg-craft-gold-100 { @apply bg-yellow-100; }
+  .bg-craft-gold-200 { @apply bg-yellow-200; }
+  .bg-craft-gold-300 { @apply bg-yellow-300; }
+  .bg-craft-gold-400 { @apply bg-yellow-400; }
+  .bg-craft-gold-500 { @apply bg-yellow-500; }
+  .bg-craft-gold-600 { @apply bg-yellow-600; }
+  .bg-craft-gold-700 { @apply bg-yellow-700; }
+  .bg-craft-gold-800 { @apply bg-yellow-800; }
+  .bg-craft-gold-900 { @apply bg-yellow-900; }
+
+  /* Border Colors */
+  .border-craft-mahogany-50 { @apply border-amber-50; }
+  .border-craft-mahogany-100 { @apply border-amber-100; }
+  .border-craft-mahogany-200 { @apply border-amber-200; }
+  .border-craft-mahogany-300 { @apply border-amber-300; }
+  .border-craft-mahogany-400 { @apply border-amber-400; }
+  .border-craft-mahogany-500 { @apply border-amber-500; }
+  .border-craft-mahogany-600 { @apply border-amber-600; }
+  .border-craft-mahogany-700 { @apply border-amber-700; }
+  .border-craft-mahogany-800 { @apply border-amber-800; }
+  .border-craft-mahogany-900 { @apply border-amber-900; }
+  
+  .border-craft-copper-50 { @apply border-orange-50; }
+  .border-craft-copper-100 { @apply border-orange-100; }
+  .border-craft-copper-200 { @apply border-orange-200; }
+  .border-craft-copper-300 { @apply border-orange-300; }
+  .border-craft-copper-400 { @apply border-orange-400; }
+  .border-craft-copper-500 { @apply border-orange-500; }
+  .border-craft-copper-600 { @apply border-orange-600; }
+  .border-craft-copper-700 { @apply border-orange-700; }
+  .border-craft-copper-800 { @apply border-orange-800; }
+  .border-craft-copper-900 { @apply border-orange-900; }
+  
+  .border-craft-gold-50 { @apply border-yellow-50; }
+  .border-craft-gold-100 { @apply border-yellow-100; }
+  .border-craft-gold-200 { @apply border-yellow-200; }
+  .border-craft-gold-300 { @apply border-yellow-300; }
+  .border-craft-gold-400 { @apply border-yellow-400; }
+  .border-craft-gold-500 { @apply border-yellow-500; }
+  .border-craft-gold-600 { @apply border-yellow-600; }
+  .border-craft-gold-700 { @apply border-yellow-700; }
+  .border-craft-gold-800 { @apply border-yellow-800; }
+  .border-craft-gold-900 { @apply border-yellow-900; }
+
+  /* Hover States */
+  .hover\:text-craft-mahogany-50:hover { @apply text-amber-50; }
+  .hover\:text-craft-mahogany-100:hover { @apply text-amber-100; }
+  .hover\:text-craft-mahogany-200:hover { @apply text-amber-200; }
+  .hover\:text-craft-mahogany-300:hover { @apply text-amber-300; }
+  .hover\:text-craft-mahogany-400:hover { @apply text-amber-400; }
+  .hover\:text-craft-mahogany-500:hover { @apply text-amber-500; }
+  .hover\:text-craft-mahogany-600:hover { @apply text-amber-600; }
+  .hover\:text-craft-mahogany-700:hover { @apply text-amber-700; }
+  .hover\:text-craft-mahogany-800:hover { @apply text-amber-800; }
+  .hover\:text-craft-mahogany-900:hover { @apply text-amber-900; }
+  
+  .hover\:text-craft-copper-50:hover { @apply text-orange-50; }
+  .hover\:text-craft-copper-100:hover { @apply text-orange-100; }
+  .hover\:text-craft-copper-200:hover { @apply text-orange-200; }
+  .hover\:text-craft-copper-300:hover { @apply text-orange-300; }
+  .hover\:text-craft-copper-400:hover { @apply text-orange-400; }
+  .hover\:text-craft-copper-500:hover { @apply text-orange-500; }
+  .hover\:text-craft-copper-600:hover { @apply text-orange-600; }
+  .hover\:text-craft-copper-700:hover { @apply text-orange-700; }
+  .hover\:text-craft-copper-800:hover { @apply text-orange-800; }
+  .hover\:text-craft-copper-900:hover { @apply text-orange-900; }
+  
+  .hover\:text-craft-gold-50:hover { @apply text-yellow-50; }
+  .hover\:text-craft-gold-100:hover { @apply text-yellow-100; }
+  .hover\:text-craft-gold-200:hover { @apply text-yellow-200; }
+  .hover\:text-craft-gold-300:hover { @apply text-yellow-300; }
+  .hover\:text-craft-gold-400:hover { @apply text-yellow-400; }
+  .hover\:text-craft-gold-500:hover { @apply text-yellow-500; }
+  .hover\:text-craft-gold-600:hover { @apply text-yellow-600; }
+  .hover\:text-craft-gold-700:hover { @apply text-yellow-700; }
+  .hover\:text-craft-gold-800:hover { @apply text-yellow-800; }
+  .hover\:text-craft-gold-900:hover { @apply text-yellow-900; }
+
+  /* Background Hover States */
+  .hover\:bg-craft-mahogany-50:hover { @apply bg-amber-50; }
+  .hover\:bg-craft-mahogany-100:hover { @apply bg-amber-100; }
+  .hover\:bg-craft-mahogany-200:hover { @apply bg-amber-200; }
+  .hover\:bg-craft-mahogany-300:hover { @apply bg-amber-300; }
+  .hover\:bg-craft-mahogany-400:hover { @apply bg-amber-400; }
+  .hover\:bg-craft-mahogany-500:hover { @apply bg-amber-500; }
+  .hover\:bg-craft-mahogany-600:hover { @apply bg-amber-600; }
+  .hover\:bg-craft-mahogany-700:hover { @apply bg-amber-700; }
+  .hover\:bg-craft-mahogany-800:hover { @apply bg-amber-800; }
+  .hover\:bg-craft-mahogany-900:hover { @apply bg-amber-900; }
+  
+  .hover\:bg-craft-copper-50:hover { @apply bg-orange-50; }
+  .hover\:bg-craft-copper-100:hover { @apply bg-orange-100; }
+  .hover\:bg-craft-copper-200:hover { @apply bg-orange-200; }
+  .hover\:bg-craft-copper-300:hover { @apply bg-orange-300; }
+  .hover\:bg-craft-copper-400:hover { @apply bg-orange-400; }
+  .hover\:bg-craft-copper-500:hover { @apply bg-orange-500; }
+  .hover\:bg-craft-copper-600:hover { @apply bg-orange-600; }
+  .hover\:bg-craft-copper-700:hover { @apply bg-orange-700; }
+  .hover\:bg-craft-copper-800:hover { @apply bg-orange-800; }
+  .hover\:bg-craft-copper-900:hover { @apply bg-orange-900; }
+  
+  .hover\:bg-craft-gold-50:hover { @apply bg-yellow-50; }
+  .hover\:bg-craft-gold-100:hover { @apply bg-yellow-100; }
+  .hover\:bg-craft-gold-200:hover { @apply bg-yellow-200; }
+  .hover\:bg-craft-gold-300:hover { @apply bg-yellow-300; }
+  .hover\:bg-craft-gold-400:hover { @apply bg-yellow-400; }
+  .hover\:bg-craft-gold-500:hover { @apply bg-yellow-500; }
+  .hover\:bg-craft-gold-600:hover { @apply bg-yellow-600; }
+  .hover\:bg-craft-gold-700:hover { @apply bg-yellow-700; }
+  .hover\:bg-craft-gold-800:hover { @apply bg-yellow-800; }
+  .hover\:bg-craft-gold-900:hover { @apply bg-yellow-900; }
+
+  /* Gradient From/To Classes */
+  .from-craft-mahogany-50 { @apply from-amber-50; }
+  .from-craft-mahogany-100 { @apply from-amber-100; }
+  .from-craft-mahogany-200 { @apply from-amber-200; }
+  .from-craft-mahogany-300 { @apply from-amber-300; }
+  .from-craft-mahogany-400 { @apply from-amber-400; }
+  .from-craft-mahogany-500 { @apply from-amber-500; }
+  .from-craft-mahogany-600 { @apply from-amber-600; }
+  .from-craft-mahogany-700 { @apply from-amber-700; }
+  .from-craft-mahogany-800 { @apply from-amber-800; }
+  .from-craft-mahogany-900 { @apply from-amber-900; }
+  
+  .from-craft-copper-50 { @apply from-orange-50; }
+  .from-craft-copper-100 { @apply from-orange-100; }
+  .from-craft-copper-200 { @apply from-orange-200; }
+  .from-craft-copper-300 { @apply from-orange-300; }
+  .from-craft-copper-400 { @apply from-orange-400; }
+  .from-craft-copper-500 { @apply from-orange-500; }
+  .from-craft-copper-600 { @apply from-orange-600; }
+  .from-craft-copper-700 { @apply from-orange-700; }
+  .from-craft-copper-800 { @apply from-orange-800; }
+  .from-craft-copper-900 { @apply from-orange-900; }
+  
+  .from-craft-gold-50 { @apply from-yellow-50; }
+  .from-craft-gold-100 { @apply from-yellow-100; }
+  .from-craft-gold-200 { @apply from-yellow-200; }
+  .from-craft-gold-300 { @apply from-yellow-300; }
+  .from-craft-gold-400 { @apply from-yellow-400; }
+  .from-craft-gold-500 { @apply from-yellow-500; }
+  .from-craft-gold-600 { @apply from-yellow-600; }
+  .from-craft-gold-700 { @apply from-yellow-700; }
+  .from-craft-gold-800 { @apply from-yellow-800; }
+  .from-craft-gold-900 { @apply from-yellow-900; }
+
+  .to-craft-mahogany-50 { @apply to-amber-50; }
+  .to-craft-mahogany-100 { @apply to-amber-100; }
+  .to-craft-mahogany-200 { @apply to-amber-200; }
+  .to-craft-mahogany-300 { @apply to-amber-300; }
+  .to-craft-mahogany-400 { @apply to-amber-400; }
+  .to-craft-mahogany-500 { @apply to-amber-500; }
+  .to-craft-mahogany-600 { @apply to-amber-600; }
+  .to-craft-mahogany-700 { @apply to-amber-700; }
+  .to-craft-mahogany-800 { @apply to-amber-800; }
+  .to-craft-mahogany-900 { @apply to-amber-900; }
+  
+  .to-craft-copper-50 { @apply to-orange-50; }
+  .to-craft-copper-100 { @apply to-orange-100; }
+  .to-craft-copper-200 { @apply to-orange-200; }
+  .to-craft-copper-300 { @apply to-orange-300; }
+  .to-craft-copper-400 { @apply to-orange-400; }
+  .to-craft-copper-500 { @apply to-orange-500; }
+  .to-craft-copper-600 { @apply to-orange-600; }
+  .to-craft-copper-700 { @apply to-orange-700; }
+  .to-craft-copper-800 { @apply to-orange-800; }
+  .to-craft-copper-900 { @apply to-orange-900; }
+  
+  .to-craft-gold-50 { @apply to-yellow-50; }
+  .to-craft-gold-100 { @apply to-yellow-100; }
+  .to-craft-gold-200 { @apply to-yellow-200; }
+  .to-craft-gold-300 { @apply to-yellow-300; }
+  .to-craft-gold-400 { @apply to-yellow-400; }
+  .to-craft-gold-500 { @apply to-yellow-500; }
+  .to-craft-gold-600 { @apply to-yellow-600; }
+  .to-craft-gold-700 { @apply to-yellow-700; }
+  .to-craft-gold-800 { @apply to-yellow-800; }
+  .to-craft-gold-900 { @apply to-yellow-900; }
+
+  /* Via Gradient Classes */
+  .via-craft-mahogany-50 { @apply via-amber-50; }
+  .via-craft-mahogany-100 { @apply via-amber-100; }
+  .via-craft-mahogany-200 { @apply via-amber-200; }
+  .via-craft-mahogany-300 { @apply via-amber-300; }
+  .via-craft-mahogany-400 { @apply via-amber-400; }
+  .via-craft-mahogany-500 { @apply via-amber-500; }
+  .via-craft-mahogany-600 { @apply via-amber-600; }
+  .via-craft-mahogany-700 { @apply via-amber-700; }
+  .via-craft-mahogany-800 { @apply via-amber-800; }
+  .via-craft-mahogany-900 { @apply via-amber-900; }
+  
+  .via-craft-copper-50 { @apply via-orange-50; }
+  .via-craft-copper-100 { @apply via-orange-100; }
+  .via-craft-copper-200 { @apply via-orange-200; }
+  .via-craft-copper-300 { @apply via-orange-300; }
+  .via-craft-copper-400 { @apply via-orange-400; }
+  .via-craft-copper-500 { @apply via-orange-500; }
+  .via-craft-copper-600 { @apply via-orange-600; }
+  .via-craft-copper-700 { @apply via-orange-700; }
+  .via-craft-copper-800 { @apply via-orange-800; }
+  .via-craft-copper-900 { @apply via-orange-900; }
+  
+  .via-craft-gold-50 { @apply via-yellow-50; }
+  .via-craft-gold-100 { @apply via-yellow-100; }
+  .via-craft-gold-200 { @apply via-yellow-200; }
+  .via-craft-gold-300 { @apply via-yellow-300; }
+  .via-craft-gold-400 { @apply via-yellow-400; }
+  .via-craft-gold-500 { @apply via-yellow-500; }
+  .via-craft-gold-600 { @apply via-yellow-600; }
+  .via-craft-gold-700 { @apply via-yellow-700; }
+  .via-craft-gold-800 { @apply via-yellow-800; }
+  .via-craft-gold-900 { @apply via-yellow-900; }
+
+  /* Font Family Classes */
+  .font-craft-display { @apply font-serif; }
+  .font-craft-body { @apply font-sans; }
+  .font-craft-accent { @apply font-mono; }
+}

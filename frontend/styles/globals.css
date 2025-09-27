@@ -8,6 +8,7 @@
 @import './design-systems/artisan-craft/performance.css';
 @import './design-systems/artisan-craft/utilities.css';
 @import './design-systems/craftnexus-animations.css';
+@import './craftnexus-tailwind-fix.css';
 
 /* Google Fonts - Optimized Loading */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;500;600&family=Crimson+Text:wght@400;600&display=swap');
@@ -229,17 +230,17 @@
   
   body {
     font-family: var(--ac-font-body);
-    background-color: var(--ac-background);
-    background-image: var(--ac-texture-paper);
+    background-color: #ffffff;
+    /* Removed background-image to prevent texture overlay */
     color: var(--ac-text-primary);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Fix blur issues */
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 1000px;
+    /* Clear rendering - no transforms that could cause blur */
+    margin: 0;
+    padding: 0;
+    position: relative;
+    z-index: 1;
   }
   
   /* Default heading styles */
@@ -299,13 +300,15 @@
   /* Enhanced CraftNexus Component Styles */
   .btn {
     @apply inline-flex items-center justify-center px-6 py-3 font-semibold text-base;
-    @apply bg-gradient-to-br from-mahogany-600 to-copper-500 text-neutral-50;
-    @apply border-none rounded-organic-craft cursor-pointer;
-    @apply transition-all duration-gentle ease-organic;
-    @apply shadow-craft-soft hover:shadow-craft-warm;
+    @apply bg-gradient-to-r from-amber-600 to-orange-500 text-white;
+    @apply border-none rounded-lg cursor-pointer;
+    @apply transition-all duration-300 ease-in-out;
+    @apply shadow-md hover:shadow-lg;
     @apply transform hover:-translate-y-0.5 active:translate-y-0;
+    /* GPU acceleration for smooth animations */
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
-  
   /* Performance and Animation Classes */
   .ac-animate-crisp,
   .craft-animate-crisp {
