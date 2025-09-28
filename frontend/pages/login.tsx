@@ -1,186 +1,147 @@
 import { useState } from 'react'
-import { ethers } from 'ethers'
-import toast from 'react-hot-toast'
-import Link from 'next/link'
 import Head from 'next/head'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useAuth } from '@/context/AuthContext'
-import {
-  Button,
-  ButtonGroup,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-  Input,
-  Badge,
-  Motion
-} from '@/components/artisan-craft'
+import AppShell from '../components/layout/AppShell'
+import { useAuth } from '../context/AuthContext'
 
-declare global {
-    interface Window {
-        ethereum?: any
+export default function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const { login } = useAuth()
+  const router = useRouter()
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    try {
+      await login(email, password)
+      router.push('/dashboard/freelancer')
+    } catch (err: any) {
+      setError(err.message || 'Login failed')
+    } finally {
+      setLoading(false)
     }
-}
+  }
 
-const Login = () => {
-    const [isWalletMode, setIsWalletMode] = useState(false)
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [isLoading, setIsLoading] = useState(false)
-    const [rememberMe, setRememberMe] = useState(false)
-    const [account, setAccount] = useState<string | null>(null)
-    const router = useRouter()
-    const { login, connectWallet } = useAuth()
-
-    // Traditional email/password login
-    const handleEmailLogin = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setIsLoading(true)
-        
-        try {
-            await login(email, password, rememberMe)
-            toast.success('Login successful!')
-            // The AuthContext will handle the redirect to dashboard
-        } catch (error) {
-            toast.error(error instanceof Error ? error.message : 'Login failed. Please try again.')
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    // Wallet connection
-    const handleWalletConnection = async () => {
-        if (!window.ethereum) {
-            toast.error('MetaMask not detected. Please install it.')
-            return
-        }
-
-        try {
-            setIsLoading(true)
-            
-            // Check if MetaMask is locked
-            const accounts = await window.ethereum.request({ method: 'eth_accounts' })
-            if (!accounts || accounts.length === 0) {
-                // Request account access
-                const requestedAccounts = await window.ethereum.request({ 
-                    method: 'eth_requestAccounts' 
-                })
-                if (!requestedAccounts || requestedAccounts.length === 0) {
-                    throw new Error('No accounts found')
-                }
-            }
-            
-            const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const signer = provider.getSigner()
-            const address = await signer.getAddress()
-            setAccount(address)
-            
-            // Connect wallet in AuthContext
-            await connectWallet(address, 'Wallet User', '', 'freelancer')
-            
-            toast.success('Wallet connected!')
-            router.push('/dashboard')
-        } catch (error) {
-            console.error("Error connecting to MetaMask", error)
-            if (error instanceof Error && error.message.includes('User rejected')) {
-                toast.error('Wallet connection was rejected. Please try again.')
-            } else if (error instanceof Error && error.message.includes('No accounts found')) {
-                toast.error('No wallet accounts found. Please unlock your wallet.')
-            } else if (error instanceof Error && error.message.includes('already pending')) {
-                toast.error('MetaMask connection already in progress. Please check MetaMask.')
-            } else {
-                toast.error('Failed to connect wallet. Please check MetaMask and try again.')
-            }
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    return (
-        <>
-            <Head>
-                <meta name="description" content="Sign in to your CraftNexus account and connect with the premier artisan marketplace" />
-                
-                {/* Fonts are now loaded globally in globals.css */}
-            </Head>
-            
-            <div className="flex min-h-screen items-center justify-center bg-wood bg-cover bg-center bg-no-repeat p-4 py-12 sm:px-6 lg:px-8">
-                <Motion preset="scaleIn" className="max-w-md w-full">
-                    <div className="bg-white p-8 shadow-md">
-                        <div className="text-center mb-8">
-                            <div className="mb-6">
-                                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-amber-600 to-orange-500 rounded-2xl flex items-center justify-center shadow-md">
-                                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <h1 className="text-3xl font-bold mb-2">Welcome Back to CraftNexus</h1>
-                            <p className="mb-4">
-                                Sign in to continue your creative journey.{' '}
-                                <Link href="/signup" className="text-accent hover:underline font-medium">
-                                    Create a new account
-                                </Link>
-                            </p>
-                        </div>
-
-                        <div>
-                            {/* Authentication Mode Toggle */}
-                            <div className="flex mb-6 border border-gray-200 rounded-lg overflow-hidden">
-                                <button
-                                    className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                                        !isWalletMode ? 'bg-primary-500 text-white' : 'bg-white text-black hover:bg-gray-50'
-                                    }`}
-                                    onClick={() => setIsWalletMode(false)}
-                                >
-                                    Email & Password
-                                </button>
-                                <button
-                                    className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                                        isWalletMode ? 'bg-primary-500 text-white' : 'bg-white text-black hover:bg-gray-50'
-                                    }`}
-                                    onClick={() => setIsWalletMode(true)}
-                                >
-                                    Web3 Wallet
-                                </button>
-                            </div>
-
-                            {!isWalletMode ? (
-                                /* Email/Password Form */
-                                <form className="space-y-6" onSubmit={handleEmailLogin}>
-                                    <div className="space-y-4">
-{{ ... }
-                                                Forgot your password?
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        type="submit"
-                                        className="mh-btn mh-btn-primary w-full"
-                                        disabled={loading}
-                                    >
-                                        {loading ? 'Signing in...' : 'Sign In'}
-                                    </button>
-                                </form>
-                            ) : (
-                                /* Wallet Connection */
-                                <div className="space-y-6">
-                                    <div className="text-center space-y-4">
-{{ ... }
-                                By signing in, you agree to our{' '}
-                                <a href="#" className="text-copper-600 hover:text-mahogany-600 underline">Terms of Service</a>
-                                {' '}and{' '}
-                                <a href="#" className="text-copper-600 hover:text-mahogany-600 underline">Privacy Policy</a>
-                            </p>
-                        </div>
-                    </div>
-                </Motion>
+  return (
+    <AppShell>
+      <Head>
+        <title>Sign In - CraftNexus</title>
+        <meta name="description" content="Sign in to your CraftNexus account and connect with the premier artisan marketplace" />
+      </Head>
+      
+      <div className="min-h-screen mh-wood mh-allow-pseudo flex items-center justify-center p-4 py-12 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          <div className="mh-card p-8">
+            <div className="text-center mb-8">
+              <div className="mb-6">
+                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-amber-600 to-orange-500 rounded-2xl flex items-center justify-center shadow-md">
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
+              <p className="mb-4">
+                Sign in to your CraftNexus account.{' '}
+                <Link href="/signup" className="text-accent hover:underline font-medium">
+                  Need an account?
+                </Link>
+              </p>
             </div>
-        </>
-    )
 
-export default Login
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                  placeholder="Enter your email"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium mb-2">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                  placeholder="Enter your password"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    className="h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded"
+                  />
+                  <label htmlFor="remember-me" className="ml-2 block text-sm">
+                    Remember me
+                  </label>
+                </div>
+
+                <div className="text-sm">
+                  <Link href="/forgot-password" className="text-accent hover:underline">
+                    Forgot your password?
+                  </Link>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="mh-btn mh-btn-primary w-full"
+              >
+                {loading ? 'Signing in...' : 'Sign In'}
+              </button>
+            </form>
+
+            <div className="mt-8">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="mh-divider w-full"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <Link href="/signup">
+                  <button className="mh-btn mh-btn-ghost w-full">
+                    Connect Web3 Wallet
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  )
+}

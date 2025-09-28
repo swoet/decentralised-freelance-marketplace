@@ -1,362 +1,233 @@
 import { useState } from 'react'
-import { ethers } from 'ethers'
-import toast from 'react-hot-toast'
-import Link from 'next/link'
 import Head from 'next/head'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useAuth } from '@/context/AuthContext'
-import {
-  Button,
-  ButtonGroup,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-  Input,
-  Badge,
-  Motion
-} from '@/components/artisan-craft'
+import AppShell from '../components/layout/AppShell'
+import { useAuth } from '../context/AuthContext'
 
-declare global {
-    interface Window {
-        ethereum?: any
-    }
-}
+export default function Signup() {
+  const [isWalletMode, setIsWalletMode] = useState(false)
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const { register } = useAuth()
+  const router = useRouter()
 
-const Signup = () => {
-    const [isWalletMode, setIsWalletMode] = useState(false)
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        confirmPassword: '',
-        fullName: '',
-        role: 'client' // 'client' or 'freelancer'
-    })
-    const [isLoading, setIsLoading] = useState(false)
-    const [account, setAccount] = useState<string | null>(null)
-    const router = useRouter()
-    const { register, connectWallet } = useAuth()
+  const handleEmailSignup = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        })
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match')
+      setLoading(false)
+      return
     }
 
-    // Traditional email/password registration
-    const handleEmailSignup = async (e: React.FormEvent) => {
-        e.preventDefault()
-        
-        if (formData.password !== formData.confirmPassword) {
-            toast.error('Passwords do not match')
-            return
-        }
-        
-        if (formData.password.length < 6) {
-            toast.error('Password must be at least 6 characters')
-            return
-        }
-        
-        setIsLoading(true)
-        
-        try {
-            await register(formData.email, formData.password, formData.fullName, formData.role)
-            toast.success('Registration successful!')
-            // The AuthContext will handle the redirect to dashboard
-        } catch (error) {
-            console.error('Registration error:', error);
-            let message = 'Registration failed. Please try again.';
-            if (error instanceof Error) {
-                message = error.message;
-            }
-            toast.error(message);
-        } finally {
-            setIsLoading(false)
-        }
+    try {
+      await register(formData.email, formData.password, formData.fullName)
+      router.push('/dashboard/freelancer')
+    } catch (err: any) {
+      setError(err.message || 'Registration failed')
+    } finally {
+      setLoading(false)
     }
+  }
 
-    // Wallet-based registration
-    const handleWalletConnection = async () => {
-        if (!window.ethereum) {
-            toast.error('MetaMask not detected. Please install it.')
-            return
-        }
+  const connectWallet = async () => {
+    setLoading(true)
+    setError('')
 
-        try {
-            setIsLoading(true)
-            
-            // Check if MetaMask is locked
-            const accounts = await window.ethereum.request({ method: 'eth_accounts' })
-            if (!accounts || accounts.length === 0) {
-                // Request account access
-                const requestedAccounts = await window.ethereum.request({ 
-                    method: 'eth_requestAccounts' 
-                })
-                if (!requestedAccounts || requestedAccounts.length === 0) {
-                    throw new Error('No accounts found')
-                }
-            }
-            
-            const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const signer = provider.getSigner()
-            const address = await signer.getAddress()
-            setAccount(address)
-            
-            // Store wallet address for profile setup
-            if (typeof window !== 'undefined') {
-                localStorage.setItem('walletAddress', address)
-            }
-            
-            toast.success('Wallet connected! Please complete your profile.')
-            // Redirect to profile completion page
-            router.push('/profile-setup')
-        } catch (error) {
-            console.error("Error connecting to MetaMask", error)
-            let message = 'Failed to connect wallet. Please check MetaMask and try again.';
-            if (error instanceof Error) {
-                if (error.message.includes('User rejected')) {
-                    message = 'Wallet connection was rejected. Please try again.';
-                } else if (error.message.includes('No accounts found')) {
-                    message = 'No wallet accounts found. Please unlock your wallet.';
-                } else if (error.message.includes('already pending')) {
-                    message = 'MetaMask connection already in progress. Please check MetaMask.';
-                } else {
-                    message = error.message;
-                }
-            }
-            toast.error(message);
-        } finally {
-            setIsLoading(false)
-        }
+    try {
+      // Web3 wallet connection logic would go here
+      alert('Web3 wallet connection coming soon!')
+    } catch (err: any) {
+      setError(err.message || 'Wallet connection failed')
+    } finally {
+      setLoading(false)
     }
+  }
 
-    return (
-        <>
-            <Head>
-                <title>Join CraftNexus - Where Artisans Connect</title>
-                <meta name="description" content="Create your CraftNexus account and join the premier community where artisans connect with clients" />
-                
-                {/* Fonts are now loaded globally in globals.css */}
-            </Head>
-            
-            <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 ac-animate-crisp">
-                <Motion preset="scaleIn" className="max-w-lg w-full ac-text-optimized">
-                    <Card variant="leather" className="shadow-craft-deep ac-hover-efficient ac-animate-crisp">
-                        <CardHeader className="text-center">
-                            <div className="mb-4">
-                                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-gold-500 to-copper-600 rounded-organic-craft flex items-center justify-center shadow-craft-soft">
-                                    <svg className="w-8 h-8 text-neutral-50" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/>
-                                    </svg>
-                                </div>
-                            </div>
-                            <CardTitle className="text-3xl ac-crisp">Join CraftNexus</CardTitle>
-                            <CardDescription>
-                                Where Artisans Connect. Create your account and start building meaningful partnerships.{' '}
-                                <Link href="/login" className="text-copper-600 hover:text-mahogany-600 font-medium underline">
-                                    Already have an account?
-                                </Link>
-                            </CardDescription>
-                        </CardHeader>
-
-                        <div>
-                            {/* Authentication Mode Toggle */}
-                            <div className="flex mb-6 border border-gray-200 rounded-lg overflow-hidden">
-                                <button
-                                    className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                                        !isWalletMode ? 'mh-btn-primary' : 'bg-white text-black hover:bg-gray-50'
-                                    }`}
-                                    onClick={() => setIsWalletMode(false)}
-                                >
-                                    Email & Password
-                                </button>
-                                <button
-                                    className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
-                                        isWalletMode ? 'mh-btn-primary' : 'bg-white text-black hover:bg-gray-50'
-                                    }`}
-                                    onClick={() => setIsWalletMode(true)}
-                                >
-                                    Web3 Wallet
-                                </button>
-                            </div>
-
-                            {!isWalletMode ? (
-                                /* Email/Password Registration Form */
-                                <form className="space-y-6" onSubmit={handleEmailSignup}>
-                                    <div className="grid grid-cols-1 gap-4">
-                                        <Input
-                                            variant="craft"
-                                            type="text"
-                                            placeholder="Enter your full name"
-                                            value={formData.fullName}
-                                            onChange={handleInputChange}
-                                            name="fullName"
-                                            label="Full Name"
-                                            required
-                                            className="ac-animate-crisp"
-                                            leftIcon={
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                                </svg>
-                                            }
-                                        />
-                                        
-                                        <Input
-                                            variant="craft"
-                                            type="email"
-                                            placeholder="Enter your email address"
-                                            value={formData.email}
-                                            onChange={handleInputChange}
-                                            name="email"
-                                            label="Email Address"
-                                            required
-                                            className="ac-animate-crisp"
-                                            leftIcon={
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
-                                                </svg>
-                                            }
-                                        />
-
-                                        <div className="space-y-2">
-                                            <label className="body-craft text-sm font-medium text-copper-700">
-                                                I want to...
-                                            </label>
-                                            <ButtonGroup spacing="sm">
-                                                <Button
-                                                    type="button"
-                                                    variant={formData.role === 'client' ? 'primary' : 'ghost'}
-                                                    shape="leaf"
-                                                    onClick={() => setFormData({...formData, role: 'client'})}
-                                                    leftIcon={
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 01-2 2H10a2 2 0 01-2-2V6" />
-                                                        </svg>
-                                                    }
-                                                >
-                                                    Hire Artisans
-                                                </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant={formData.role === 'freelancer' ? 'primary' : 'ghost'}
-                                                    shape="wax"
-                                                    onClick={() => setFormData({...formData, role: 'freelancer'})}
-                                                    leftIcon={
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                                                        </svg>
-                                                    }
-                                                >
-                                                    Offer Services
-                                                </Button>
-                                            </ButtonGroup>
-                                        </div>
-                                        
-                                        <Input
-                                            variant="craft"
-                                            type="password"
-                                            placeholder="Create a secure password"
-                                            value={formData.password}
-                                            onChange={handleInputChange}
-                                            name="password"
-                                            label="Password"
-                                            required
-                                            leftIcon={
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                                </svg>
-                                            }
-                                        />
-                                        
-                                        <Input
-                                            variant="craft"
-                                            type="password"
-                                            placeholder="Confirm your password"
-                                            value={formData.confirmPassword}
-                                            onChange={handleInputChange}
-                                            name="confirmPassword"
-                                            label="Confirm Password"
-                                            required
-                                            leftIcon={
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            }
-                                        />
-                                    </div>
-
-                                    <Button
-                                        type="submit"
-                                        variant="primary"
-                                        size="lg"
-                                        shape="leaf"
-                                        fullWidth
-                                        disabled={isLoading}
-                                        loading={isLoading}
-                                    >
-                                        {isLoading ? 'Creating Account...' : 'Create Account'}
-                                    </Button>
-                                </form>
-                            ) : (
-                                /* Wallet Connection */
-                                <div className="space-y-6">
-                                    <div className="text-center space-y-4">
-                                        <div className="w-20 h-20 mx-auto bg-gradient-to-br from-mahogany-400 to-copper-600 rounded-organic-wax flex items-center justify-center shadow-craft-soft">
-                                            <svg className="w-10 h-10 text-neutral-50" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <h3 className="heading-craft text-xl text-mahogany-800 mb-2">Create Web3 Identity</h3>
-                                            <p className="body-craft text-copper-600">
-                                                Connect your Web3 wallet to create a decentralized artisan identity and access blockchain features
-                                            </p>
-                                        </div>
-                                        <Button
-                                            variant="accent"
-                                            size="lg"
-                                            shape="wax"
-                                            fullWidth
-                                            onClick={handleWalletConnection}
-                                            disabled={isLoading}
-                                            loading={isLoading}
-                                            leftIcon={
-                                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                                </svg>
-                                            }
-                                        >
-                                            {isLoading ? 'Connecting...' : 'Connect MetaMask'}
-                                        </Button>
-                                        
-                                        {account && (
-                                            <Motion preset="fadeIn">
-                                                <Badge variant="success" size="lg" shape="organic" className="mx-auto">
-                                                    Connected: {`${account.substring(0, 6)}...${account.substring(account.length - 4)}`}
-                                                </Badge>
-                                            </Motion>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </CardContent>
-
-                        <CardFooter className="text-center">
-                            <p className="body-craft text-xs text-bronze-600">
-                                By creating an account, you agree to our{' '}
-                                <a href="#" className="text-copper-600 hover:text-mahogany-600 underline">Terms of Service</a>
-                                {' '}and{' '}
-                                <a href="#" className="text-copper-600 hover:text-mahogany-600 underline">Privacy Policy</a>
-                            </p>
-                        </CardFooter>
-                    </Card>
-                </Motion>
+  return (
+    <AppShell>
+      <Head>
+        <title>Join CraftNexus - Where Artisans Connect</title>
+        <meta name="description" content="Create your CraftNexus account and start your creative journey in the premier artisan marketplace" />
+      </Head>
+      
+      <div className="min-h-screen mh-wood mh-allow-pseudo flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          <div className="mh-card p-8">
+            <div className="text-center mb-8">
+              <div className="mb-6">
+                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-amber-600 to-orange-500 rounded-2xl flex items-center justify-center shadow-md">
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold mb-2">Join CraftNexus</h1>
+              <p className="mb-4">
+                Create your account and start your creative journey.{' '}
+                <Link href="/login" className="text-accent hover:underline font-medium">
+                  Already have an account?
+                </Link>
+              </p>
             </div>
-        </>
-    )
-}
 
-export default Signup
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">{error}</p>
+              </div>
+            )}
+
+            {/* Authentication Mode Toggle */}
+            <div className="flex mb-6 border border-gray-200 rounded-lg overflow-hidden">
+              <button
+                className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+                  !isWalletMode ? 'mh-btn-primary' : 'bg-white text-black hover:bg-gray-50'
+                }`}
+                onClick={() => setIsWalletMode(false)}
+              >
+                Email & Password
+              </button>
+              <button
+                className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+                  isWalletMode ? 'mh-btn-primary' : 'bg-white text-black hover:bg-gray-50'
+                }`}
+                onClick={() => setIsWalletMode(true)}
+              >
+                Web3 Wallet
+              </button>
+            </div>
+
+            {!isWalletMode ? (
+              /* Email/Password Registration Form */
+              <form className="space-y-6" onSubmit={handleEmailSignup}>
+                <div>
+                  <label htmlFor="fullName" className="block text-sm font-medium mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    id="fullName"
+                    type="text"
+                    required
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    placeholder="Enter your email"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium mb-2">
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    required
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    placeholder="Create a password"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
+                    Confirm Password
+                  </label>
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    required
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    placeholder="Confirm your password"
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    id="agree-terms"
+                    name="agree-terms"
+                    type="checkbox"
+                    required
+                    className="h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded"
+                  />
+                  <label htmlFor="agree-terms" className="ml-2 block text-sm">
+                    I agree to the{' '}
+                    <Link href="/terms" className="text-accent hover:underline">
+                      Terms of Service
+                    </Link>{' '}
+                    and{' '}
+                    <Link href="/privacy" className="text-accent hover:underline">
+                      Privacy Policy
+                    </Link>
+                  </label>
+                </div>
+
+                <button
+                  type="submit"
+                  className="mh-btn mh-btn-primary w-full"
+                  disabled={loading}
+                >
+                  {loading ? 'Creating Account...' : 'Create Account'}
+                </button>
+              </form>
+            ) : (
+              /* Web3 Wallet Connection */
+              <div className="text-center">
+                <div className="mb-8">
+                  <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl flex items-center justify-center mb-4">
+                    <svg className="w-12 h-12 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2zm4-3a1 1 0 00-1 1v1h2V4a1 1 0 00-1-1zM7.707 8.707L10 11l4.293-4.293a1 1 0 111.414 1.414L11 12.828a1 1 0 01-1.414 0L5.293 8.535a1 1 0 011.414-1.414z" clipRule="evenodd"/>
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Connect Your Wallet</h3>
+                  <p className="text-sm text-gray-600 mb-6">
+                    Use your MetaMask or other Web3 wallet for secure, decentralized authentication
+                  </p>
+                </div>
+
+                <button
+                  onClick={connectWallet}
+                  className="mh-btn mh-btn-primary w-full"
+                  disabled={loading}
+                >
+                  {loading ? 'Connecting...' : 'Connect Wallet'}
+                </button>
+
+                <p className="text-xs text-gray-500 mt-4">
+                  By connecting your wallet, you agree to our Terms of Service and Privacy Policy
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  )
+}
