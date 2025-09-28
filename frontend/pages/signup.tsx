@@ -162,26 +162,26 @@ const Signup = () => {
                             </CardDescription>
                         </CardHeader>
 
-                        <CardContent>
+                        <div>
                             {/* Authentication Mode Toggle */}
-                            <ButtonGroup spacing="none" className="mb-6">
-                                <Button
-                                    variant={!isWalletMode ? "primary" : "ghost"}
+                            <div className="flex mb-6 border border-gray-200 rounded-lg overflow-hidden">
+                                <button
+                                    className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+                                        !isWalletMode ? 'mh-btn-primary' : 'bg-white text-black hover:bg-gray-50'
+                                    }`}
                                     onClick={() => setIsWalletMode(false)}
-                                    shape="square"
-                                    className="flex-1 rounded-r-none"
                                 >
                                     Email & Password
-                                </Button>
-                                <Button
-                                    variant={isWalletMode ? "primary" : "ghost"}
+                                </button>
+                                <button
+                                    className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+                                        isWalletMode ? 'mh-btn-primary' : 'bg-white text-black hover:bg-gray-50'
+                                    }`}
                                     onClick={() => setIsWalletMode(true)}
-                                    shape="square"
-                                    className="flex-1 rounded-l-none"
                                 >
                                     Web3 Wallet
-                                </Button>
-                            </ButtonGroup>
+                                </button>
+                            </div>
 
                             {!isWalletMode ? (
                                 /* Email/Password Registration Form */

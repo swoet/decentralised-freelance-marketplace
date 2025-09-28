@@ -1,0 +1,174 @@
+/* CraftNexus Mahogany Theme - neat, composed, real-wood inspired */
+
+:root {
+  --mh-wood-deep: #3b1f0f;    /* deep mahogany core */
+  --mh-wood-rich: #5a2d14;    /* rich grain */
+  --mh-wood-warm: #7a3c1a;    /* warm highlights */
+  --mh-wood-soft: #9a532b;    /* soft accents */
+  --mh-parchment: #faf7f2;    /* clean surface */
+  --mh-parchment-2: #f4efe7;  /* section background */
+  --mh-border: rgba(0,0,0,0.08);
+  --mh-shadow: 0 6px 24px rgba(0,0,0,0.08);
+  --mh-shadow-hover: 0 12px 32px rgba(0,0,0,0.12);
+  --mh-accent: #ea580c;       /* coppery orange accent */
+}
+
+/* Header with subtle mahogany wood, kept readable and neat */
+.mh-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: linear-gradient(0deg, rgba(255,255,255,0.96), rgba(255,255,255,0.96));
+  border-bottom: 1px solid var(--mh-border);
+  box-shadow: var(--mh-shadow);
+}
+
+/* Wood texture utility - realistic mahogany grain */
+.mh-wood {
+  position: relative;
+  background-color: var(--mh-parchment);
+}
+
+.mh-wood::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    /* Fine grain lines */
+    repeating-linear-gradient(
+      8deg,
+      rgba(90,45,20,0.12) 0px,
+      rgba(90,45,20,0.12) 2px,
+      rgba(58,31,17,0.08) 2px,
+      rgba(58,31,17,0.08) 5px,
+      rgba(122,60,26,0.10) 5px,
+      rgba(122,60,26,0.10) 8px
+    ),
+    /* Broader wood rings */
+    repeating-linear-gradient(
+      85deg,
+      rgba(90,45,20,0.06) 0px,
+      rgba(90,45,20,0.06) 15px,
+      rgba(58,31,17,0.04) 15px,
+      rgba(58,31,17,0.04) 30px
+    ),
+    /* Natural wood knots and variations */
+    radial-gradient(ellipse 800px 150px at 15% 20%, rgba(58,31,17,0.18), transparent 70%),
+    radial-gradient(ellipse 600px 120px at 85% 60%, rgba(90,45,20,0.15), transparent 65%),
+    radial-gradient(ellipse 400px 80px at 45% 85%, rgba(122,60,26,0.12), transparent 60%);
+  opacity: 0.7;
+  pointer-events: none;
+  display: block !important; /* override global reset */
+}
+
+/* Surface and section backgrounds */
+.mh-surface {
+  background-color: var(--mh-parchment);
+}
+
+.mh-section {
+  background-color: var(--mh-parchment-2);
+  border: 1px solid var(--mh-border);
+  border-radius: 16px;
+  box-shadow: var(--mh-shadow);
+}
+
+/* Card */
+.mh-card {
+  background: #ffffff;
+  border: 1px solid var(--mh-border);
+  border-radius: 16px;
+  box-shadow: var(--mh-shadow);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.mh-card:hover {
+  box-shadow: var(--mh-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Button - copper/mahogany accent, text stays black only for ghost; primary uses white text */
+.mh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .875rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--mh-border);
+  font-weight: 600;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.mh-btn-primary {
+  background: linear-gradient(135deg, var(--mh-wood-warm), var(--mh-accent));
+  color: #ffffff !important;
+  border: none;
+  box-shadow: var(--mh-shadow);
+}
+
+.mh-btn-primary:hover { transform: translateY(-2px); box-shadow: var(--mh-shadow-hover); }
+
+.mh-btn-ghost {
+  background: #ffffff;
+  color: #000000 !important;
+}
+
+/* Dividers - elegant mahogany-inspired */
+.mh-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--mh-border), transparent);
+  margin: 1rem 0;
+}
+
+.mh-divider-thick {
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(90,45,20,0.2), 
+    rgba(58,31,17,0.3), 
+    rgba(90,45,20,0.2), 
+    transparent
+  );
+  margin: 1.5rem 0;
+}
+
+.mh-divider-wood {
+  height: 3px;
+  background: 
+    linear-gradient(90deg, transparent, rgba(90,45,20,0.4), transparent),
+    repeating-linear-gradient(
+      90deg,
+      rgba(58,31,17,0.1) 0px,
+      rgba(58,31,17,0.1) 4px,
+      rgba(90,45,20,0.15) 4px,
+      rgba(90,45,20,0.15) 8px
+    );
+  margin: 2rem 0;
+  border-radius: 2px;
+}
+
+/* Footer */
+.mh-footer {
+  border-top: 1px solid var(--mh-border);
+  background: #ffffff;
+}
+
+/* Allow theme pseudo-elements despite global reset */
+.mh-allow-pseudo::before, .mh-allow-pseudo::after { display: block !important; }
+
+/* Enhanced mahogany accents */
+.mh-accent-border {
+  border: 2px solid;
+  border-image: linear-gradient(45deg, var(--mh-wood-warm), var(--mh-wood-rich), var(--mh-wood-warm)) 1;
+}
+
+.mh-wood-highlight {
+  background: linear-gradient(135deg, 
+    rgba(122,60,26,0.08), 
+    rgba(90,45,20,0.12), 
+    rgba(122,60,26,0.08)
+  );
+  border-left: 4px solid var(--mh-wood-warm);
+  padding-left: 1rem;
+}

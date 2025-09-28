@@ -2,16 +2,337 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Enhanced CraftNexus Design System */
-@import './design-systems/artisan-craft.css';
-@import './design-systems/artisan-craft/accessibility.css';
-@import './design-systems/artisan-craft/performance.css';
-@import './design-systems/artisan-craft/utilities.css';
-@import './design-systems/craftnexus-animations.css';
-@import './craftnexus-tailwind-fix.css';
+/* Mahogany Theme */
+@import './themes/mahogany.css';
 
-/* Google Fonts - Optimized Loading */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;500;600&family=Crimson+Text:wght@400;600&display=swap');
+/* Use system fonts instead of external fonts to avoid 404 errors */
+
+/* CRITICAL VISIBILITY FIXES - Force all elements to be visible */
+* {
+  color: #000000 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* NUCLEAR OPTION - FORCE ALL TEXT TO BE BLACK */
+*, *::before, *::after,
+h1, h2, h3, h4, h5, h6,
+p, span, div, a, button, input, textarea, select, label, li, ul, ol,
+.text-craft-mahogany-50, .text-craft-mahogany-100, .text-craft-mahogany-200, .text-craft-mahogany-300,
+.text-craft-mahogany-400, .text-craft-mahogany-500, .text-craft-mahogany-600, .text-craft-mahogany-700,
+.text-craft-mahogany-800, .text-craft-mahogany-900,
+.text-craft-copper-50, .text-craft-copper-100, .text-craft-copper-200, .text-craft-copper-300,
+.text-craft-copper-400, .text-craft-copper-500, .text-craft-copper-600, .text-craft-copper-700,
+.text-craft-copper-800, .text-craft-copper-900,
+.text-craft-gold-50, .text-craft-gold-100, .text-craft-gold-200, .text-craft-gold-300,
+.text-craft-gold-400, .text-craft-gold-500, .text-craft-gold-600, .text-craft-gold-700,
+.text-craft-gold-800, .text-craft-gold-900,
+[class*="text-"], [class*="craft"], [class*="ac-"],
+.font-display, .font-body, .font-serif, .font-sans,
+.CardTitle, .CardDescription, .CardContent, .CardHeader, .CardFooter {
+  color: #000000 !important;
+}
+
+/* Remove any potential overlays or blocking elements */
+*::before, *::after {
+  display: none !important;
+}
+
+/* ADDITIONAL BLACK TEXT ENFORCEMENT */
+/* Target all possible text elements */
+strong, em, i, b, u, small, mark, del, ins, sub, sup, code, pre, kbd, samp, var,
+time, address, blockquote, cite, q, abbr, dfn, acronym,
+td, th, caption, legend, fieldset, optgroup, option,
+.text-xs, .text-sm, .text-base, .text-lg, .text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl, .text-6xl,
+.text-gray-50, .text-gray-100, .text-gray-200, .text-gray-300, .text-gray-400, .text-gray-500,
+.text-gray-600, .text-gray-700, .text-gray-800, .text-gray-900,
+.text-slate-50, .text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400, .text-slate-500,
+.text-slate-600, .text-slate-700, .text-slate-800, .text-slate-900,
+.text-neutral-50, .text-neutral-100, .text-neutral-200, .text-neutral-300, .text-neutral-400, .text-neutral-500,
+.text-neutral-600, .text-neutral-700, .text-neutral-800, .text-neutral-900,
+.text-white, .text-black,
+.prose, .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6, .prose p, .prose a, .prose li,
+[role="heading"], [role="text"], [role="paragraph"],
+.title, .subtitle, .description, .content, .body, .main, .section,
+.nav, .navbar, .menu, .sidebar, .footer, .header,
+.card-title, .card-text, .card-body, .card-header, .card-footer {
+  color: #000000 !important;
+}
+
+/* Force black text on all Tailwind text utilities */
+[class*="text-amber"], [class*="text-orange"], [class*="text-yellow"],
+[class*="text-red"], [class*="text-pink"], [class*="text-rose"],
+[class*="text-purple"], [class*="text-violet"], [class*="text-indigo"],
+[class*="text-blue"], [class*="text-sky"], [class*="text-cyan"],
+[class*="text-teal"], [class*="text-emerald"], [class*="text-green"],
+[class*="text-lime"], [class*="text-stone"], [class*="text-zinc"] {
+  color: #000000 !important;
+}
+
+/* CRAFTNEXUS PROFESSIONAL REDESIGN */
+
+/* Typography - Clean and readable */
+h1, h2, h3, h4, h5, h6 {
+  color: #000000 !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  margin-bottom: 1rem !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+h1 { font-size: 2.5rem !important; }
+h2 { font-size: 2rem !important; }
+h3 { font-size: 1.5rem !important; }
+h4 { font-size: 1.25rem !important; }
+h5 { font-size: 1.125rem !important; }
+h6 { font-size: 1rem !important; }
+
+/* Body text - Always black for readability */
+p, span, div, label, li {
+  color: #000000 !important;
+  line-height: 1.6 !important;
+  font-size: 1rem !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Links - Professional orange with hover */
+a {
+  color: #ea580c !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+}
+
+a:hover {
+  color: #c2410c !important;
+  text-decoration: underline !important;
+}
+
+/* Force proper display */
+span, a {
+  display: inline !important;
+}
+
+.flex, [class*="flex"] {
+  display: flex !important;
+}
+
+/* CRAFTNEXUS COLOR SYSTEM - Professional & Clean */
+
+/* All craft text colors now BLACK for readability */
+.text-craft-mahogany-50, .text-craft-mahogany-100, .text-craft-mahogany-200, .text-craft-mahogany-300,
+.text-craft-mahogany-400, .text-craft-mahogany-500, .text-craft-mahogany-600, .text-craft-mahogany-700,
+.text-craft-mahogany-800, .text-craft-mahogany-900 {
+  color: #000000 !important;
+}
+
+.text-craft-copper-50, .text-craft-copper-100, .text-craft-copper-200, .text-craft-copper-300,
+.text-craft-copper-400, .text-craft-copper-500, .text-craft-copper-600, .text-craft-copper-700,
+.text-craft-copper-800, .text-craft-copper-900 {
+  color: #000000 !important;
+}
+
+.text-craft-gold-50, .text-craft-gold-100, .text-craft-gold-200, .text-craft-gold-300,
+.text-craft-gold-400, .text-craft-gold-500, .text-craft-gold-600, .text-craft-gold-700,
+.text-craft-gold-800, .text-craft-gold-900 {
+  color: #000000 !important;
+}
+
+/* Special accent colors for highlights only */
+.text-accent {
+  color: #ea580c !important;
+}
+
+.text-primary {
+  color: #000000 !important;
+}
+
+.text-secondary {
+  color: #6b7280 !important;
+}
+
+/* CRAFTNEXUS BACKGROUND SYSTEM - Clean & Professional */
+.bg-craft-mahogany-50 { background-color: #fefefe !important; }
+.bg-craft-mahogany-100 { background-color: #f9f9f9 !important; }
+.bg-craft-mahogany-200 { background-color: #f3f4f6 !important; }
+.bg-craft-mahogany-600 { background-color: #ea580c !important; }
+
+.bg-craft-copper-50 { background-color: #fefefe !important; }
+.bg-craft-copper-100 { background-color: #f9f9f9 !important; }
+.bg-craft-copper-500 { background-color: #f97316 !important; }
+
+.bg-craft-gold-100 { background-color: #fffbeb !important; }
+.bg-craft-gold-500 { background-color: #f59e0b !important; }
+
+/* Clean gradient backgrounds */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%) !important;
+}
+
+.bg-gradient-secondary {
+  background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%) !important;
+}
+
+/* CRAFTNEXUS BUTTON SYSTEM - Professional & Accessible */
+.btn, button, [role="button"], input[type="submit"] {
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  padding: 0.875rem 2rem !important;
+  border-radius: 0.75rem !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn:hover, button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Secondary button style */
+.btn-secondary {
+  background: #ffffff !important;
+  color: #ea580c !important;
+  border: 2px solid #ea580c !important;
+}
+
+.btn-secondary:hover {
+  background: #ea580c !important;
+  color: #ffffff !important;
+}
+
+/* CRAFTNEXUS INPUT SYSTEM - Clean & Professional */
+input, textarea, select {
+  background-color: #ffffff !important;
+  border: 2px solid #e5e7eb !important;
+  color: #000000 !important;
+  padding: 1rem !important;
+  border-radius: 0.75rem !important;
+  width: 100% !important;
+  font-size: 1rem !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none !important;
+  border-color: #ea580c !important;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1) !important;
+}
+
+/* Input labels */
+label {
+  color: #000000 !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+  display: block !important;
+}
+
+/* Force link visibility */
+a {
+  color: #d97706 !important;
+  text-decoration: none !important;
+}
+
+a:hover {
+  color: #92400e !important;
+  text-decoration: underline !important;
+}
+
+/* CRAFTNEXUS HEADER SYSTEM - Professional Navigation */
+header {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  padding: 1rem 0 !important;
+}
+
+/* Navigation styling */
+nav a {
+  color: #000000 !important;
+  font-weight: 500 !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.2s ease !important;
+}
+
+nav a:hover {
+  background-color: #f3f4f6 !important;
+  color: #ea580c !important;
+  text-decoration: none !important;
+}
+
+/* Logo styling */
+.logo, [class*="logo"] {
+  color: #ea580c !important;
+  font-weight: 700 !important;
+  font-size: 1.5rem !important;
+}
+
+.logo:hover {
+  color: #c2410c !important;
+}
+
+/* CRAFTNEXUS GLOBAL STYLING - Clean Foundation */
+body, html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+  color: #000000 !important;
+  background-color: #ffffff !important;
+  line-height: 1.6 !important;
+  font-size: 16px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Container and layout */
+.container {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding: 0 1rem !important;
+}
+
+/* Cards and sections */
+.card, [class*="card"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 1rem !important;
+  padding: 2rem !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Spacing utilities */
+.mb-4 { margin-bottom: 1rem !important; }
+.mb-6 { margin-bottom: 1.5rem !important; }
+.mb-8 { margin-bottom: 2rem !important; }
+.mt-4 { margin-top: 1rem !important; }
+.mt-6 { margin-top: 1.5rem !important; }
+.mt-8 { margin-top: 2rem !important; }
+
+.p-4 { padding: 1rem !important; }
+.p-6 { padding: 1.5rem !important; }
+.p-8 { padding: 2rem !important; }
+
+/* Text utilities */
+.text-center { text-align: center !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+
+.font-bold { font-weight: 700 !important; }
+.font-semibold { font-weight: 600 !important; }
+.font-medium { font-weight: 500 !important; }
 
 @layer base {
   /* CraftNexus Design System - Enhanced Variables */

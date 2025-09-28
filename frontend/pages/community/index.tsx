@@ -58,135 +58,128 @@ export default function CommunityIndex() {
         {/* Fonts are now loaded globally in globals.css */}
       </Head>
       
-      <div className="min-h-screen bg-white ac-animate-crisp">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ac-text-optimized">
-          <Motion preset="slideInDown" className="mb-8 ac-crisp">
-            <div className="text-center space-y-4">
-              <h1 className="heading-craft text-5xl text-mahogany-800 ac-crisp">
+      <div className="min-h-screen mh-surface">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Motion preset="slideInDown" className="mb-8">
+            <div className="mh-section p-8 text-center">
+              <h1 className="text-5xl font-bold mb-4">
                 CraftNexus Community
               </h1>
-              <p className="body-craft text-xl text-copper-700 max-w-2xl mx-auto">
+              <p className="text-xl max-w-2xl mx-auto mb-8">
                 Where Artisans Connect. Join our vibrant community of creators, share knowledge, and build lasting partnerships with fellow artisans and innovators.
               </p>
+              <div className="mh-divider-wood"></div>
             </div>
           </Motion>
 
           {loading ? (
             <Motion preset="scaleIn" className="flex justify-center items-center py-16">
-              <Card variant="parchment" className="p-8 text-center">
-                <div className="animate-spin w-12 h-12 border-4 border-mahogany-200 border-t-mahogany-600 rounded-full mx-auto mb-4"></div>
-                <p className="body-craft text-copper-700">Gathering community insights...</p>
-              </Card>
+              <div className="mh-card p-8 text-center">
+                <div className="animate-spin w-12 h-12 border-4 border-gray-200 border-t-amber-600 rounded-full mx-auto mb-4"></div>
+                <p>Gathering community insights...</p>
+              </div>
             </Motion>
           ) : error ? (
             <Motion preset="fadeIn" className="flex justify-center items-center py-16">
-              <Card variant="outlined" className="p-8 text-center border-red-300">
+              <div className="mh-card p-8 text-center border-red-300">
                 <div className="text-6xl mb-4">⚠️</div>
-                <p className="body-craft text-red-600">{error}</p>
-                <Button variant="secondary" onClick={() => window.location.reload()} className="mt-4">
+                <p className="text-red-600 mb-4">{error}</p>
+                <button className="mh-btn mh-btn-primary" onClick={() => window.location.reload()}>
                   Try Again
-                </Button>
-              </Card>
+                </button>
+              </div>
             </Motion>
           ) : (
-            <Stagger staggerDelay={200} className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto ac-grid-optimized">
-              <Card variant="leather" interactive="float" className="group ac-hover-efficient ac-animate-crisp">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
+            <Stagger staggerDelay={200} className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <div className="mh-card group p-6">
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
                     <div className="space-y-2">
-                      <CardTitle className="flex items-center gap-3">
-                        <div className="p-3 bg-forest-100 rounded-organic-leaf group-hover:bg-forest-200 transition-colors">
-                          <svg className="w-6 h-6 text-forest-600" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 bg-green-100 rounded-2xl">
+                          <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clipRule="evenodd" />
                           </svg>
                         </div>
-                        Discussion Threads
-                      </CardTitle>
-                      <CardDescription>
+                        <h3 className="text-xl font-semibold">Discussion Threads</h3>
+                      </div>
+                      <p className="text-sm text-gray-600">
                         Share ideas, ask questions, and engage in meaningful conversations with fellow artisans
-                      </CardDescription>
+                      </p>
                     </div>
-                    <StatusBadge status="active" size="lg">
+                    <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
                       {threadsCount}
-                    </StatusBadge>
+                    </span>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-copper-600">
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center gap-2 text-sm">
                       <span>💬</span>
                       <span>Active discussions on techniques, tools, and trends</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-copper-600">
+                    <div className="flex items-center gap-2 text-sm">
                       <span>🤝</span>
                       <span>Get help from experienced community members</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-copper-600">
+                    <div className="flex items-center gap-2 text-sm">
                       <span>💡</span>
                       <span>Share your knowledge and inspire others</span>
                     </div>
                   </div>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    variant="primary" 
-                    fullWidth 
-                    shape="leaf"
+                </div>
+                <div className="mt-auto">
+                  <button 
+                    className="mh-btn mh-btn-primary w-full"
                     onClick={() => window.location.href = '/community/threads'}
                   >
                     Explore Threads →
-                  </Button>
-                </CardFooter>
-              </Card>
+                  </button>
+                </div>
+              </div>
 
-              <Card variant="parchment" interactive="float" className="group ac-hover-efficient ac-animate-crisp">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
+              <div className="mh-card group p-6">
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
                     <div className="space-y-2">
-                      <CardTitle className="flex items-center gap-3">
-                        <div className="p-3 bg-gold-100 rounded-organic-wax group-hover:bg-gold-200 transition-colors">
-                          <svg className="w-6 h-6 text-gold-600" fill="currentColor" viewBox="0 0 20 20">
+                      <div className="flex items-center gap-3">
+                        <div className="p-3 bg-yellow-100 rounded-2xl">
+                          <svg className="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
                           </svg>
                         </div>
-                        Community Events
-                      </CardTitle>
-                      <CardDescription>
+                        <h3 className="text-xl font-semibold">Community Events</h3>
+                      </div>
+                      <p className="text-sm text-gray-600">
                         Join workshops, meetups, and collaborative sessions to enhance your craft
-                      </CardDescription>
+                      </p>
                     </div>
-                    <StatusBadge status="pending" size="lg">
+                    <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">
                       {eventsCount}
-                    </StatusBadge>
+                    </span>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-copper-600">
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center gap-2 text-sm">
                       <span>🎨</span>
                       <span>Hands-on workshops and skill-building sessions</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-copper-600">
+                    <div className="flex items-center gap-2 text-sm">
                       <span>🌟</span>
                       <span>Networking events and collaboration opportunities</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-copper-600">
+                    <div className="flex items-center gap-2 text-sm">
                       <span>📅</span>
                       <span>Regular meetups and community gatherings</span>
                     </div>
                   </div>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    variant="accent" 
-                    fullWidth 
-                    shape="wax"
+                </div>
+                <div className="mt-auto">
+                  <button 
+                    className="mh-btn mh-btn-primary w-full"
                     onClick={() => window.location.href = '/community/events'}
                   >
                     Discover Events →
-                  </Button>
-                </CardFooter>
-              </Card>
+                  </button>
+                </div>
+              </div>
             </Stagger>
           )}
         </div>

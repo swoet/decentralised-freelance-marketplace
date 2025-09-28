@@ -20,22 +20,20 @@ const Home: NextPage = () => {
       <Head>
         <title>CraftNexus - Where Artisans Connect</title>
         <meta name="description" content="CraftNexus: The premier decentralized marketplace where skilled artisans connect with clients for handcrafted excellence" />
-        <link rel="icon" href="/favicon.ico" />
         
         {/* Fonts are now loaded globally in globals.css */}
       </Head>
 
       <div className="min-h-screen bg-white ac-animate-crisp">
-        {/* Enhanced CraftNexus Hero Section */}
-        <section className="min-h-screen flex items-center justify-center relative overflow-hidden craft-gpu-accelerated">
-          {/* Parallax Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50"></div>
+        {/* Enhanced Hero Section */}
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden mh-wood mh-allow-pseudo">
+          {/* Clean mahogany wood background */}
+          <div className="absolute inset-0"></div>
           
           {/* Floating Elements */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute w-4 h-4 bg-yellow-400 rounded-full opacity-20 craft-float" style={{left: '10%', top: '20%'}}></div>
             <div className="absolute w-3 h-3 bg-orange-400 rounded-full opacity-30 craft-float" style={{left: '80%', top: '30%', animationDelay: '1s'}}></div>
-            <div className="absolute w-5 h-5 bg-amber-600 rounded-full opacity-20 craft-float" style={{left: '20%', top: '70%', animationDelay: '2s'}}></div>
             <div className="absolute w-2 h-2 bg-yellow-500 rounded-full opacity-40 craft-float" style={{left: '70%', top: '80%', animationDelay: '0.5s'}}></div>
           </div>
           
@@ -82,18 +80,20 @@ const Home: NextPage = () => {
         {/* Enhanced Features Grid */}
         <section className="max-w-7xl mx-auto px-4 py-20">
           {/* Section Header */}
-          <Motion preset="slideInUp" className="text-center mb-16">
-            <h2 className="font-serif text-4xl md:text-5xl font-bold text-amber-900 mb-4">
-              Discover Your <span className="text-yellow-600">Creative Path</span>
-            </h2>
-            <p className="text-lg text-orange-700 max-w-2xl mx-auto">
-              Whether you're seeking exceptional talent or offering your skills, CraftNexus connects you with the perfect match.
-            </p>
-          </Motion>
+          <div className="mh-section p-8 mb-16">
+            <Motion preset="slideInUp" className="text-center">
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">
+                Discover Your <span className="text-accent">Creative Path</span>
+              </h2>
+              <p className="text-lg max-w-2xl mx-auto">
+                Whether you're seeking exceptional talent or offering your skills, CraftNexus connects you with the perfect match.
+              </p>
+              <div className="mh-divider-wood mt-8"></div>
+            </Motion>
+          </div>
           
           <Stagger staggerDelay={150} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 craft-stagger-container">
             <Motion preset="scaleIn">
-              <Link href="/projects">
                 <Card variant="leather" interactive="hover" className="h-full group craft-card-hover craft-animate-crisp relative">
                   <div className="craft-card-glow"></div>
                   <CardHeader>
@@ -163,65 +163,66 @@ const Home: NextPage = () => {
         </section>
 
         {/* Enhanced Authentication Section */}
-        <section className="max-w-4xl mx-auto px-4 py-20 bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl mx-4 craft-animate-crisp">
-          <Motion preset="slideInUp" className="text-center mb-16">
-            <h2 className="font-serif text-4xl md:text-5xl font-bold text-amber-900 mb-6">
-              Choose Your <span className="text-yellow-600">Creative Path</span>
-            </h2>
-            <p className="text-lg text-orange-700 max-w-2xl mx-auto">
-              Whether you prefer traditional authentication or embrace the future with Web3 wallet connectivity
-            </p>
-          </Motion>
+        <section className="max-w-4xl mx-auto px-4 py-20">
+          <div className="mh-section p-12">
+            <Motion preset="slideInUp" className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                Choose Your <span className="text-accent">Creative Path</span>
+              </h2>
+              <p className="text-lg max-w-2xl mx-auto mb-8">
+                Whether you prefer traditional authentication or embrace the future with Web3 wallet connectivity
+              </p>
+              <div className="mh-divider-thick"></div>
+            </Motion>
 
           <Stagger staggerDelay={200} className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Motion preset="scaleIn" transition={{ delay: 100 }}>
-              <Card variant="filled" interactive="hover" className="text-center craft-card-hover craft-animate-crisp relative">
-                <div className="craft-card-glow"></div>
-                <CardHeader>
-                  <div className="p-6 bg-gradient-to-br from-amber-100 to-amber-200 rounded-2xl mx-auto mb-6 w-fit craft-shimmer-effect">
+              <div className="mh-card text-center p-8">
+                <div className="mb-6">
+                  <div className="p-6 bg-gradient-to-br from-amber-100 to-amber-200 rounded-2xl mx-auto mb-6 w-fit">
                     <svg className="w-12 h-12 text-amber-700" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clipRule="evenodd"/>
                     </svg>
                   </div>
-                  <CardTitle className="font-serif text-2xl mb-3">Traditional Access</CardTitle>
-                  <CardDescription className="text-orange-600">Secure email and password authentication for instant access to your CraftNexus workspace.</CardDescription>
-                </CardHeader>
-                <CardFooter>
+                  <h3 className="text-2xl font-bold mb-3">Traditional Access</h3>
+                  <p className="mb-6">Secure email and password authentication for instant access to your CraftNexus workspace.</p>
+                </div>
+                <div className="mt-auto">
                   <Link href="/login" className="w-full">
-                    <Button variant="secondary" size="lg" shape="wax" className="w-full craft-magnetic craft-btn-interactive">
+                    <div className="mh-btn mh-btn-ghost w-full text-center">
                       Sign In Securely
-                    </Button>
+                    </div>
                   </Link>
-                </CardFooter>
-              </Card>
+                </div>
+              </div>
             </Motion>
 
             <Motion preset="scaleIn" transition={{ delay: 200 }}>
-              <Card variant="filled" interactive="hover" className="text-center craft-card-hover craft-animate-crisp relative">
-                <div className="craft-card-glow"></div>
-                <CardHeader>
-                  <div className="p-6 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-2xl mx-auto mb-6 w-fit craft-shimmer-effect craft-pulse-glow">
+              <div className="mh-card text-center p-8">
+                <div className="mb-6">
+                  <div className="p-6 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-2xl mx-auto mb-6 w-fit">
                     <svg className="w-12 h-12 text-yellow-700" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2zm4-3a1 1 0 00-1 1v1h2V4a1 1 0 00-1-1zM7.707 8.707L10 11l4.293-4.293a1 1 0 111.414 1.414L11 12.828a1 1 0 01-1.414 0L5.293 8.535a1 1 0 011.414-1.414z" clipRule="evenodd"/>
                     </svg>
                   </div>
-                  <CardTitle className="font-serif text-2xl mb-3">Web3 Connection</CardTitle>
-                  <CardDescription className="text-orange-600">Connect your MetaMask or Web3 wallet for decentralized identity and blockchain-powered security.</CardDescription>
-                </CardHeader>
-                <CardFooter>
+                  <h3 className="text-2xl font-bold mb-3">Web3 Connection</h3>
+                  <p className="mb-6">Connect your MetaMask or Web3 wallet for decentralized identity and blockchain-powered security.</p>
+                </div>
+                <div className="mt-auto">
                   <Link href="/signup" className="w-full">
-                    <Button variant="accent" size="lg" shape="wax" className="w-full craft-magnetic craft-btn-interactive">
+                    <div className="mh-btn mh-btn-primary w-full text-center">
                       Connect Wallet
-                    </Button>
+                    </div>
                   </Link>
-                </CardFooter>
-              </Card>
+                </div>
+              </div>
             </Motion>
           </Stagger>
+          </div>
         </section>
       </div>
     </AppShell>
   )
 }
 
-export default Home 
+export default Home
