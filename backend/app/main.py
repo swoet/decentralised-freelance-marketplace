@@ -50,6 +50,7 @@ import app.models.milestone
 import app.models.organization
 import app.models.portfolio
 import app.models.review
+import app.models.activity
 import app.models.base
 
 # Initialize database tables at startup

@@ -62,3 +62,7 @@ class User(Base):
     escrow_accounts_client = relationship("MultiCurrencyEscrow", foreign_keys="MultiCurrencyEscrow.client_id", overlaps="escrow_accounts_freelancer")
     escrow_accounts_freelancer = relationship("MultiCurrencyEscrow", foreign_keys="MultiCurrencyEscrow.freelancer_id", overlaps="escrow_accounts_client")
     currency_conversions = relationship("CurrencyConversion", back_populates="user")
+    
+    # Admin tracking relationships
+    activities = relationship("ActivityLog", back_populates="user")
+    ai_requests = relationship("AIRequestLog", back_populates="user")
