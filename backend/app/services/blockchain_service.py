@@ -5,6 +5,7 @@ Handles escrow creation, milestone management, and dispute resolution
 
 import json
 import logging
+import os
 from decimal import Decimal
 from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime, timedelta
@@ -67,6 +68,11 @@ class BlockchainService:
     def _load_contracts(self) -> None:
         """Load smart contract instances"""
         try:
+            # Check if contract ABI files exist
+            if not os.path.exists(settings.ESCROW_CONTRACT_ABI_PATH):
+                logger.warning(f"Escrow contract ABI not found at {settings.ESCROW_CONTRACT_ABI_PATH}. Smart contract features will be disabled.")
+                return
+            
             # Load escrow contract ABI
             with open(settings.ESCROW_CONTRACT_ABI_PATH, 'r') as f:
                 escrow_abi = json.load(f)
@@ -78,18 +84,21 @@ class BlockchainService:
             
             # Load payment token contract if configured
             if settings.PAYMENT_TOKEN_CONTRACT_ADDRESS:
-                with open(settings.PAYMENT_TOKEN_ABI_PATH, 'r') as f:
-                    token_abi = json.load(f)
-                    
-                self.payment_token_contract = self.w3.eth.contract(
-                    address=to_checksum_address(settings.PAYMENT_TOKEN_CONTRACT_ADDRESS),
-                    abi=token_abi
-                )
+                if not os.path.exists(settings.PAYMENT_TOKEN_ABI_PATH):
+                    logger.warning(f"Payment token ABI not found at {settings.PAYMENT_TOKEN_ABI_PATH}")
+                else:
+                    with open(settings.PAYMENT_TOKEN_ABI_PATH, 'r') as f:
+                        token_abi = json.load(f)
+                        
+                    self.payment_token_contract = self.w3.eth.contract(
+                        address=to_checksum_address(settings.PAYMENT_TOKEN_CONTRACT_ADDRESS),
+                        abi=token_abi
+                    )
                 
             logger.info("Smart contracts loaded successfully")
             
         except Exception as e:
-            logger.error(f"Error loading contracts: {e}")
+            logger.warning(f"Error loading contracts: {e}. Smart contract features will be limited.")
     
     async def create_escrow(
         self, 

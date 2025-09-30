@@ -11,35 +11,35 @@ const Home: NextPage = () => {
         <meta name="description" content="Secure freelance marketplace powered by blockchain technology. Smart contracts, escrow payments, and decentralized reputation systems." />
       </Head>
 
-      <div className="min-h-screen">
+      <div className="">
         {/* Hero Section */}
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden mh-wood mh-allow-pseudo">
+        <section className="relative py-8 md:py-12 flex items-center justify-center overflow-hidden mh-wood mh-allow-pseudo">
           <div className="absolute inset-0"></div>
           
-          <div className="max-w-6xl mx-auto relative z-10 text-center px-4">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-6">
+          <div className="max-w-6xl mx-auto relative z-10 text-center px-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">
               <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
               🚀 Powered by Blockchain Technology
             </div>
             
-            <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
               <span className="block">Decentralized</span>
               <span className="block text-accent">Freelance</span>
               <span className="block">Marketplace</span>
             </h1>
             
-            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base md:text-lg mb-6 max-w-2xl mx-auto leading-relaxed text-gray-700">
               Connect freelancers and clients through smart contracts, escrow payments, and decentralized reputation systems for secure, transparent project collaboration
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link href="/projects">
-                <div className="mh-btn mh-btn-primary">
+                <div className="mh-btn mh-btn-primary px-6 py-3">
                   Explore Projects
                 </div>
               </Link>
               <Link href="/signup">
-                <div className="mh-btn mh-btn-ghost">
+                <div className="mh-btn mh-btn-ghost px-6 py-3">
                   Join as Freelancer
                 </div>
               </Link>
@@ -48,19 +48,19 @@ const Home: NextPage = () => {
         </section>
 
         {/* Features Grid */}
-        <section className="w-full flex justify-center px-4 py-20">
-          <div className="max-w-7xl w-full">
-            <div className="mh-section p-8 mb-16 text-center mx-auto">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">
+        <section className="w-full flex justify-center px-6 py-10">
+          <div className="max-w-6xl w-full mx-auto">
+            <div className="mh-section p-6 mb-8 text-center">
+              <h2 className="text-2xl md:text-3xl font-bold mb-3">
                 Secure <span className="text-accent">Blockchain-Powered</span> Freelancing
               </h2>
-              <p className="text-lg max-w-2xl mx-auto">
+              <p className="text-base md:text-lg max-w-2xl mx-auto text-gray-700">
                 Smart contracts ensure secure payments, transparent project management, and decentralized dispute resolution for both freelancers and clients.
               </p>
-              <div className="mh-divider-wood mt-8"></div>
+              <div className="mh-divider-wood mt-4"></div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 justify-items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center">
               <Link href="/projects">
                 <div className="mh-card h-full group p-6">
                   <div className="p-4 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl mb-4 w-fit">
@@ -113,29 +113,29 @@ const Home: NextPage = () => {
         </section>
 
         {/* Authentication Section */}
-        <section className="w-full flex justify-center px-4 py-20">
-          <div className="max-w-4xl w-full">
-            <div className="mh-section p-12">
-              <div className="text-center mb-16">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6">
+        <section className="w-full flex justify-center px-6 py-10">
+          <div className="max-w-5xl w-full mx-auto">
+            <div className="mh-section p-8">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl md:text-3xl font-bold mb-3">
                   Start Your <span className="text-accent">Blockchain Journey</span>
                 </h2>
-                <p className="text-lg max-w-2xl mx-auto mb-8">
+                <p className="text-sm md:text-base max-w-2xl mx-auto mb-4 text-gray-700">
                   Connect your Web3 wallet or create an account to access secure, decentralized freelancing with smart contract protection
                 </p>
                 <div className="mh-divider-thick"></div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="mh-card text-center p-8">
-                  <div className="mb-6">
-                    <div className="p-6 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl mx-auto mb-6 w-fit">
-                      <svg className="w-12 h-12 text-purple-700" fill="currentColor" viewBox="0 0 20 20">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mh-card text-center p-4">
+                  <div className="mb-4">
+                    <div className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl mx-auto mb-3 w-fit">
+                      <svg className="w-8 h-8 text-purple-700" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2zm4-3a1 1 0 00-1 1v1h2V4a1 1 0 00-1-1zM7.707 8.707L10 11l4.293-4.293a1 1 0 111.414 1.414L11 12.828a1 1 0 01-1.414 0L5.293 8.535a1 1 0 011.414-1.414z" clipRule="evenodd"/>
                       </svg>
                     </div>
-                    <h3 className="text-2xl font-bold mb-3">Web3 Wallet</h3>
-                    <p className="mb-6">Connect MetaMask, WalletConnect, or other Web3 wallets for full decentralized access and crypto payments.</p>
+                    <h3 className="text-lg font-bold mb-2">Web3 Wallet</h3>
+                    <p className="mb-3 text-sm text-gray-700">Connect MetaMask, WalletConnect, or other Web3 wallets for full decentralized access and crypto payments.</p>
                   </div>
                   <div className="mt-auto">
                     <Link href="/signup" className="w-full">
@@ -146,15 +146,15 @@ const Home: NextPage = () => {
                   </div>
                 </div>
 
-                <div className="mh-card text-center p-8">
-                  <div className="mb-6">
-                    <div className="p-6 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl mx-auto mb-6 w-fit">
-                      <svg className="w-12 h-12 text-blue-700" fill="currentColor" viewBox="0 0 20 20">
+                <div className="mh-card text-center p-4">
+                  <div className="mb-3">
+                    <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl mx-auto mb-3 w-fit">
+                      <svg className="w-8 h-8 text-blue-700" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clipRule="evenodd"/>
                       </svg>
                     </div>
-                    <h3 className="text-2xl font-bold mb-3">Traditional Login</h3>
-                    <p className="mb-6">Create an account with email and password while still accessing blockchain features and smart contracts.</p>
+                    <h3 className="text-lg font-bold mb-2">Traditional Login</h3>
+                    <p className="mb-3 text-sm text-gray-700">Create an account with email and password while still accessing blockchain features and smart contracts.</p>
                   </div>
                   <div className="mt-auto">
                     <Link href="/login" className="w-full">

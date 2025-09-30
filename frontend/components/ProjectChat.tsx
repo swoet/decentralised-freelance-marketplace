@@ -32,16 +32,31 @@ export default function ProjectChat({ projectId, projectTitle = "Project Chat" }
   const [isConnected, setIsConnected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const previousMessageCountRef = useRef<number>(0);
+  const isUserScrollingRef = useRef<boolean>(false);
 
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom only when new messages arrive (not on every render)
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!isUserScrollingRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  // Track when user is manually scrolling
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
+    isUserScrollingRef.current = !isAtBottom;
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Only scroll if message count actually increased (new message added)
+    if (messages.length > previousMessageCountRef.current) {
+      scrollToBottom();
+    }
+    previousMessageCountRef.current = messages.length;
   }, [messages]);
 
   // Load messages from API
@@ -220,7 +235,7 @@ export default function ProjectChat({ projectId, projectTitle = "Project Chat" }
   const messageGroups = groupMessagesByDate(messages);
 
   return (
-    <div className="flex flex-col h-80 bg-white rounded-lg border shadow-sm">
+    <div className="flex flex-col h-[500px] max-h-[70vh] bg-white rounded-lg border shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b bg-gray-50 rounded-t-lg">
         <div className="flex items-center space-x-3">
@@ -245,7 +260,7 @@ export default function ProjectChat({ projectId, projectTitle = "Project Chat" }
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4" onScroll={handleScroll}>
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>

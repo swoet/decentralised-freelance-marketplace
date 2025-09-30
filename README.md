@@ -75,6 +75,84 @@ graph TD;
 
 ---
 
+## Database Migrations
+
+This project uses **Alembic** for database schema migrations with PostgreSQL.
+
+### Running Migrations
+
+1. **Apply all pending migrations:**
+   ```sh
+   cd backend
+   alembic upgrade head
+   ```
+
+2. **Check current migration version:**
+   ```sh
+   alembic current
+   ```
+
+3. **View migration history:**
+   ```sh
+   alembic history
+   ```
+
+### Creating New Migrations
+
+When you add or modify SQLAlchemy models, create a new migration:
+
+1. **Auto-generate migration from model changes:**
+   ```sh
+   alembic revision --autogenerate -m "Add new column to users table"
+   ```
+
+2. **Create empty migration (for manual SQL):**
+   ```sh
+   alembic revision -m "Add custom index"
+   ```
+
+3. **Edit the generated file** in `backend/alembic/versions/`
+
+4. **Apply the migration:**
+   ```sh
+   alembic upgrade head
+   ```
+
+### Common Migration Scenarios
+
+**Adding a column:**
+```python
+def upgrade() -> None:
+    op.execute("""
+        ALTER TABLE marketplace.your_table 
+        ADD COLUMN IF NOT EXISTS new_column VARCHAR(255) DEFAULT 'value';
+    """)
+
+def downgrade() -> None:
+    op.execute("""
+        ALTER TABLE marketplace.your_table 
+        DROP COLUMN IF EXISTS new_column;
+    """)
+```
+
+**Adding an index:**
+```python
+def upgrade() -> None:
+    op.create_index('ix_users_email', 'users', ['email'], schema='marketplace')
+
+def downgrade() -> None:
+    op.drop_index('ix_users_email', table_name='users', schema='marketplace')
+```
+
+### Troubleshooting
+
+- **Column does not exist error**: Run `alembic upgrade head` to apply missing migrations
+- **Migration out of sync**: Check `alembic current` and compare with `alembic history`
+- **Rollback last migration**: `alembic downgrade -1`
+- **Reset to specific version**: `alembic downgrade <revision_id>`
+
+---
+
 ## API Documentation
 - **OpenAPI/Swagger:** [http://localhost:8000/docs](http://localhost:8000/docs)
 - **Postman Collection:** See `docs/postman_collection.json`

@@ -2,6 +2,7 @@ import Head from 'next/head'
 import { useEffect, useState } from 'react'
 import AppShell from '../../components/layout/AppShell'
 import { useAuth } from '../../context/AuthContext'
+import RequestIntegrationModal from '../../components/RequestIntegrationModal'
 import {
   Button,
   Card,
@@ -23,9 +24,10 @@ export default function IntegrationsIndex() {
   const [data, setData] = useState<IntegrationsResp>({ providers: [], connected: [] })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const { token } = useAuth()
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
   const load = async () => {
     setLoading(true)
@@ -150,11 +152,28 @@ export default function IntegrationsIndex() {
       <div className="min-h-screen mh-surface">
         <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
           <Motion preset="slideInDown" className="mb-8">
-            <div className="mh-section p-8 text-center">
-              <h1 className="text-4xl font-bold mb-4">CraftNexus Integrations</h1>
-              <p className="text-lg">
-                Connect your favorite tools to CraftNexus and streamline your creative workflow for seamless artisan collaboration
-              </p>
+            <div className="mh-section p-8">
+              <div className="text-center mb-6">
+                <h1 className="text-4xl font-bold mb-4">CraftNexus Integrations</h1>
+                <p className="text-lg">
+                  Connect your favorite tools to CraftNexus and streamline your creative workflow for seamless artisan collaboration
+                </p>
+              </div>
+              <div className="flex justify-center">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  shape="rounded"
+                  onClick={() => window.location.href = '/integrations/requests'}
+                  leftIcon={
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  }
+                >
+                  View All Integration Requests
+                </Button>
+              </div>
             </div>
           </Motion>
           
@@ -349,7 +368,12 @@ export default function IntegrationsIndex() {
                   We're constantly adding new integrations to help streamline your workflow. 
                   Have a specific tool in mind? Let us know!
                 </p>
-                <Button variant="ghost" size="md" shape="wax">
+                <Button 
+                  variant="ghost" 
+                  size="md" 
+                  shape="wax"
+                  onClick={() => setIsModalOpen(true)}
+                >
                   Request Integration
                 </Button>
               </CardContent>
@@ -357,6 +381,16 @@ export default function IntegrationsIndex() {
           </Motion>
         </div>
       </div>
+
+      {/* Request Integration Modal */}
+      <RequestIntegrationModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => {
+          // Optionally show a success toast or reload data
+          console.log('Integration request submitted successfully!')
+        }}
+      />
     </AppShell>
   )
 }

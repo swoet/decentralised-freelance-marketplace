@@ -3,22 +3,33 @@ import { useEffect, useState } from 'react';
 import ProjectChat from '../../components/ProjectChat';
 import Loader from '../../components/Loader';
 import Navbar from '../../components/Navbar';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ProjectMessagesPage() {
   const router = useRouter();
   const { projectId } = router.query;
+  const { token } = useAuth();
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!projectId) return;
+    if (!projectId || !token) return;
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
-    fetch(`${API_URL}/projects/?limit=100`).then(async (res) => {
+    fetch(`${API_URL}/projects/?limit=100`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      }
+    }).then(async (res) => {
       const data = res.ok ? await res.json() : [];
       const found = Array.isArray(data) ? data.find((p: any) => String(p.id) === String(projectId)) : null;
       setProject(found || { id: projectId, title: 'Project Chat' });
+    }).catch(err => {
+      console.error('Failed to load project:', err);
+      // Use fallback if fetch fails
+      setProject({ id: projectId, title: 'Project Chat' });
     }).finally(() => setLoading(false));
-  }, [projectId]);
+  }, [projectId, token]);
 
   if (loading) {
     return (

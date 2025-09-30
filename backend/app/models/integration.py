@@ -46,3 +46,16 @@ class ApiKeyUsage(Base):
     status_code = Column(Integer, nullable=False)
     latency_ms = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+
+
+class IntegrationRequest(Base):
+    __tablename__ = "integration_requests"
+
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    integration_name = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    use_case = Column(String, nullable=True)
+    priority = Column(String, nullable=False, default="medium")  # low, medium, high
+    status = Column(String, nullable=False, default="pending")  # pending, reviewing, approved, rejected, implemented
+    upvotes = Column(Integer, nullable=False, default=0)
+    admin_notes = Column(String, nullable=True)

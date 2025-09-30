@@ -11,9 +11,14 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from app.api.deps import get_current_active_user, get_current_user_optional, get_db
 from app.models.user import User
-from typing import Optional
-from app.models.integration import Integration, Webhook
+from typing import Optional, List
+from app.models.integration import Integration, Webhook, IntegrationRequest
 from app.core.config import settings
+from app.schemas.integration import (
+    IntegrationRequestCreate,
+    IntegrationRequestUpdate,
+    IntegrationRequestResponse
+)
 
 router = APIRouter(prefix="/integrations", tags=["integrations"]) 
 
@@ -436,4 +441,142 @@ def jira_disconnect(db: Session = Depends(get_db), user=Depends(get_current_acti
     
     db.delete(integ)
     db.commit()
+    return {"ok": True}
+
+
+# --- Integration Requests ---
+
+@router.post("/requests", response_model=IntegrationRequestResponse, status_code=201)
+def create_integration_request(
+    request_data: IntegrationRequestCreate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_active_user)
+):
+    """
+    Submit a request for a new integration.
+    Users can request integrations they'd like to see added to the platform.
+    """
+    # Check if user already requested this integration
+    existing = db.query(IntegrationRequest).filter(
+        IntegrationRequest.user_id == user.id,
+        IntegrationRequest.integration_name == request_data.integration_name,
+        IntegrationRequest.status.in_(["pending", "reviewing", "approved"])
+    ).first()
+    
+    if existing:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"You've already requested '{request_data.integration_name}'. Status: {existing.status}"
+        )
+    
+    # Create new request
+    new_request = IntegrationRequest(
+        user_id=user.id,
+        integration_name=request_data.integration_name,
+        description=request_data.description,
+        use_case=request_data.use_case,
+        priority=request_data.priority,
+        status="pending",
+        upvotes=1  # Auto-upvote by creator
+    )
+    
+    db.add(new_request)
+    db.commit()
+    db.refresh(new_request)
+    
+    return new_request
+
+
+@router.get("/requests", response_model=List[IntegrationRequestResponse])
+def list_integration_requests(
+    status: Optional[str] = Query(None, pattern="^(pending|reviewing|approved|rejected|implemented)$"),
+    limit: int = Query(50, ge=1, le=100),
+    db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_current_user_optional)
+):
+    """
+    List all integration requests. Anyone can view requests.
+    """
+    query = db.query(IntegrationRequest)
+    
+    if status:
+        query = query.filter(IntegrationRequest.status == status)
+    
+    # Order by upvotes (most popular first), then by creation date
+    query = query.order_by(
+        IntegrationRequest.upvotes.desc(),
+        IntegrationRequest.created_at.desc()
+    )
+    
+    requests = query.limit(limit).all()
+    return requests
+
+
+@router.post("/requests/{request_id}/upvote")
+def upvote_integration_request(
+    request_id: str,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_active_user)
+):
+    """
+    Upvote an integration request to show interest.
+    Note: In a production system, you'd track individual upvotes to prevent duplicates.
+    """
+    request_obj = db.query(IntegrationRequest).filter(
+        IntegrationRequest.id == request_id
+    ).first()
+    
+    if not request_obj:
+        raise HTTPException(status_code=404, detail="Integration request not found")
+    
+    # Simple increment (in production, track user upvotes separately)
+    request_obj.upvotes += 1
+    db.commit()
+    db.refresh(request_obj)
+    
+    return {"ok": True, "upvotes": request_obj.upvotes}
+
+
+@router.get("/requests/{request_id}", response_model=IntegrationRequestResponse)
+def get_integration_request(
+    request_id: str,
+    db: Session = Depends(get_db),
+    user: Optional[User] = Depends(get_current_user_optional)
+):
+    """
+    Get details of a specific integration request.
+    """
+    request_obj = db.query(IntegrationRequest).filter(
+        IntegrationRequest.id == request_id
+    ).first()
+    
+    if not request_obj:
+        raise HTTPException(status_code=404, detail="Integration request not found")
+    
+    return request_obj
+
+
+@router.delete("/requests/{request_id}")
+def delete_integration_request(
+    request_id: str,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_active_user)
+):
+    """
+    Delete an integration request (only creator can delete their own requests).
+    """
+    request_obj = db.query(IntegrationRequest).filter(
+        IntegrationRequest.id == request_id,
+        IntegrationRequest.user_id == user.id
+    ).first()
+    
+    if not request_obj:
+        raise HTTPException(
+            status_code=404, 
+            detail="Integration request not found or you don't have permission to delete it"
+        )
+    
+    db.delete(request_obj)
+    db.commit()
+    
     return {"ok": True}

@@ -6,7 +6,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen mh-wood text-black">
       {/* Clean Mahogany Header */}
       <header className="mh-header">
-        <div className="max-w-7xl mx-auto flex h-12 items-center justify-between px-6 relative z-10">
+        <div className="max-w-7xl mx-auto flex h-14 items-center justify-between px-6 relative z-10">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -69,7 +69,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       {/* Clean Footer */}
       <footer className="mh-footer mt-auto">
         <div className="mh-divider-thick"></div>
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center gap-2 mb-4">
