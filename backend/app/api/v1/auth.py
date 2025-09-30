@@ -5,12 +5,11 @@ from sqlalchemy.orm import Session
 from app.schemas.user import UserCreate
 from app.services.user import user
 from app.core.auth import create_access_token, generate_2fa_secret, verify_2fa_token
-from app.api.deps import get_db
+from app.api.deps import get_db, get_current_active_user
 from datetime import timedelta
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-
 
 from typing import Dict, Any
 
@@ -145,4 +144,17 @@ def twofa_disable(body: TwoFADisableReq, db: Session = Depends(get_db)):
     setattr(user_obj, 'two_fa_secret', None)
     db.add(user_obj)
     db.commit()
-    return {"ok": True} 
+    return {"ok": True}
+
+
+@router.get("/me")
+def get_current_user_info(current_user=Depends(get_current_active_user)) -> Dict[str, Any]:
+    """Get current authenticated user information"""
+    return {
+        "id": str(current_user.id),
+        "email": current_user.email or "",
+        "full_name": current_user.full_name or "",
+        "role": current_user.role or "client",
+        "wallet_address": getattr(current_user, 'wallet_address', None),
+        "two_fa_enabled": bool(getattr(current_user, 'two_fa_enabled', False)),
+    } 

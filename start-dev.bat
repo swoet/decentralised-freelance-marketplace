@@ -37,7 +37,7 @@ start "RQ Dashboard" cmd /k "cd backend && rq-dashboard --redis-url redis://loca
 
 echo.
 echo Starting Backend Server...
-start "Backend Server" cmd /k "cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload"
+start "Backend Server" cmd /k "cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
 echo Waiting for backend to start...
 timeout /t 5 /nobreak > nul

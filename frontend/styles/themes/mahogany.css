@@ -15,12 +15,32 @@
 
 /* Header with subtle mahogany wood, kept readable and neat */
 .mh-header {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  background: linear-gradient(0deg, rgba(255,255,255,0.96), rgba(255,255,255,0.96));
-  border-bottom: 1px solid var(--mh-border);
-  box-shadow: var(--mh-shadow);
+  position: relative;
+  background: var(--mh-parchment) !important;
+  border-bottom: 2px solid var(--mh-wood-warm) !important;
+  box-shadow: 0 4px 8px rgba(90,45,20,0.1) !important;
+}
+
+.mh-header::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background:
+    /* Fine mahogany grain for header */
+    repeating-linear-gradient(
+      5deg,
+      rgba(90,45,20,0.08) 0px,
+      rgba(90,45,20,0.08) 2px,
+      rgba(58,31,17,0.06) 2px,
+      rgba(58,31,17,0.06) 4px
+    ),
+    /* Subtle wood variations */
+    radial-gradient(ellipse 600px 80px at 25% 50%, rgba(122,60,26,0.08), transparent 70%),
+    radial-gradient(ellipse 400px 60px at 75% 50%, rgba(90,45,20,0.06), transparent 60%) !important;
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  display: block !important;
 }
 
 /* Wood texture utility - realistic mahogany grain */
