@@ -1,6 +1,6 @@
-# CraftNexus - Where Artisans Connect
+# CraftNexus - Decentralized Freelance Marketplace
 
-A premium decentralized marketplace connecting skilled artisans with clients worldwide. Built with production-ready architecture featuring smart contract escrow, milestone payments, real-time collaboration, and handcrafted excellence in every detail.
+A premium decentralized marketplace connecting skilled freelancers with clients worldwide. Built with production-ready architecture featuring smart contract escrow, milestone payments, real-time collaboration, and professional excellence in every detail.
 
 ---
 

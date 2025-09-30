@@ -11,7 +11,10 @@ export default function ProjectCard({ project }: { project: Project }) {
           Budget: <span className="font-medium text-green-700">${project.budget_min} - ${project.budget_max}</span>
         </div>
       </div>
-      <Link href={`/projects/${project.id}`} className="mt-2 inline-block text-blue-600 hover:underline font-medium">View Details &rarr;</Link>
+      <div className="mt-2 flex space-x-3">
+        <Link href={`/projects/${project.id}`} className="inline-block text-blue-600 hover:underline font-medium">View Details &rarr;</Link>
+        <Link href={`/messages/${project.id}`} className="inline-block text-green-600 hover:underline font-medium">💬 Chat</Link>
+      </div>
     </div>
   );
-} 
+}

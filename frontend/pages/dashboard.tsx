@@ -175,11 +175,11 @@ export default function Dashboard() {
         <Motion preset="slideInDown" className="mb-8">
           <div className="space-y-4">
             <h1 className="heading-craft text-4xl text-mahogany-800">
-              {isPublicMode ? 'Marketplace Overview' : `Welcome back, ${user?.full_name || user?.email || 'Artisan'}!`}
+              {isPublicMode ? 'Marketplace Overview' : `Welcome back, ${user?.full_name || user?.email || 'Professional'}!`}
             </h1>
             <p className="body-craft text-lg text-copper-700">
               {isPublicMode ? (
-                <>Discover the craft of freelancing with real-time projects and community discussions. <Button variant="link" onClick={() => router.push('/login')}>Sign in</Button> for personalized content.</>
+                <>Explore CraftNexus with real-time projects and community discussions. <Button variant="link" onClick={() => router.push('/login')}>Sign in</Button> for personalized content.</>
               ) : (
                 <>Ready to craft something amazing today?</>
               )}

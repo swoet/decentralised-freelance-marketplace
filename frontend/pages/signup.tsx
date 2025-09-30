@@ -31,7 +31,7 @@ export default function Signup() {
 
     try {
       await register(formData.email, formData.password, formData.fullName)
-      router.push('/dashboard/freelancer')
+      router.push('/dashboard')
     } catch (err: any) {
       setError(err.message || 'Registration failed')
     } finally {
@@ -56,8 +56,8 @@ export default function Signup() {
   return (
     <AppShell>
       <Head>
-        <title>Join CraftNexus - Where Artisans Connect</title>
-        <meta name="description" content="Create your CraftNexus account and start your creative journey in the premier artisan marketplace" />
+        <title>Join CraftNexus - Decentralized Freelance Marketplace</title>
+        <meta name="description" content="Create your CraftNexus account and start your freelance journey in the premier decentralized marketplace" />
       </Head>
       
       <div className="min-h-screen mh-wood mh-allow-pseudo flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">

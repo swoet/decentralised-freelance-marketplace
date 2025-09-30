@@ -79,7 +79,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const parsedUser = JSON.parse(storedUser);
           
           // Validate token with backend
-          const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+          const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1';
           fetch(`${API_URL}/auth/me`, {
             headers: {
               'Authorization': `Bearer ${storedToken}`,

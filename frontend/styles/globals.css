@@ -33,9 +33,17 @@ p, span, div, a, button, input, textarea, select, label, li, ul, ol,
   color: #000000 !important;
 }
 
-/* Remove any potential overlays or blocking elements */
+/* Remove any potential overlays or blocking elements - but allow mahogany theme */
 *::before, *::after {
   display: none !important;
+}
+
+/* Allow mahogany theme pseudo-elements */
+.mh-wood::before, 
+.mh-header::before,
+.mh-allow-pseudo::before, 
+.mh-allow-pseudo::after {
+  display: block !important;
 }
 
 /* ADDITIONAL BLACK TEXT ENFORCEMENT */
@@ -116,6 +124,19 @@ span, a {
 
 .flex, [class*="flex"] {
   display: flex !important;
+}
+
+/* Fix centering utilities */
+.items-center {
+  align-items: center !important;
+}
+
+.justify-center {
+  justify-content: center !important;
+}
+
+.min-h-screen {
+  min-height: 100vh !important;
 }
 
 /* CRAFTNEXUS COLOR SYSTEM - Professional & Clean */

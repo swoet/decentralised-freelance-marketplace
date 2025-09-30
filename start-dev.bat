@@ -48,7 +48,7 @@ start "Frontend Server" cmd /k "cd frontend && npm run dev"
 
 echo.
 echo Development servers are starting...
-echo Backend API: http://localhost:8001
+echo Backend API: http://localhost:8000
 echo Frontend: http://localhost:3000
 echo RQ Dashboard: http://localhost:9181
 echo Redis: localhost:6379

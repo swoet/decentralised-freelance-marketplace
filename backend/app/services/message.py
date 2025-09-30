@@ -7,7 +7,6 @@ class MessageService(CRUDBase[Message, MessageCreate, MessageUpdate]):
     def send_message(self, db: Session, message_in: MessageCreate, user):
         db_obj = Message(
             sender_id=message_in.sender_id,
-            recipient_id=message_in.receiver_id,
             project_id=message_in.project_id,
             content=message_in.content
         )
@@ -18,7 +17,7 @@ class MessageService(CRUDBase[Message, MessageCreate, MessageUpdate]):
 
     def get_messages(self, db: Session, user):
         return db.query(Message).filter(
-            (Message.sender_id == user.id) | (Message.recipient_id == user.id)
+            Message.sender_id == user.id
         ).all()
     
     def get_project_messages(self, db: Session, project_id: str):

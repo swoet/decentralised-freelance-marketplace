@@ -10,7 +10,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-6">
           <Link href={user ? "/dashboard" : "/"} className="heading-craft text-2xl font-display font-bold text-mahogany-800 hover:text-copper-600 transition-colors">
-            Artisan Marketplace
+            CraftNexus
           </Link>
         
           {/* Navigation Links */}

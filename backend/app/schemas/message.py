@@ -5,7 +5,6 @@ from datetime import datetime
 
 class MessageBase(BaseModel):
     sender_id: UUID
-    receiver_id: UUID
     project_id: UUID
     content: str
 

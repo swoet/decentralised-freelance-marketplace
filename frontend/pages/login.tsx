@@ -20,7 +20,7 @@ export default function Login() {
 
     try {
       await login(email, password)
-      router.push('/dashboard/freelancer')
+      router.push('/dashboard')
     } catch (err: any) {
       setError(err.message || 'Login failed')
     } finally {
@@ -32,7 +32,7 @@ export default function Login() {
     <AppShell>
       <Head>
         <title>Sign In - CraftNexus</title>
-        <meta name="description" content="Sign in to your CraftNexus account and connect with the premier artisan marketplace" />
+        <meta name="description" content="Sign in to your CraftNexus account and connect with the premier decentralized freelance marketplace" />
       </Head>
       
       <div className="min-h-screen mh-wood mh-allow-pseudo flex items-center justify-center p-4 py-12 sm:px-6 lg:px-8">
