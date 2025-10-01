@@ -23,24 +23,24 @@ def create_tables():
         
         # Create only the new tables
         ActivityLog.__table__.create(engine, checkfirst=True)
-        print("✅ Created activity_logs table")
+        print("[OK] Created activity_logs table")
         
         SystemMetrics.__table__.create(engine, checkfirst=True)
-        print("✅ Created system_metrics table")
+        print("[OK] Created system_metrics table")
         
         RevenueRecord.__table__.create(engine, checkfirst=True)
-        print("✅ Created revenue_records table")
+        print("[OK] Created revenue_records table")
         
         AIRequestLog.__table__.create(engine, checkfirst=True)
-        print("✅ Created ai_request_logs table")
+        print("[OK] Created ai_request_logs table")
         
         DisputeCase.__table__.create(engine, checkfirst=True)
-        print("✅ Created dispute_cases table")
+        print("[OK] Created dispute_cases table")
         
-        print("\n✅ All admin tracking tables created successfully!")
+        print("\n[SUCCESS] All admin tracking tables created successfully!")
         
     except Exception as e:
-        print(f"❌ Error creating tables: {str(e)}")
+        print(f"[ERROR] Error creating tables: {str(e)}")
         import traceback
         traceback.print_exc()
         raise
