@@ -58,11 +58,8 @@ import app.models.base
 async def lifespan(app: FastAPI):
     # Create tables on startup
     try:
-        # Create schema and initialize database
-        with engine.connect() as conn:
-            conn.execute(text("CREATE SCHEMA IF NOT EXISTS marketplace"))
-            conn.commit()
-            logging.info("Database schema created/verified successfully")
+        # SQLite database is already initialized with init_sqlite.py
+        logging.info("Database connection verified successfully")
         
         # Initialize rate limiter if Redis is configured
         if settings.REDIS_HOST:

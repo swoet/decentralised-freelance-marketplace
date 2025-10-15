@@ -2,6 +2,9 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
 import AppShell from '../components/layout/AppShell'
+import PlatformStats from '../components/PlatformStats'
+import TestimonialsSection from '../components/TestimonialsSection'
+import HowItWorksSection from '../components/HowItWorksSection'
 
 const Home: NextPage = () => {
   return (
@@ -11,12 +14,12 @@ const Home: NextPage = () => {
         <meta name="description" content="Secure freelance marketplace powered by blockchain technology. Smart contracts, escrow payments, and decentralized reputation systems." />
       </Head>
 
-      <div className="">
+      <div className="w-full flex flex-col items-center justify-center">
         {/* Hero Section */}
-        <section className="relative py-8 md:py-12 flex items-center justify-center overflow-hidden mh-wood mh-allow-pseudo">
+        <section className="relative w-full py-8 md:py-12 flex items-center justify-center overflow-hidden mh-wood mh-allow-pseudo min-h-[60vh]">
           <div className="absolute inset-0"></div>
           
-          <div className="max-w-6xl mx-auto relative z-10 text-center px-6">
+          <div className="w-full max-w-6xl mx-auto relative z-10 text-center px-6">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">
               <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
               🚀 Powered by Blockchain Technology
@@ -49,7 +52,7 @@ const Home: NextPage = () => {
 
         {/* Features Grid */}
         <section className="w-full flex justify-center px-6 py-10">
-          <div className="max-w-6xl w-full mx-auto">
+          <div className="w-full max-w-6xl mx-auto">
             <div className="mh-section p-6 mb-8 text-center">
               <h2 className="text-2xl md:text-3xl font-bold mb-3">
                 Secure <span className="text-accent">Blockchain-Powered</span> Freelancing
@@ -112,9 +115,18 @@ const Home: NextPage = () => {
           </div>
         </section>
 
+        {/* Platform Statistics */}
+        <PlatformStats />
+
+        {/* How It Works Section */}
+        <HowItWorksSection />
+
+        {/* Testimonials Section */}
+        <TestimonialsSection />
+
         {/* Authentication Section */}
         <section className="w-full flex justify-center px-6 py-10">
-          <div className="max-w-5xl w-full mx-auto">
+          <div className="w-full max-w-5xl mx-auto">
             <div className="mh-section p-8">
               <div className="text-center mb-6">
                 <h2 className="text-2xl md:text-3xl font-bold mb-3">

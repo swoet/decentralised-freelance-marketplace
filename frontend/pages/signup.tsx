@@ -60,8 +60,8 @@ export default function Signup() {
         <meta name="description" content="Create your CraftNexus account and start your freelance journey in the premier decentralized marketplace" />
       </Head>
       
-      <div className="min-h-screen mh-wood mh-allow-pseudo flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full">
+      <div className="auth-container mh-wood mh-allow-pseudo py-12 px-4 sm:px-6 lg:px-8">
+        <div className="auth-form space-y-8">
           <div className="mh-card p-8">
             <div className="text-center mb-8">
               <div className="mb-6">

@@ -8,17 +8,8 @@ engine = create_engine(
     connect_args={},
 )
 
-# Set default schema to marketplace for all sessions
-from sqlalchemy import event
-
-
-@event.listens_for(engine, "connect")
-def set_search_path_on_connect(dbapi_connection, connection_record):
-    cursor = dbapi_connection.cursor()
-    try:
-        cursor.execute("SET search_path TO marketplace, public")
-    finally:
-        cursor.close()
+# SQLite doesn't support schemas like PostgreSQL
+# Remove schema-specific configuration for SQLite compatibility
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def get_db():

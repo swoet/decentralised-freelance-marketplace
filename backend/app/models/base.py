@@ -1,14 +1,12 @@
-from sqlalchemy import Column, DateTime, func, MetaData
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
+from sqlalchemy import Column, DateTime, func, MetaData, Integer
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 
-# Create a metadata instance with schema 'marketplace'
-metadata = MetaData(schema='marketplace')
+# SQLite doesn't support schemas, so we remove the schema specification
+metadata = MetaData()
 
 @as_declarative(metadata=metadata)
 class Base:
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     __name__: str
