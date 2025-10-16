@@ -191,8 +191,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+        let message = 'Registration failed';
+        try {
+          const errorData = await response.json();
+          message = errorData.detail || errorData.message || message;
+        } catch {
+          try {
+            const text = await response.text();
+            if (text) message = text;
+          } catch {}
+        }
+        throw new Error(message);
       }
       
       const data = await response.json();

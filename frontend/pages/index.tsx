@@ -50,7 +50,64 @@ const Home: NextPage = () => {
           </div>
         </section>
 
-        {/* Features Grid */}
+        {/* Authentication Section - Interactive */}
+        <section className="w-full flex justify-center px-6 py-6">
+          <div className="w-full max-w-5xl mx-auto">
+            <div className="mh-section p-8">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl md:text-3xl font-bold mb-3">
+                  Start Your <span className="text-accent">Blockchain Journey</span>
+                </h2>
+                <p className="text-sm md:text-base max-w-2xl mx-auto mb-4 text-gray-700">
+                  Connect your Web3 wallet or create an account to access secure, decentralized freelancing with smart contract protection
+                </p>
+                <div className="mh-divider-thick"></div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="mh-card text-center p-4">
+                  <div className="mb-4">
+                    <div className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl mx-auto mb-3 w-fit">
+                      <svg className="w-8 h-8 text-purple-700" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2zm4-3a1 1 0 00-1 1v1h2V4a1 1 0 00-1-1zM7.707 8.707L10 11l4.293-4.293a1 1 0 111.414 1.414L11 12.828a1 1 0 01-1.414 0L5.293 8.535a1 1 0 011.414-1.414z" clipRule="evenodd"/>
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Web3 Wallet</h3>
+                    <p className="mb-3 text-sm text-gray-700">Connect MetaMask, WalletConnect, or other Web3 wallets for full decentralized access and crypto payments.</p>
+                  </div>
+                  <div className="mt-auto">
+                    <Link href="/signup" className="w-full">
+                      <div className="mh-btn mh-btn-primary w-full text-center">
+                        Connect Wallet
+                      </div>
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="mh-card text-center p-4">
+                  <div className="mb-3">
+                    <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl mx-auto mb-3 w-fit">
+                      <svg className="w-8 h-8 text-blue-700" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clipRule="evenodd"/>
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-bold mb-2">Traditional Login</h3>
+                    <p className="mb-3 text-sm text-gray-700">Create an account with email and password while still accessing blockchain features and smart contracts.</p>
+                  </div>
+                  <div className="mt-auto">
+                    <Link href="/login" className="w-full">
+                      <div className="mh-btn mh-btn-ghost w-full text-center">
+                        Sign In
+                      </div>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Grid - Interactive */}
         <section className="w-full flex justify-center px-6 py-6">
           <div className="w-full max-w-6xl mx-auto">
             <div className="mh-section p-6 mb-8 text-center">
@@ -115,73 +172,16 @@ const Home: NextPage = () => {
           </div>
         </section>
 
-        {/* Platform Statistics */}
+        {/* Platform Statistics - Data Only */}
         <PlatformStats />
 
-        {/* How It Works Section */}
+        {/* How It Works Section - Data Only */}
         <div className="-mt-4">
           <HowItWorksSection />
         </div>
 
-        {/* Testimonials Section */}
+        {/* Testimonials Section - Data Only */}
         <TestimonialsSection />
-
-        {/* Authentication Section */}
-        <section className="w-full flex justify-center px-6 py-6">
-          <div className="w-full max-w-5xl mx-auto">
-            <div className="mh-section p-8">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl md:text-3xl font-bold mb-3">
-                  Start Your <span className="text-accent">Blockchain Journey</span>
-                </h2>
-                <p className="text-sm md:text-base max-w-2xl mx-auto mb-4 text-gray-700">
-                  Connect your Web3 wallet or create an account to access secure, decentralized freelancing with smart contract protection
-                </p>
-                <div className="mh-divider-thick"></div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="mh-card text-center p-4">
-                  <div className="mb-4">
-                    <div className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl mx-auto mb-3 w-fit">
-                      <svg className="w-8 h-8 text-purple-700" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h2zm4-3a1 1 0 00-1 1v1h2V4a1 1 0 00-1-1zM7.707 8.707L10 11l4.293-4.293a1 1 0 111.414 1.414L11 12.828a1 1 0 01-1.414 0L5.293 8.535a1 1 0 011.414-1.414z" clipRule="evenodd"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold mb-2">Web3 Wallet</h3>
-                    <p className="mb-3 text-sm text-gray-700">Connect MetaMask, WalletConnect, or other Web3 wallets for full decentralized access and crypto payments.</p>
-                  </div>
-                  <div className="mt-auto">
-                    <Link href="/signup" className="w-full">
-                      <div className="mh-btn mh-btn-primary w-full text-center">
-                        Connect Wallet
-                      </div>
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="mh-card text-center p-4">
-                  <div className="mb-3">
-                    <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl mx-auto mb-3 w-fit">
-                      <svg className="w-8 h-8 text-blue-700" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clipRule="evenodd"/>
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-bold mb-2">Traditional Login</h3>
-                    <p className="mb-3 text-sm text-gray-700">Create an account with email and password while still accessing blockchain features and smart contracts.</p>
-                  </div>
-                  <div className="mt-auto">
-                    <Link href="/login" className="w-full">
-                      <div className="mh-btn mh-btn-ghost w-full text-center">
-                        Sign In
-                      </div>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
     </AppShell>
   )

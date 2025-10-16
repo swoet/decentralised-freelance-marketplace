@@ -11,7 +11,8 @@ export default function Signup() {
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'freelancer' // Default to freelancer
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -30,7 +31,7 @@ export default function Signup() {
     }
 
     try {
-      await register(formData.email, formData.password, formData.fullName)
+      await register(formData.email, formData.password, formData.fullName, formData.role)
       router.push('/dashboard')
     } catch (err: any) {
       setError(err.message || 'Registration failed')
@@ -122,6 +123,22 @@ export default function Signup() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
                     placeholder="Enter your full name"
                   />
+                </div>
+
+                <div>
+                  <label htmlFor="role" className="block text-sm font-medium mb-2">
+                    I am a
+                  </label>
+                  <select
+                    id="role"
+                    required
+                    value={formData.role}
+                    onChange={(e) => setFormData({...formData, role: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                  >
+                    <option value="freelancer">Freelancer</option>
+                    <option value="client">Client</option>
+                  </select>
                 </div>
 
                 <div>

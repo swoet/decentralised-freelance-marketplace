@@ -17,6 +17,7 @@ from sqlalchemy import text
 from app.api.v1 import api_router
 from app.core.config import settings
 from app.core.db import engine
+from app.models.base import metadata
 from app.core.db import SessionLocal
 from app.models.integration import ApiKey, ApiKeyUsage
 from app.middleware.rate_limit_middleware import RateLimitMiddleware
@@ -58,7 +59,12 @@ import app.models.base
 async def lifespan(app: FastAPI):
     # Create tables on startup
     try:
-        # SQLite database is already initialized with init_sqlite.py
+        # Ensure all tables exist for the configured database
+        try:
+            metadata.create_all(bind=engine)
+            logging.info("Database tables ensured/created successfully")
+        except Exception as e:
+            logging.warning(f"Auto table creation skipped/failed: {e}")
         logging.info("Database connection verified successfully")
         
         # Initialize rate limiter if Redis is configured
