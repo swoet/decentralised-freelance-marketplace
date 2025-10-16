@@ -89,13 +89,13 @@ class SmartEscrow(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     contract_address = Column(String, nullable=True)  # Blockchain contract
-    project_id = Column(UUID(as_uuid=True), ForeignKey("marketplace.projects.id"), nullable=False)
-    client_id = Column(UUID(as_uuid=True), ForeignKey("marketplace.users.id"), nullable=False)
-    freelancer_id = Column(UUID(as_uuid=True), ForeignKey("marketplace.users.id"), nullable=False)
+    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False)
+    client_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    freelancer_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     
     # Financial details
     total_amount = Column(Numeric(precision=20, scale=8), nullable=False)
-    currency_id = Column(UUID(as_uuid=True), ForeignKey("marketplace.currencies.id"), nullable=False)
+    currency_id = Column(UUID(as_uuid=True), ForeignKey("currencies.id"), nullable=False)
     released_amount = Column(Numeric(precision=20, scale=8), default=0)
     disputed_amount = Column(Numeric(precision=20, scale=8), default=0)
     
@@ -141,7 +141,7 @@ class SmartMilestone(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     escrow_id = Column(UUID(as_uuid=True), ForeignKey("marketplace.smart_escrows.id"), nullable=False)
-    project_id = Column(UUID(as_uuid=True), ForeignKey("marketplace.projects.id"), nullable=False)
+    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False)
     
     # Basic milestone info
     title = Column(String, nullable=False)
@@ -261,7 +261,7 @@ class EscrowDispute(Base):
     milestone_id = Column(UUID(as_uuid=True), ForeignKey("marketplace.smart_milestones.id"), nullable=True)
     
     # Dispute details
-    raised_by = Column(UUID(as_uuid=True), ForeignKey("marketplace.users.id"), nullable=False)
+    raised_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     dispute_type = Column(String, nullable=False)  # 'quality', 'deadline', 'scope', etc.
     title = Column(String, nullable=False)
     description = Column(Text, nullable=False)
@@ -275,8 +275,8 @@ class EscrowDispute(Base):
     resolution_amount_freelancer = Column(Numeric(precision=20, scale=8), default=0)
     
     # Assignment and handling
-    assigned_mediator_id = Column(UUID(as_uuid=True), ForeignKey("marketplace.users.id"), nullable=True)
-    assigned_arbitrator_id = Column(UUID(as_uuid=True), ForeignKey("marketplace.users.id"), nullable=True)
+    assigned_mediator_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
+    assigned_arbitrator_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     
     # Evidence and documentation
     evidence_urls = Column(JSON, default=list)  # URLs to evidence files
