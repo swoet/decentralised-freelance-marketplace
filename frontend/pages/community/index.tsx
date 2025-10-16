@@ -58,8 +58,7 @@ export default function CommunityIndex() {
         {/* Fonts are now loaded globally in globals.css */}
       </Head>
       
-      <div className="min-h-screen mh-surface">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
           <Motion preset="slideInDown" className="mb-8">
             <div className="mh-section p-8 text-center">
               <h1 className="text-5xl font-bold mb-4">
@@ -182,7 +181,6 @@ export default function CommunityIndex() {
               </div>
             </Stagger>
           )}
-        </div>
       </div>
     </AppShell>
   )

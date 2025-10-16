@@ -14,7 +14,7 @@ const Home: NextPage = () => {
         <meta name="description" content="Secure freelance marketplace powered by blockchain technology. Smart contracts, escrow payments, and decentralized reputation systems." />
       </Head>
 
-      <div className="w-full flex flex-col items-center justify-center">
+      <div className="w-full flex flex-col items-center justify-center min-h-screen">
         {/* Hero Section */}
         <section className="relative w-full py-8 md:py-12 flex items-center justify-center overflow-hidden mh-wood mh-allow-pseudo min-h-[60vh]">
           <div className="absolute inset-0"></div>
@@ -51,7 +51,7 @@ const Home: NextPage = () => {
         </section>
 
         {/* Features Grid */}
-        <section className="w-full flex justify-center px-6 py-10">
+        <section className="w-full flex justify-center px-6 py-6">
           <div className="w-full max-w-6xl mx-auto">
             <div className="mh-section p-6 mb-8 text-center">
               <h2 className="text-2xl md:text-3xl font-bold mb-3">
@@ -119,13 +119,15 @@ const Home: NextPage = () => {
         <PlatformStats />
 
         {/* How It Works Section */}
-        <HowItWorksSection />
+        <div className="-mt-4">
+          <HowItWorksSection />
+        </div>
 
         {/* Testimonials Section */}
         <TestimonialsSection />
 
         {/* Authentication Section */}
-        <section className="w-full flex justify-center px-6 py-10">
+        <section className="w-full flex justify-center px-6 py-6">
           <div className="w-full max-w-5xl mx-auto">
             <div className="mh-section p-8">
               <div className="text-center mb-6">

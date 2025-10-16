@@ -9,7 +9,7 @@ class Message(Base):
     __tablename__ = "messages"
     # Remove id column since it's inherited from Base
     content = Column(Text, nullable=False)
-    project_id = Column(UUID(as_uuid=True), ForeignKey("marketplace.projects.id"), nullable=False)
-    sender_id = Column(UUID(as_uuid=True), ForeignKey("marketplace.users.id"), nullable=False)
-    receiver_id = Column(UUID(as_uuid=True), ForeignKey("marketplace.users.id"), nullable=True)
+    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False)
+    sender_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    receiver_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     is_read = Column(Boolean, nullable=False, default=False)

@@ -33,7 +33,7 @@ export default function ReputationPage() {
       <Head>
         <title>Reputation</title>
       </Head>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-7xl mx-auto">
         <h1 className="text-2xl font-semibold">Reputation</h1>
         {loading ? (
           <div>Loading...</div>

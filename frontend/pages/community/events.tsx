@@ -51,7 +51,7 @@ export default function EventsPage() {
   const [autoRefresh, setAutoRefresh] = useState(true)
   const { token } = useAuth()
   const { location } = useLocation()
-  const refreshInterval = useRef<NodeJS.Timeout>()
+  const refreshInterval = useRef<NodeJS.Timeout | null>(null)
   const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1'
 
   const load = async (showRefreshing = false) => {
@@ -173,16 +173,9 @@ export default function EventsPage() {
       <Head>
         <title>Community Events - Artisan Marketplace</title>
         <meta name="description" content="Discover IT and business events tailored to your interests and location" />
-        
-        {/* Artisan Craft Fonts */}
-        <link 
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;500&family=Crimson+Text:wght@400;600&display=swap" 
-          rel="stylesheet"
-        />
       </Head>
       
-      <div className="min-h-screen bg-neutral-50 bg-craft-texture">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto">
           <Motion preset="slideInDown" className="mb-8">
             <div className="text-center space-y-4">
               <h1 className="heading-craft text-4xl text-mahogany-800">
@@ -193,12 +186,12 @@ export default function EventsPage() {
               </p>
               <div className="flex items-center justify-center gap-6 text-sm">
                 {location && (
-                  <Badge variant="success" size="md" shape="pill">
+                  <Badge variant="success" size="md" shape="circle">
                     📍 {location.city}, {location.country}
                   </Badge>
                 )}
                 {refreshing && (
-                  <Badge variant="warning" size="md" shape="pill">
+                  <Badge variant="warning" size="md" shape="circle">
                     🔄 Updating...
                   </Badge>
                 )}
@@ -279,8 +272,6 @@ export default function EventsPage() {
                     value={description}
                     onChange={e => setDescription(e.target.value)}
                     label="Description"
-                    multiline
-                    rows={3}
                   />
                   <div className="flex items-center gap-3">
                     <input
@@ -355,13 +346,13 @@ export default function EventsPage() {
                             </h3>
                             <BadgeGroup>
                               {event.is_free && (
-                                <Badge variant="success" size="sm" shape="pill">FREE</Badge>
+                                <Badge variant="success" size="sm" shape="circle">FREE</Badge>
                               )}
                               {event.is_online && (
-                                <Badge variant="primary" size="sm" shape="pill">ONLINE</Badge>
+                                <Badge variant="primary" size="sm" shape="circle">ONLINE</Badge>
                               )}
                               {event.category && (
-                                <SkillBadge size="sm">{event.category}</SkillBadge>
+                                <SkillBadge skill={event.category || 'general'} size="sm">{event.category}</SkillBadge>
                               )}
                             </BadgeGroup>
                           </div>
@@ -382,7 +373,7 @@ export default function EventsPage() {
                               </span>
                             )}
                             {event.source && event.source !== 'user_created' && (
-                              <Badge variant="neutral" size="xs">
+                              <Badge variant="subtle" size="xs">
                                 via {event.source}
                               </Badge>
                             )}
@@ -413,7 +404,6 @@ export default function EventsPage() {
               ))}
             </Stagger>
           )}
-        </div>
       </div>
     </AppShell>
   )

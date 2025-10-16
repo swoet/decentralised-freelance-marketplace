@@ -2,6 +2,7 @@
 const { withSentryConfig } = require('@sentry/nextjs');
 
 // Enhanced security headers
+// Enhanced security headers (disabled HTTPS enforcement for development)
 const securityHeaders = [
   {
     key: 'Content-Security-Policy',
@@ -17,8 +18,8 @@ const securityHeaders = [
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
-      "frame-ancestors 'none'",
-      "upgrade-insecure-requests"
+      "frame-ancestors 'none'"
+      // Removed "upgrade-insecure-requests" for development
     ].join('; ')
   },
   {
@@ -40,11 +41,8 @@ const securityHeaders = [
   {
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=()'
-  },
-  {
-    key: 'Strict-Transport-Security',
-    value: 'max-age=31536000; includeSubDomains; preload'
   }
+  // Removed Strict-Transport-Security for development
 ];
 
 const nextConfig = {
@@ -122,7 +120,7 @@ const nextConfig = {
 
   // Environment variables
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1',
     NEXT_PUBLIC_WS_URL: process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000',
     SENTRY_DSN: process.env.SENTRY_DSN,
   },

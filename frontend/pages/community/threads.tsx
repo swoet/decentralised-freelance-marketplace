@@ -70,16 +70,9 @@ export default function ThreadsPage() {
       <Head>
         <title>Discussion Threads - Artisan Community</title>
         <meta name="description" content="Join conversations, share knowledge, and connect with fellow artisans in our community discussions" />
-        
-        {/* Artisan Craft Fonts */}
-        <link 
-          href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+Pro:wght@400;500&family=Crimson+Text:wght@400;600&display=swap" 
-          rel="stylesheet"
-        />
       </Head>
       
-      <div className="min-h-screen bg-neutral-50 bg-craft-texture">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-6xl mx-auto">
           <Motion preset="slideInDown" className="mb-8">
             <div className="text-center space-y-4">
               <h1 className="heading-craft text-4xl text-mahogany-800">
@@ -192,7 +185,7 @@ export default function ThreadsPage() {
                           {thread.tags?.length ? (
                             <BadgeGroup className="mt-3">
                               {thread.tags.map((tag) => (
-                                <SkillBadge key={tag} size="sm">
+                                <SkillBadge key={tag} skill={tag} size="sm">
                                   {tag}
                                 </SkillBadge>
                               ))}
@@ -211,7 +204,6 @@ export default function ThreadsPage() {
               ))}
             </Stagger>
           )}
-        </div>
       </div>
     </AppShell>
   )

@@ -38,7 +38,7 @@ export default function EnhancedProjectSearch({
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [showFilters, setShowFilterPanel] = useState(false);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [aiRecommendations, setAiRecommendations] = useState<string[]>([]);
   const searchRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
@@ -330,7 +330,7 @@ export default function EnhancedProjectSearch({
           </button>
           {showFilters && (
             <button
-              onClick={() => setShowFilterPanel(!showFilters)}
+              onClick={() => setShowFilterPanel(!showFilterPanel)}
               className="border-l border-gray-200 px-4 py-4 text-gray-600 hover:text-blue-600 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
